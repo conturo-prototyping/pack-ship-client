@@ -1,13 +1,8 @@
+import { nextTick } from "q";
 import { useEffect } from "react";
 
 export function LoginSuccess() {
-  useEffect(() => {
-    console.log('test test test');
-
-    setTimeout(() => {
-      window.close();
-    }, 250);
-  }, []);
-
+  useEffect(() => nextTick(() => window.close()), []);
+  
   return <div></div>;
 }
