@@ -33,7 +33,7 @@ const Router = () => {
 
   const fetchAuthUser = async () => {
     axios
-      .get('http://localhost:3000/users/me', { withCredentials: true })
+      .get(`${process.env.REACT_APP_API_URL}/users/me`, { withCredentials: true })
       .then(res => {
         const { user } = res.data;
         setIsAuthenticated(true);
@@ -53,7 +53,7 @@ const Router = () => {
    */
   const redirectToGoogleSSO = async () => {
     let timer = null;
-    const googleLoginURL = 'http://localhost:3000/auth/google';
+    const googleLoginURL = process.env.REACT_APP_API_URL + '/auth/google';
     const newWindow = window.open(
       googleLoginURL,
       '_blank',
