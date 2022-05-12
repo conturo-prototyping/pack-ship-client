@@ -16,8 +16,8 @@ const Router = () => {
   const navigate = useNavigate();
 
   const { setTheme } = useContext(CustomThemeContext);
-  const [isAuthenticated, setIsAuthenticated] = useState(false);
-  const [authUser, setAuthUser] = useState(null);
+  const [, setIsAuthenticated] = useState(false);
+  const [, setAuthUser] = useState(null);
 
   useEffect(() => {
     switch (location.pathname) {
