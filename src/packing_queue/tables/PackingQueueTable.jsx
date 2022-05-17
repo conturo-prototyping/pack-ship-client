@@ -198,14 +198,15 @@ const PackingQueueTable = ({
     fetchData().then((data) => {
       let tableData = [];
       data?.forEach((e) => {
+
         tableData.push({
-          id: e._id,
-          orderNumber: e.orderNumber,
-          part: `${e.partNumber} - ${e.partRev}`,
-          partDescription: e.partDescription,
-          batchQty: e.batchQty,
-          fulfilledQty: e.packedQty,
-          customer: e.customer,
+          id:               e._id,
+          part:             `${e.partNumber} - ${e.partRev} (Batch ${e.batch})`,
+          batchQty:         e.batchQty,
+          customer:         e.customer,
+          orderNumber:      e.orderNumber,
+          fulfilledQty:     e.packedQty,
+          partDescription:  e.partDescription,
         });
       });
 

@@ -29,7 +29,7 @@ const EditPackingSlipTable = ({
         return (
           <div>
             <Typography sx={{ padding: "4px" }} color="textSecondary">
-              {`${params.row.partNumber} - Rev ${params.row.partRev}`}
+              {`${params.row.partNumber} - Rev ${params.row.partRev} (Batch ${params.row.batch})`}
             </Typography>
             <Typography sx={{ padding: "4px" }} color="textSecondary">
               {params.row.partDescription}

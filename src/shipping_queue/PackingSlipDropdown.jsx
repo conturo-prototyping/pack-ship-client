@@ -44,7 +44,7 @@ const PackingSlipDrowdown = ({ params, packingSlipId, manifest }) => {
                   const item = params.row.part;
                   return (
                     <div>
-                      <Typography>{`${item.partNumber} - ${item.partRev}`}</Typography>
+                      <Typography>{`${item.partNumber} - Rev ${item.partRev} (Batch ${item.batch})`}</Typography>
                       <Typography color="textSecondary">
                         {item.partDescription}
                       </Typography>

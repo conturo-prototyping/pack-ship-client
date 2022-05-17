@@ -28,9 +28,7 @@ const ShipQueuePackSlipDrowdown = ({ params }) => {
             {params.row.items.map((e) => (
               <ListItem key={e._id} divider>
                 <ListItemText
-                  primary={`${e.item.partNumber} (${
-                    e.qty !== undefined ? e.qty : "-"
-                  })`}
+                  primary={`${e.qty ? '(' + e.qty + ') ' : ''} ${e.item.partNumber}`}
                   secondary={`${e.item.partDescription}`}
                 />
               </ListItem>
