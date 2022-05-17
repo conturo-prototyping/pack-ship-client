@@ -79,7 +79,7 @@ const CreateShipmentDialog = ({
 
   const onBackClick = () => {
     setCurrentState(ShippingDialogStates.SelectMethodPage);
-    setCustomerName(undefined);
+    setCustomerName("");
     onResetClick();
   };
 
@@ -94,15 +94,16 @@ const CreateShipmentDialog = ({
         shippingInfo.cost,
         shippingInfo.carrier,
         shippingInfo.deliverySpeed,
-        shippingInfo.checkedCustomer ? shippingInfo.customerAccount : undefined,
+        shippingInfo.checkedCustomer ? shippingInfo.customerAccount : false,
         customerName
       )
         .then(() => {
-          setCustomerName(undefined);
+          setCustomerName("");
           setShippingInfo({
             manifest: [],
             customer: "",
             deliveryMethod: "",
+            checkedCustomer: false,
           });
           reloadData();
           onClose();
@@ -180,7 +181,12 @@ const CreateShipmentDialog = ({
                   />
                 </Grid>
                 <Grid item>
-                  <CommonButton autoFocus onClick={onSubmit} label={"OK"} type="submit"/>
+                  <CommonButton
+                    autoFocus
+                    onClick={onSubmit}
+                    label={"OK"}
+                    type="button"
+                  />
                 </Grid>
               </Grid>
             </Grid>
@@ -198,7 +204,7 @@ const CreateShipmentDialog = ({
               autoFocus
               onClick={onSubmit}
               label={"Ok"}
-              type="submit"
+              type="button"
             />
           </DialogActions>
         );
