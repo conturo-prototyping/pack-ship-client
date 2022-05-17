@@ -17,6 +17,7 @@ export const API = {
       const response = await instance.get('/workOrders');
       return response.data;
     } catch (error) {
+      console.log(error);
       console.error("getAllWorkOrders", error);
     }
   },

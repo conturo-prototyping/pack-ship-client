@@ -16,7 +16,7 @@ const Router = () => {
   const navigate = useNavigate();
 
   const { setTheme } = useContext(CustomThemeContext);
-  const [, setIsAuthenticated] = useState(false);
+  const [isUserAuthenticated, setIsAuthenticated] = useState(false);
   const [, setAuthUser] = useState(null);
 
   useEffect(() => {
@@ -31,7 +31,7 @@ const Router = () => {
     }
   }, [location, setTheme]);
 
-  const fetchAuthUser = async () => {
+  const fetchAuthUser = () => {
     axios
       .get(`${process.env.REACT_APP_API_URL}/users/me`, { withCredentials: true })
       .then(res => {
@@ -48,10 +48,18 @@ const Router = () => {
       });
   };
 
+  const PrivateRoute = ({ children }) => {
+    if (!isUserAuthenticated) {
+      return <Navigate to ='/login' replace />;
+    }
+
+    return children;
+  };
+
   /**
    * Show google SSO & login window
    */
-  const redirectToGoogleSSO = async () => {
+  const redirectToGoogleSSO = () => {
     let timer = null;
     const googleLoginURL = process.env.REACT_APP_API_URL + '/auth/google';
     const newWindow = window.open(
@@ -72,15 +80,30 @@ const Router = () => {
 
   return (
     <Routes>
-      <Route exact path={ROUTE_PACKING_SLIP} element={<PackingQueue />} />
-      <Route exact path={ROUTE_SHIPMENTS} element={<ShippingQueue />} />
       <Route path="" element={<Navigate to='/login' />} />
-
       <Route exact path='/login' element={<GoogleButton onClick={redirectToGoogleSSO} />} />
-      <Route exact path='/loginSuccess' element={<LoginSuccess />} />
       <Route exact path='/loginError'>
         Error logging in. Please try again later.
       </Route>
+
+      <Route exact path='/loginSuccess' element={
+        <PrivateRoute>
+          <LoginSuccess />
+        </PrivateRoute>
+      } />
+
+      <Route exact path={ROUTE_PACKING_SLIP} element={
+        <PrivateRoute>
+          <PackingQueue />
+        </PrivateRoute>
+      } />
+
+      <Route exact path={ROUTE_SHIPMENTS} element={
+        <PrivateRoute>
+          <ShippingQueue />
+        </PrivateRoute>
+      } />
+
     </Routes>
   );
 };
