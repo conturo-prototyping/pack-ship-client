@@ -16,12 +16,24 @@ import { extractHistoryDetails } from "./utils/historyDetails";
 import { getSortFromModel } from "./utils/sortModelFunctions";
 
 const useStyle = makeStyles((theme) => ({
+  box: {
+    boxSizing: 'border-box',
+    height: '100%',
+  },
   topBarGrid: {
-    paddingBottom: "20px",
+    boxSizing: 'border-box',
+    height: '5.5rem',
+    marginBottom: '1rem!important',
+    paddingTop: '1rem!important',
+    paddingLeft: '1rem!important',
   },
-  navButton: {
-    paddingTop: "20px",
-  },
+  bottomBarGrid: {
+    boxSizing: 'border-box',
+    marginTop: '1rem!important',
+    marginBottom: '0',
+    height: '3rem',
+    paddingRight: '1rem'
+  }
 }));
 
 export const TabNames = {
@@ -130,7 +142,9 @@ const ShippingQueue = () => {
   }
 
   return (
-    <Box p="40px">
+    <Box
+      className={classes.box}
+    >
       {currentTab === TabNames.Queue ? (
         <Grid
           className={classes.topBarGrid}
@@ -243,7 +257,7 @@ const ShippingQueue = () => {
       />
 
       <Grid
-        className={classes.navButton}
+        className={classes.bottomBarGrid}
         container
         item
         xs

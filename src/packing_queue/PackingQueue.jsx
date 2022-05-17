@@ -14,12 +14,24 @@ import HistoryTable from "./tables/HistoryTable";
 import { useLocalStorage } from "../utils/localStorage";
 
 const useStyle = makeStyles((theme) => ({
+  box: {
+    boxSizing: 'border-box',
+    height: '100%',
+  },
   topBarGrid: {
-    paddingBottom: "20px",
+    boxSizing: 'border-box',
+    height: '5.5rem',
+    marginBottom: '1rem!important',
+    paddingTop: '1rem!important',
+    paddingLeft: '1rem!important',
   },
-  navButton: {
-    paddingTop: "20px",
-  },
+  bottomBarGrid: {
+    boxSizing: 'border-box',
+    marginTop: '1rem!important',
+    marginBottom: '0',
+    height: '3rem',
+    paddingRight: '1rem'
+  }
 }));
 
 const PackingQueue = () => {
@@ -112,7 +124,9 @@ const PackingQueue = () => {
   }
 
   return (
-    <Box p="40px">
+    <Box
+      className={classes.box}
+    >
       <Grid
         className={classes.topBarGrid}
         container
@@ -213,7 +227,7 @@ const PackingQueue = () => {
       />
 
       <Grid
-        className={classes.navButton}
+        className={classes.bottomBarGrid}
         container
         item
         xs

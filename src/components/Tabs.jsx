@@ -63,10 +63,12 @@ export default function PackShipTabs({
 }) {
   return (
     <Box
-      bgcolor="secondary.light"
-      borderRadius="16px"
       p={2}
-      height="fit-content"
+      bgcolor="secondary.light"
+      borderRadius="8px"
+      boxSizing='border-box'
+      height='calc(100% - 6.5rem - 4rem)'
+      m={2}
     >
       <TabsUnstyled defaultValue={0}>
         <Tabs value={false} onChange={onTabChange}>
