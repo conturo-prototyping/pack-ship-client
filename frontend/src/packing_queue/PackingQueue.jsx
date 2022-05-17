@@ -26,6 +26,7 @@ const PackingQueue = () => {
   const classes = useStyle();
 
   const [searchString, setSearchString] = useState("");
+  const [tabValue, setTabValue] = useState(0);
 
   // const [isShowUnfinishedBatches, setIsShowUnfinishedBatches] = useState(true);
   const [isFulfilledBatchesOn, setIsFulfilledBatchesOn] = useState(true);
@@ -59,41 +60,52 @@ const PackingQueue = () => {
     setPackingSlipOpen(false);
   }
 
-  const onPackingSlipSubmit = useCallback((filledForm, orderNum) => {
-    const items = filledForm.map((e) => {
-      return { item: e.id, qty: e.packQty };
-    });
-    API.createPackingSlip(items, filledForm[0].customer, orderNum)
-      .then(() => {
-        // update the fullfilled Qty
-        const updatedFulfilled = filledForm.map((e) => {
-          let tmp = {
-            ...e,
-            fulfilledQty: e.fulfilledQty + parseInt(e.packQty),
-          };
-          delete tmp.packQty;
-          return tmp;
-        });
-
-        const updatedPackingQueue = [...filteredPackingQueue]
-
-        // Find all the replacements
-        const updatedFulfilledIndices = updatedFulfilled.map((e) =>
-          filteredPackingQueue.findIndex((f) => f.id === e.id)
-        );
-
-        // Replace the old versions with the new versions. 
-        updatedFulfilledIndices.forEach((e, i) => updatedPackingQueue[e] = updatedFulfilled[i]);
-
-        // Replace the list with the updated version
-        setFilteredPackingQueue(updatedPackingQueue);
-
-        onPackingSlipClose();
-      })
-      .catch(() => {
-        alert("An error occurred submitting packing slip");
+  const onPackingSlipSubmit = useCallback(
+    (filledForm, orderNum) => {
+      const items = filledForm.map((e) => {
+        return { item: e.id, qty: e.packQty };
       });
-  }, [filteredPackingQueue]);
+      API.createPackingSlip(items, filledForm[0].customer, orderNum)
+        .then(() => {
+          // update the fullfilled Qty
+          const updatedFulfilled = filledForm.map((e) => {
+            let tmp = {
+              ...e,
+              fulfilledQty: e.fulfilledQty + parseInt(e.packQty),
+            };
+            delete tmp.packQty;
+            return tmp;
+          });
+
+          // Find updated ids
+          const updatedIds = updatedFulfilled.map((e) => e.id);
+
+          // Replace the items with the updated ones based on id
+          const updatedFilteredPackingQueue = filteredPackingQueue.map((e) => {
+            if (updatedIds.includes(e.id)) {
+              return updatedFulfilled.find((a) => e.id === a.id);
+            }
+            return e;
+          });
+          const updatedPackingQueue = packingQueue.map((e) => {
+            if (updatedIds.includes(e.id)) {
+              return updatedFulfilled.find((a) => e.id === a.id);
+            }
+            return e;
+          });
+
+          // Replace the list with the updated version
+          setFilteredPackingQueue(updatedFilteredPackingQueue);
+          setPackingQueue(updatedPackingQueue);
+
+          onPackingSlipClose();
+        })
+        .catch(() => {
+          alert("An error occurred submitting packing slip");
+        });
+    },
+    [filteredPackingQueue, packingQueue]
+  );
 
   function onSearch(value) {
     setSearchString(value);
@@ -110,7 +122,7 @@ const PackingQueue = () => {
         <Grid container item xs={"auto"}>
           <CommonButton
             label="Make Packing Slip"
-            disabled={selectedOrderIds.length === 0}
+            disabled={selectedOrderIds.length === 0 || tabValue !== 0}
             onClick={onPackingSlipClick}
           />
         </Grid>
@@ -132,11 +144,17 @@ const PackingQueue = () => {
               setIsFulfilledBatchesOn(checked);
 
               if (isFulfilledBatchesOn) {
-                setFilteredPackingQueue(
-                  filteredPackingQueue.filter(
-                    (e) => e.fulfilledQty < e.batchQty
-                  )
+                const tmpPackQueue = filteredPackingQueue.filter(
+                  (e) => e.fulfilledQty < e.batchQty
                 );
+                const orderIds = tmpPackQueue
+                  .filter((e) => selectedOrderIds.includes(e.id))
+                  .map((e) => e.id);
+                setSelectedOrderIds(orderIds);
+                setSelectedOrderNumber(
+                  orderIds.length === 0 ? null : selectedOrderNumber
+                );
+                setFilteredPackingQueue(tmpPackQueue);
               } else {
                 setFilteredPackingQueue(packingQueue);
               }
@@ -147,6 +165,9 @@ const PackingQueue = () => {
       </Grid>
 
       <PackShipTabs
+        onTabChange={(_, v) => {
+          setTabValue(v);
+        }}
         queueTotal={packingQueue?.length}
         queueTab={
           <PackingQueueTable
@@ -158,10 +179,11 @@ const PackingQueue = () => {
             setSortModel={setSortPackQueueModel}
             setPackingQueue={setPackingQueue}
             setFilteredPackingQueue={setFilteredPackingQueue}
-            isShowUnfinishedBatches={true/*isShowUnfinishedBatches*/}
+            isShowUnfinishedBatches={true /*isShowUnfinishedBatches*/}
             setSelectedOrderIds={setSelectedOrderIds}
             setSelectedOrderNumber={setSelectedOrderNumber}
             searchString={searchString}
+            isFulfilledBatchesOn={isFulfilledBatchesOn}
           />
         }
         historyTab={

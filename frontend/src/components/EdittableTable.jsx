@@ -76,7 +76,7 @@ const PackShipEditableTable = ({
     });
     return newRows;
   // eslint-disable-next-line
-  }, [tableData.length]);
+  }, [tableData]);
 
   const localPageSize = useMemo(() => {
     return viewOnly ? pageSize : newRows.length

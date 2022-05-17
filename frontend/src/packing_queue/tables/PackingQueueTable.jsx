@@ -31,6 +31,45 @@ const useStyle = makeStyles((theme) => ({
   },
 }));
 
+const recheckIfNeeded = (selectedOrderNumber, tableData, selectionOrderIds, setIsSelectAll) => {
+  const selectedOrderNum = selectedOrderNumber;
+
+    const idsWithSelectedOrderNum = tableData
+      ?.filter((e) => e.orderNumber === selectedOrderNum)
+      .map((e) => e.id);
+
+    setIsSelectAll(
+      idsWithSelectedOrderNum.length !== 0 &&
+        idsWithSelectedOrderNum.sort().toString() ===
+          selectionOrderIds.sort().toString()
+    );
+}
+
+const applySearch = (
+  packingQueue,
+  searchString,
+  selectionOrderIds,
+  sortDataByModel,
+  sortModel,
+  staticCols,
+  setFilteredPackingQueue
+) => {
+  let filteredQueue = packingQueue.filter(
+    (order) =>
+      order.orderNumber.toLowerCase().includes(searchString.toLowerCase()) ||
+      order.part.toLowerCase().includes(searchString.toLowerCase()) ||
+      selectionOrderIds.includes(order.id) // Ensure selected rows are included
+  );
+
+  filteredQueue = sortDataByModel(
+    sortModel,
+    filteredQueue,
+    staticCols,
+    selectionOrderIds
+  );
+  setFilteredPackingQueue(filteredQueue);
+};
+
 const PackingQueueTable = ({
   tableData,
   packingQueue,
@@ -44,6 +83,7 @@ const PackingQueueTable = ({
   setSelectedOrderIds,
   setSelectedOrderNumber,
   searchString,
+  isFulfilledBatchesOn,
 }) => {
   const classes = useStyle();
   const numRowsPerPage = 10;
@@ -181,6 +221,31 @@ const PackingQueueTable = ({
     // eslint-disable-next-line
   }, []);
 
+  useEffect(() => {
+    // When we toggle on, we need to make sure to apply the search and sorting again.
+    if (isFulfilledBatchesOn){
+      applySearch(
+        packingQueue,
+        searchString,
+        selectionOrderIds,
+        sortDataByModel,
+        sortModel,
+        staticCols,
+        setFilteredPackingQueue
+      );
+    }
+
+    recheckIfNeeded(selectedOrderNumber, tableData, selectionOrderIds, setIsSelectAll);
+    // eslint-disable-next-line
+  }, [isFulfilledBatchesOn]);
+
+  useEffect(() => {
+    // Find the select all state when this first renders since this could re-render from a tab change.
+    recheckIfNeeded(selectedOrderNumber, tableData, selectionOrderIds, setIsSelectAll);
+    
+    // eslint-disable-next-line
+  }, []);
+
   const storedTableData = useMemo(() => tableData, [tableData]);
 
   const staticCols = useMemo(
@@ -256,7 +321,7 @@ const PackingQueueTable = ({
   );
 
   const sortDataByModel = useCallback(
-    (model, data, columns, selectionOrderIds) => {
+    (model, data, columns, selectionOrderIds, ignoreSelected = false) => {
       if (model.length !== 0) {
         // find the filter handler based on the column clicked
         const clickedColumnField = createColumnFilters(columns, data).find(
@@ -267,7 +332,8 @@ const PackingQueueTable = ({
         return clickedColumnField?.handler(
           model[0]?.sort,
           selectionOrderIds,
-          data
+          data,
+          ignoreSelected
         );
       } else {
         return data;
@@ -278,40 +344,28 @@ const PackingQueueTable = ({
 
   useEffect(() => {
     if (searchString) {
-      let filteredQueue = packingQueue.filter(
-        (order) =>
-          order.orderNumber
-            .toLowerCase()
-            .includes(searchString.toLowerCase()) ||
-          order.part.toLowerCase().includes(searchString.toLowerCase()) ||
-          selectionOrderIds.includes(order.id) // Ensure selected rows are included
-      );
-
-      filteredQueue = sortDataByModel(
+      applySearch(
+        packingQueue,
+        searchString,
+        selectionOrderIds,
+        sortDataByModel,
         sortModel,
-        filteredQueue,
         staticCols,
-        selectionOrderIds
+        setFilteredPackingQueue
       );
-      setFilteredPackingQueue(filteredQueue);
     } else {
       setFilteredPackingQueue(
         sortDataByModel(sortModel, packingQueue, staticCols, selectionOrderIds)
       );
     }
     // eslint-disable-next-line
-  }, [
-    sortDataByModel,
-    sortModel,
-    staticCols,
-    packingQueue,
-    searchString,
-    // selectionOrderIds,
-    setFilteredPackingQueue,
-  ]);
+  }, [sortDataByModel, staticCols, searchString, setFilteredPackingQueue]);
 
   useEffect(() => {
-    setQueueData(tableData);
+    setQueueData(
+      sortDataByModel(sortModel, tableData, staticCols, selectionOrderIds, true)
+    );
+    // eslint-disable-next-line
   }, [tableData]);
 
   const [page, setPage] = useState(0);
