@@ -107,9 +107,9 @@ const ShippingQueue = () => {
         pageNumber
       ).then((data) => {
         if (data) {
-          let historyTableData = extractHistoryDetails(data?.data?.shipments);
+          let historyTableData = extractHistoryDetails(data?.shipments);
           setFilteredShippingHist(historyTableData);
-          setHistTotalCount(data?.data?.totalCount);
+          setHistTotalCount(data?.totalCount);
         }
       });
     },
