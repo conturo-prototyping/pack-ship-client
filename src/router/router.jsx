@@ -86,11 +86,7 @@ const Router = () => {
         Error logging in. Please try again later.
       </Route>
 
-      <Route exact path='/loginSuccess' element={
-        <PrivateRoute>
-          <LoginSuccess />
-        </PrivateRoute>
-      } />
+      <Route exact path='/loginSuccess' element={<LoginSuccess />} />
 
       <Route exact path={ROUTE_PACKING_SLIP} element={
         <PrivateRoute>
