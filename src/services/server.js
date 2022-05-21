@@ -3,6 +3,19 @@ let { REACT_APP_API_URL } = process.env;
 const instance = axios.create({ withCredentials: true, baseURL: REACT_APP_API_URL });
 
 export const API = {
+  async downloadPDF(packingSlipId, orderNumber) {
+    try {
+      const response = await instance.post('/packingSlips/pdf', {
+        packingSlipId, // this is the item._id not the item.packingSlipId the user interacts with (dumb name....)
+        orderNumber
+      });
+      return response.data;
+    }
+    catch (error) {
+      console.error('downloadPDF', error);
+    }
+  },
+
   async getPackingQueue() {
     try {
       const response = await instance.get('/workOrders/packingQueue');
