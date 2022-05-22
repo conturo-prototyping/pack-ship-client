@@ -1,5 +1,11 @@
 import React, { useContext, useEffect, useState } from "react";
-import { Navigate, Routes, Route, useLocation, useNavigate } from "react-router-dom";
+import {
+  Navigate,
+  Routes,
+  Route,
+  useLocation,
+  useNavigate,
+} from "react-router-dom";
 import PackingQueue from "../packing_queue/PackingQueue";
 import ShippingQueue from "../shipping_queue/ShippingQueue";
 import { CustomThemeContext } from "../themes/customThemeProvider";
@@ -33,15 +39,17 @@ const Router = () => {
 
   const fetchAuthUser = () => {
     axios
-      .get(`${process.env.REACT_APP_API_URL}/users/me`, { withCredentials: true })
-      .then(res => {
+      .get(`${process.env.REACT_APP_API_URL}/users/me`, {
+        withCredentials: true,
+      })
+      .then((res) => {
         const { user } = res.data;
         setIsAuthenticated(true);
         setAuthUser(user);
         navigate(ROUTE_PACKING_SLIP);
       })
-      .catch(err => {
-        console.log('Not properly authenticated.');
+      .catch((err) => {
+        console.log("Not properly authenticated.");
         console.error(err);
         setIsAuthenticated(false);
         setAuthUser(null);
@@ -50,7 +58,7 @@ const Router = () => {
 
   const PrivateRoute = ({ children }) => {
     if (!isUserAuthenticated) {
-      return <Navigate to ='/login' replace />;
+      return <Navigate to="/login" replace />;
     }
 
     return children;
@@ -61,11 +69,11 @@ const Router = () => {
    */
   const redirectToGoogleSSO = () => {
     let timer = null;
-    const googleLoginURL = process.env.REACT_APP_API_URL + '/auth/google';
+    const googleLoginURL = process.env.REACT_APP_API_URL + "/auth/google";
     const newWindow = window.open(
       googleLoginURL,
-      '_blank',
-      'width=500,height=600'
+      "_blank",
+      "width=500,height=600"
     );
 
     if (newWindow) {
@@ -80,26 +88,37 @@ const Router = () => {
 
   return (
     <Routes>
-      <Route path="" element={<Navigate to='/login' />} />
-      <Route exact path='/login' element={<GoogleButton onClick={redirectToGoogleSSO} />} />
-      <Route exact path='/loginError'>
+      <Route path="" element={<Navigate to="/login" />} />
+      <Route
+        exact
+        path="/login"
+        element={<GoogleButton onClick={redirectToGoogleSSO} />}
+      />
+      <Route exact path="/loginError">
         Error logging in. Please try again later.
       </Route>
 
-      <Route exact path='/loginSuccess' element={<LoginSuccess />} />
+      <Route exact path="/loginSuccess" element={<LoginSuccess />} />
 
-      <Route exact path={ROUTE_PACKING_SLIP} element={
-        <PrivateRoute>
+      <Route
+        exact
+        path={ROUTE_PACKING_SLIP}
+        element={
+          // <PrivateRoute>
           <PackingQueue />
-        </PrivateRoute>
-      } />
+          // </PrivateRoute>
+        }
+      />
 
-      <Route exact path={ROUTE_SHIPMENTS} element={
-        <PrivateRoute>
-          <ShippingQueue />
-        </PrivateRoute>
-      } />
-
+      <Route
+        exact
+        path={ROUTE_SHIPMENTS}
+        element={
+          <PrivateRoute>
+            <ShippingQueue />
+          </PrivateRoute>
+        }
+      />
     </Routes>
   );
 };

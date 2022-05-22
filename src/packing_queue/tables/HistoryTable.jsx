@@ -7,6 +7,7 @@ import makeStyles from "@mui/styles/makeStyles";
 import { Typography } from "@mui/material";
 import EditPackingSlipDialog from "../../edit_packing_slip/EditPackingSlipDialog";
 import ConfirmDialog from "../../components/ConfirmDialog";
+import pdfMake from "pdfmake/build/pdfmake";
 
 const useStyle = makeStyles((theme) => ({
   root: {
@@ -290,18 +291,35 @@ const HistoryTable = ({ sortModel, setSortModel, searchString }) => {
     }, 0);
   };
 
-  const historyRowMenuOptions = useMemo(() => [
-    <MenuItem key={"View"} onClick={openViewPackingSlip}>
-      View
-    </MenuItem>,
-    <MenuItem key={"Download"}>Download</MenuItem>,
-    <MenuItem key={"Edit"} onClick={openEditPackingSlip}>
-      Edit
-    </MenuItem>,
-    <MenuItem key={"Delete"} onClick={openDeleteDialog}>
-      Delete
-    </MenuItem>,
-  ], [] );
+  const onDownloadPDFClick = useCallback(async () => {
+    await API.downloadPDF(selectedRow._id, selectedRow.orderNumber)
+      .then((data) => {
+        pdfMake.createPdf(data.docDefinition).open();
+      })
+      .error(() => {
+        alert("Could not download packing slip");
+      });
+  }, [selectedRow]);
+
+  const historyRowMenuOptions = useMemo(
+    () => [
+      <MenuItem key={"View"} onClick={openViewPackingSlip}>
+        View
+      </MenuItem>,
+      <MenuItem key={"Download"} onClick={onDownloadPDFClick}>
+        Download
+      </MenuItem>,
+      <MenuItem key={"Edit"} onClick={openEditPackingSlip}>
+        Edit
+      </MenuItem>,
+      <MenuItem key={"Delete"} onClick={openDeleteDialog}>
+        Delete
+      </MenuItem>,
+    ],
+    [onDownloadPDFClick]
+  );
+
+  console.log(filteredRows);
 
   return (
     <div className={classes.root}>
