@@ -7,6 +7,9 @@ import makeStyles from "@mui/styles/makeStyles";
 import { Typography } from "@mui/material";
 import EditPackingSlipDialog from "../../edit_packing_slip/EditPackingSlipDialog";
 import ConfirmDialog from "../../components/ConfirmDialog";
+import pdfMake from 'pdfmake/build/pdfmake';
+import pdfFonts from 'pdfmake/build/vfs_fonts';
+pdfMake.vfs = pdfFonts.pdfMake.vfs;
 
 const useStyle = makeStyles((theme) => ({
   root: {
