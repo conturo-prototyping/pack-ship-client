@@ -295,7 +295,7 @@ const ShippingHistoryTable = ({
     >
       View
     </MenuItem>,
-    <MenuItem key="download-menu-item">Download</MenuItem>,
+    // <MenuItem key="download-menu-item">Download</MenuItem>,
     <MenuItem
       key="edit-menu-item"
       onClick={() => {
