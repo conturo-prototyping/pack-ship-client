@@ -302,6 +302,7 @@ const HistoryTable = ({ sortModel, setSortModel, searchString }) => {
     )
       .then((data) => {
         pdfMake.createPdf(data.docDefinition).open();
+        setMenuPosition(null);
       })
       .catch(() => {
         alert("Could not download packing slip");
