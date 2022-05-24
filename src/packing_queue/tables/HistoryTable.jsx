@@ -8,6 +8,8 @@ import { Typography } from "@mui/material";
 import EditPackingSlipDialog from "../../edit_packing_slip/EditPackingSlipDialog";
 import ConfirmDialog from "../../components/ConfirmDialog";
 import pdfMake from "pdfmake/build/pdfmake";
+import pdfFonts from "pdfmake/build/vfs_fonts";
+pdfMake.vfs = pdfFonts.pdfMake.vfs;
 
 const useStyle = makeStyles((theme) => ({
   root: {
@@ -54,7 +56,7 @@ const HistoryTable = ({ sortModel, setSortModel, searchString }) => {
 
   const [menuPosition, setMenuPosition] = useState();
 
-  const [selectedRow, setSelectedRow] = useState(null);
+  const [selectedRow, setSelectedRow] = useState({});
   const [rows, setRows] = useState([]);
   const [filteredRows, setFilteredRows] = useState([]);
 
@@ -75,13 +77,14 @@ const HistoryTable = ({ sortModel, setSortModel, searchString }) => {
     }
 
     fetchData().then((data) => {
-      let packingSlips = data?.packingSlips?.map((e) => {
-        return {
-          ...e,
-          id: e._id,
-          orderId: e.orderNumber,
-        };
-      });
+      let packingSlips =
+        data?.packingSlips?.map((e) => {
+          return {
+            ...e,
+            id: e._id,
+            orderId: e.orderNumber,
+          };
+        }) || [];
       setRows(packingSlips);
       setFilteredRows(packingSlips);
     });
@@ -89,7 +92,7 @@ const HistoryTable = ({ sortModel, setSortModel, searchString }) => {
 
   useEffect(() => {
     setFilteredRows(
-      rows.filter(
+      rows?.filter(
         (order) =>
           order.orderNumber
             .toLowerCase()
@@ -292,11 +295,15 @@ const HistoryTable = ({ sortModel, setSortModel, searchString }) => {
   };
 
   const onDownloadPDFClick = useCallback(async () => {
-    await API.downloadPDF(selectedRow._id, selectedRow.orderNumber)
+    await API.downloadPDF(
+      selectedRow._id,
+      selectedRow.orderNumber,
+      selectedRow.dateCreated
+    )
       .then((data) => {
         pdfMake.createPdf(data.docDefinition).open();
       })
-      .error(() => {
+      .catch(() => {
         alert("Could not download packing slip");
       });
   }, [selectedRow]);
@@ -318,8 +325,6 @@ const HistoryTable = ({ sortModel, setSortModel, searchString }) => {
     ],
     [onDownloadPDFClick]
   );
-
-  console.log(filteredRows);
 
   return (
     <div className={classes.root}>

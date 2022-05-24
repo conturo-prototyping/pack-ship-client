@@ -104,9 +104,9 @@ const Router = () => {
         exact
         path={ROUTE_PACKING_SLIP}
         element={
-          // <PrivateRoute>
-          <PackingQueue />
-          // </PrivateRoute>
+          <PrivateRoute>
+            <PackingQueue />
+          </PrivateRoute>
         }
       />
 

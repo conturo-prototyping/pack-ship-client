@@ -6,11 +6,12 @@ const instance = axios.create({
 });
 
 export const API = {
-  async downloadPDF(packingSlipId, orderNumber) {
+  async downloadPDF(packingSlipId, orderNumber, dateCreated) {
     try {
       const response = await instance.post("/packingSlips/pdf", {
         packingSlipId, // this is the item._id not the item.packingSlipId the user interacts with (dumb name....)
         orderNumber,
+        dateCreated,
       });
       return response.data;
     } catch (error) {
@@ -136,7 +137,7 @@ export const API = {
 
   async getPackingSlipHistory() {
     try {
-      const response = await axios.get(REACT_APP_API_URL + "/packingSlips");
+      const response = await instance.get("/packingSlips");
       return response.data;
     } catch (error) {
       console.error("getPackingSlipHistory", error);
