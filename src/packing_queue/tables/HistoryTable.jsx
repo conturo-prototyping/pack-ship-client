@@ -93,11 +93,16 @@ const HistoryTable = ({ sortModel, setSortModel, searchString }) => {
   useEffect(() => {
     setFilteredRows(
       rows?.filter(
-        (order) =>
-          order.orderNumber
-            .toLowerCase()
-            .includes(searchString.toLowerCase()) ||
-          order.packingSlipId.toLowerCase().includes(searchString.toLowerCase())
+        (order) => {
+          // console.log(order);
+
+          return (order.orderNumber
+            ?.toLowerCase()
+            ?.includes(searchString.toLowerCase()) ) ||
+          (order.packingSlipId
+            ?.toLowerCase()
+            ?.includes(searchString.toLowerCase()) );
+        }
       )
     );
   }, [rows, searchString]);
