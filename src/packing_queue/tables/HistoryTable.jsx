@@ -7,8 +7,8 @@ import makeStyles from "@mui/styles/makeStyles";
 import { Typography } from "@mui/material";
 import EditPackingSlipDialog from "../../edit_packing_slip/EditPackingSlipDialog";
 import ConfirmDialog from "../../components/ConfirmDialog";
-import pdfMake from 'pdfmake/build/pdfmake';
-import pdfFonts from 'pdfmake/build/vfs_fonts';
+import pdfMake from "pdfmake/build/pdfmake";
+import pdfFonts from "pdfmake/build/vfs_fonts";
 pdfMake.vfs = pdfFonts.pdfMake.vfs;
 
 const useStyle = makeStyles((theme) => ({
@@ -56,7 +56,7 @@ const HistoryTable = ({ sortModel, setSortModel, searchString }) => {
 
   const [menuPosition, setMenuPosition] = useState();
 
-  const [selectedRow, setSelectedRow] = useState(null);
+  const [selectedRow, setSelectedRow] = useState({});
   const [rows, setRows] = useState([]);
   const [filteredRows, setFilteredRows] = useState([]);
 
@@ -77,13 +77,14 @@ const HistoryTable = ({ sortModel, setSortModel, searchString }) => {
     }
 
     fetchData().then((data) => {
-      let packingSlips = data?.packingSlips?.map((e) => {
-        return {
-          ...e,
-          id: e._id,
-          orderId: e.orderNumber,
-        };
-      });
+      let packingSlips =
+        data?.packingSlips?.map((e) => {
+          return {
+            ...e,
+            id: e._id,
+            orderId: e.orderNumber,
+          };
+        }) || [];
       setRows(packingSlips);
       setFilteredRows(packingSlips);
     });
@@ -91,7 +92,7 @@ const HistoryTable = ({ sortModel, setSortModel, searchString }) => {
 
   useEffect(() => {
     setFilteredRows(
-      rows.filter(
+      rows?.filter(
         (order) =>
           order.orderNumber
             .toLowerCase()
@@ -293,18 +294,38 @@ const HistoryTable = ({ sortModel, setSortModel, searchString }) => {
     }, 0);
   };
 
-  const historyRowMenuOptions = useMemo(() => [
-    <MenuItem key={"View"} onClick={openViewPackingSlip}>
-      View
-    </MenuItem>,
-    <MenuItem key={"Download"}>Download</MenuItem>,
-    <MenuItem key={"Edit"} onClick={openEditPackingSlip}>
-      Edit
-    </MenuItem>,
-    <MenuItem key={"Delete"} onClick={openDeleteDialog}>
-      Delete
-    </MenuItem>,
-  ], [] );
+  const onDownloadPDFClick = useCallback(async () => {
+    await API.downloadPDF(
+      selectedRow._id,
+      selectedRow.orderNumber,
+      selectedRow.dateCreated
+    )
+      .then((data) => {
+        pdfMake.createPdf(data.docDefinition).open();
+        setMenuPosition(null);
+      })
+      .catch(() => {
+        alert("Could not download packing slip");
+      });
+  }, [selectedRow]);
+
+  const historyRowMenuOptions = useMemo(
+    () => [
+      <MenuItem key={"View"} onClick={openViewPackingSlip}>
+        View
+      </MenuItem>,
+      <MenuItem key={"Download"} onClick={onDownloadPDFClick}>
+        Download
+      </MenuItem>,
+      <MenuItem key={"Edit"} onClick={openEditPackingSlip}>
+        Edit
+      </MenuItem>,
+      <MenuItem key={"Delete"} onClick={openDeleteDialog}>
+        Delete
+      </MenuItem>,
+    ],
+    [onDownloadPDFClick]
+  );
 
   return (
     <div className={classes.root}>

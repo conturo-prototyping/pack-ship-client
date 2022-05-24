@@ -1,25 +1,27 @@
 import axios from "axios";
 let { REACT_APP_API_URL } = process.env;
-const instance = axios.create({ withCredentials: true, baseURL: REACT_APP_API_URL });
+const instance = axios.create({
+  withCredentials: true,
+  baseURL: REACT_APP_API_URL,
+});
 
 export const API = {
   async downloadPDF(packingSlipId, orderNumber, dateCreated) {
     try {
-      const response = await instance.post('/packingSlips/pdf', {
+      const response = await instance.post("/packingSlips/pdf", {
         packingSlipId, // this is the item._id not the item.packingSlipId the user interacts with (dumb name....)
         orderNumber,
-        dateCreated
+        dateCreated,
       });
       return response.data;
-    }
-    catch (error) {
-      console.error('downloadPDF', error);
+    } catch (error) {
+      console.error("downloadPDF", error);
     }
   },
 
   async getPackingQueue() {
     try {
-      const response = await instance.get('/workOrders/packingQueue');
+      const response = await instance.get("/workOrders/packingQueue");
       return response.data;
     } catch (error) {
       console.error("getPackingQueue", error);
@@ -28,7 +30,7 @@ export const API = {
 
   async getAllWorkOrders() {
     try {
-      const response = await instance.get('/workOrders');
+      const response = await instance.get("/workOrders");
       return response.data;
     } catch (error) {
       console.log(error);
@@ -37,7 +39,7 @@ export const API = {
   },
 
   async createPackingSlip(items, customer, orderNumber) {
-    const response = await instance.put('/packingSlips', {
+    const response = await instance.put("/packingSlips", {
       items,
       customer,
       orderNumber,
@@ -48,12 +50,12 @@ export const API = {
 
   async searchPackingSlips(customerId, shipmentId) {
     try {
-      const response = await instance.get( '/packingSlips/search', {
+      const response = await instance.get("/packingSlips/search", {
         params: {
           customer: customerId,
           shipment: shipmentId,
-        } }
-      );
+        },
+      });
       return response.data;
     } catch (error) {
       console.error("searchPackingSlips", error);
@@ -62,7 +64,7 @@ export const API = {
 
   async getShippingQueue() {
     try {
-      const response = await instance.get('/shipments/queue');
+      const response = await instance.get("/shipments/queue");
       return response.data;
     } catch (error) {
       console.error("getShippingQueue", error);
@@ -71,7 +73,7 @@ export const API = {
 
   async getShippingHistory() {
     try {
-      const response = await instance.get('/shipments');
+      const response = await instance.get("/shipments");
       return response.data;
     } catch (error) {
       console.error("getShippingHistory", error);
@@ -98,7 +100,10 @@ export const API = {
 
   async patchShipment(id, updatedShipment) {
     try {
-      const response = await instance.patch(`/shipments/${id}`, updatedShipment );
+      const response = await instance.patch(
+        `/shipments/${id}`,
+        updatedShipment
+      );
       return response.data;
     } catch (error) {
       console.error("patchShipment", error);
@@ -106,7 +111,7 @@ export const API = {
   },
 
   async searchShippingHistory(
-    sortBy, 
+    sortBy,
     sortOrder,
     matchOrder,
     matchPart,
@@ -114,16 +119,16 @@ export const API = {
     pageNumber
   ) {
     try {
-      const response = await instance.get( `/shipments/search`, {
+      const response = await instance.get(`/shipments/search`, {
         params: {
-          sortBy, 
+          sortBy,
           sortOrder,
           matchOrder,
           matchPart,
           resultsPerPage,
           pageNumber,
-        } }
-      );
+        },
+      });
       return response.data;
     } catch (error) {
       console.error("searchShippingHistory", error);
@@ -132,7 +137,7 @@ export const API = {
 
   async getPackingSlipHistory() {
     try {
-      const response = await instance.get('/packingSlips');
+      const response = await instance.get("/packingSlips");
       return response.data;
     } catch (error) {
       console.error("getPackingSlipHistory", error);
@@ -141,7 +146,7 @@ export const API = {
 
   async deletePackingSlip(id) {
     try {
-      const response = await instance.delete( `/packingSlips/${id}` );
+      const response = await instance.delete(`/packingSlips/${id}`);
       return response.data;
     } catch (error) {
       console.error("getPackingSlipHistory", error);
@@ -159,7 +164,7 @@ export const API = {
     customerAccount = undefined,
     customerHandoffName = undefined
   ) {
-    const response = await instance.put('/shipments', {
+    const response = await instance.put("/shipments", {
       manifest,
       customer,
       deliveryMethod,
@@ -175,7 +180,7 @@ export const API = {
   },
 
   async patchPackingSlip(id, updatedItems) {
-    const response = await instance.patch( `/packingSlips/${id}`, updatedItems );
+    const response = await instance.patch(`/packingSlips/${id}`, updatedItems);
 
     return response.data;
   },
