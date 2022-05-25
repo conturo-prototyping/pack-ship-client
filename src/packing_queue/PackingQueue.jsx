@@ -61,7 +61,7 @@ const PackingQueue = () => {
     [
       { field: "orderId", sort: "asc" },
       { field: "packingSlipId", sort: "asc" },
-      { field: "dateCreatedValue", sort: "asc" },
+      { field: "dateCreated", sort: "asc" },
     ]
   );
   function onPackingSlipClick() {
