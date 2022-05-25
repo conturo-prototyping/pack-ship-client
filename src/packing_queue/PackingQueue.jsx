@@ -234,7 +234,7 @@ const PackingQueue = () => {
         justifyContent="flex-end"
       >
         <Button component={Link} to={ROUTE_SHIPMENTS} variant="contained">
-          Shipments
+          Go to Shipping
         </Button>
       </Grid>
     </Box>
