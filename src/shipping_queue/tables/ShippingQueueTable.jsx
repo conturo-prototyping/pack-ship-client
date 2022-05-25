@@ -16,6 +16,7 @@ const useStyle = makeStyles((theme) => ({
     alignItems: "center",
     justifyContent: "center",
     display: "flex",
+    minHeight: "400px",
   },
   table: {
     backgroundColor: "white",
@@ -225,7 +226,7 @@ const ShippingQueueTable = ({
       onRowClick,
       onSelectAll,
       selectedOrderIds,
-      tableData
+      tableData,
     ]
   );
 

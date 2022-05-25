@@ -17,6 +17,7 @@ const useStyle = makeStyles((theme) => ({
     alignItems: "center",
     justifyContent: "center",
     display: "flex",
+    minHeight: "400px",
   },
   table: {
     backgroundColor: "white",
@@ -92,18 +93,18 @@ const HistoryTable = ({ sortModel, setSortModel, searchString }) => {
 
   useEffect(() => {
     setFilteredRows(
-      rows?.filter(
-        (order) => {
-          // console.log(order);
+      rows?.filter((order) => {
+        // console.log(order);
 
-          return (order.orderNumber
+        return (
+          order.orderNumber
             ?.toLowerCase()
-            ?.includes(searchString.toLowerCase()) ) ||
-          (order.packingSlipId
+            ?.includes(searchString.toLowerCase()) ||
+          order.packingSlipId
             ?.toLowerCase()
-            ?.includes(searchString.toLowerCase()) );
-        }
-      )
+            ?.includes(searchString.toLowerCase())
+        );
+      })
     );
   }, [rows, searchString]);
 

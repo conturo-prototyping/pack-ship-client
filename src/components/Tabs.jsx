@@ -66,8 +66,9 @@ export default function PackShipTabs({
       p={2}
       bgcolor="secondary.light"
       borderRadius="8px"
-      boxSizing='border-box'
-      height='calc(100% - 6.5rem - 4rem)'
+      boxSizing="border-box"
+      height="calc(100% - 6.5rem - 4rem)"
+      minHeight="400px"
       m={2}
     >
       <TabsUnstyled defaultValue={0}>

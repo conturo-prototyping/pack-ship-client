@@ -17,6 +17,7 @@ const useStyle = makeStyles((theme) => ({
     alignItems: "center",
     justifyContent: "center",
     display: "flex",
+    minHeight: "400px",
   },
   fulfilledQtyHeader: {
     display: "flex",
