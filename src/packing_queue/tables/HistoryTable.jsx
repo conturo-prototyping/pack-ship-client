@@ -304,7 +304,7 @@ const HistoryTable = ({ sortModel, setSortModel, searchString }) => {
     await API.downloadPDF(
       selectedRow._id,
       selectedRow.orderNumber,
-      selectedRow.dateCreated
+      selectedRow.dateCreatedValue
     )
       .then((data) => {
         pdfMake.createPdf(data.docDefinition).open();
