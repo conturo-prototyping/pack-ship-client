@@ -17,23 +17,23 @@ import { getSortFromModel } from "./utils/sortModelFunctions";
 
 const useStyle = makeStyles((theme) => ({
   box: {
-    boxSizing: 'border-box',
-    height: '100%',
+    boxSizing: "border-box",
+    height: "100%",
   },
   topBarGrid: {
-    boxSizing: 'border-box',
-    height: '5.5rem',
-    marginBottom: '1rem!important',
-    paddingTop: '1rem!important',
-    paddingLeft: '1rem!important',
+    boxSizing: "border-box",
+    height: "5.5rem",
+    marginBottom: "1rem!important",
+    paddingTop: "1rem!important",
+    paddingLeft: "1rem!important",
   },
   bottomBarGrid: {
-    boxSizing: 'border-box',
-    marginTop: '1rem!important',
-    marginBottom: '0',
-    height: '3rem',
-    paddingRight: '1rem'
-  }
+    boxSizing: "border-box",
+    marginTop: "1rem!important",
+    marginBottom: "0",
+    height: "3rem",
+    paddingRight: "1rem",
+  },
 }));
 
 export const TabNames = {
@@ -43,6 +43,8 @@ export const TabNames = {
 
 const ShippingQueue = () => {
   const classes = useStyle();
+
+  const [isMounted, setIsMounted] = useState(false);
 
   // Common tab states
   const [currentTab, setCurrentTab] = useState(TabNames.Queue);
@@ -107,22 +109,24 @@ const ShippingQueue = () => {
         pageNumber
       ).then((data) => {
         if (data) {
-          let historyTableData = extractHistoryDetails(data?.shipments);
-          setFilteredShippingHist(historyTableData);
-          setHistTotalCount(data?.totalCount);
+          if (isMounted) {
+            let historyTableData = extractHistoryDetails(data?.shipments);
+            setFilteredShippingHist(historyTableData);
+            setHistTotalCount(data?.totalCount);
+          }
         }
       });
     },
+    // eslint-disable-next-line
     [histResultsPerPage]
   );
 
   useEffect(() => {
-    fetchSearch(
-      getSortFromModel(sortShippingHistModel),
-      0,
-      "",
-      ""
-    );
+    setIsMounted(true);
+  }, []);
+
+  useEffect(() => {
+    fetchSearch(getSortFromModel(sortShippingHistModel), 0, "", "");
     // eslint-disable-next-line
   }, [fetchSearch]);
 
@@ -142,9 +146,7 @@ const ShippingQueue = () => {
   }
 
   return (
-    <Box
-      className={classes.box}
-    >
+    <Box className={classes.box}>
       {currentTab === TabNames.Queue ? (
         <Grid
           className={classes.topBarGrid}

@@ -54,6 +54,7 @@ const columns = [
 const HistoryTable = ({ sortModel, setSortModel, searchString }) => {
   const classes = useStyle();
 
+  const [isMounted, setIsMounted] = useState(false);
   const [menuPosition, setMenuPosition] = useState();
 
   const [selectedRow, setSelectedRow] = useState({});
@@ -71,39 +72,44 @@ const HistoryTable = ({ sortModel, setSortModel, searchString }) => {
     viewOnly: false,
   });
 
+  useEffect(() => {
+    setIsMounted(true);
+  }, []);
+
   const reloadData = useCallback(() => {
     async function fetchData() {
       return await API.getPackingSlipHistory();
     }
 
     fetchData().then((data) => {
-      let packingSlips =
-        data?.packingSlips?.map((e) => {
-          return {
-            ...e,
-            id: e._id,
-            orderId: e.orderNumber,
-          };
-        }) || [];
-      setRows(packingSlips);
-      setFilteredRows(packingSlips);
+      if (isMounted) {
+        let packingSlips =
+          data?.packingSlips?.map((e) => {
+            return {
+              ...e,
+              id: e._id,
+              orderId: e.orderNumber,
+            };
+          }) || [];
+        setRows(packingSlips);
+        setFilteredRows(packingSlips);
+      }
     });
+    // eslint-disable-next-line
   }, []);
 
   useEffect(() => {
     setFilteredRows(
-      rows?.filter(
-        (order) => {
-          // console.log(order);
-
-          return (order.orderNumber
+      rows?.filter((order) => {
+        return (
+          order.orderNumber
             ?.toLowerCase()
-            ?.includes(searchString.toLowerCase()) ) ||
-          (order.packingSlipId
+            ?.includes(searchString.toLowerCase()) ||
+          order.packingSlipId
             ?.toLowerCase()
-            ?.includes(searchString.toLowerCase()) );
-        }
-      )
+            ?.includes(searchString.toLowerCase())
+        );
+      })
     );
   }, [rows, searchString]);
 

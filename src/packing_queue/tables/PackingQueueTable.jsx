@@ -31,19 +31,24 @@ const useStyle = makeStyles((theme) => ({
   },
 }));
 
-const recheckIfNeeded = (selectedOrderNumber, tableData, selectionOrderIds, setIsSelectAll) => {
+const recheckIfNeeded = (
+  selectedOrderNumber,
+  tableData,
+  selectionOrderIds,
+  setIsSelectAll
+) => {
   const selectedOrderNum = selectedOrderNumber;
 
-    const idsWithSelectedOrderNum = tableData
-      ?.filter((e) => e.orderNumber === selectedOrderNum)
-      .map((e) => e.id);
+  const idsWithSelectedOrderNum = tableData
+    ?.filter((e) => e.orderNumber === selectedOrderNum)
+    .map((e) => e.id);
 
-    setIsSelectAll(
-      idsWithSelectedOrderNum.length !== 0 &&
-        idsWithSelectedOrderNum.sort().toString() ===
-          selectionOrderIds.sort().toString()
-    );
-}
+  setIsSelectAll(
+    idsWithSelectedOrderNum.length !== 0 &&
+      idsWithSelectedOrderNum.sort().toString() ===
+        selectionOrderIds.sort().toString()
+  );
+};
 
 const applySearch = (
   packingQueue,
@@ -88,6 +93,7 @@ const PackingQueueTable = ({
   const classes = useStyle();
   const numRowsPerPage = 10;
 
+  const [isMounted, setIsMounted] = useState(false);
   const [queueData, setQueueData] = useState(tableData);
   const [isSelectAllOn, setIsSelectAll] = useState(false);
 
@@ -196,35 +202,36 @@ const PackingQueueTable = ({
     }
 
     fetchData().then((data) => {
-      let tableData = [];
-      data?.forEach((e) => {
-
-        tableData.push({
-          id:               e._id,
-          part:             `${e.partNumber} - ${e.partRev} (Batch ${e.batch})`,
-          batchQty:         e.batchQty,
-          customer:         e.customer,
-          orderNumber:      e.orderNumber,
-          fulfilledQty:     e.packedQty,
-          partDescription:  e.partDescription,
+      if (isMounted) {
+        let tableData = [];
+        data?.forEach((e) => {
+          tableData.push({
+            id: e._id,
+            part: `${e.partNumber} - ${e.partRev} (Batch ${e.batch})`,
+            batchQty: e.batchQty,
+            customer: e.customer,
+            orderNumber: e.orderNumber,
+            fulfilledQty: e.packedQty,
+            partDescription: e.partDescription,
+          });
         });
-      });
 
-      tableData = sortDataByModel(
-        sortModel,
-        tableData,
-        columns,
-        selectionOrderIds
-      );
-      setPackingQueue(tableData);
-      setFilteredPackingQueue(tableData);
+        tableData = sortDataByModel(
+          sortModel,
+          tableData,
+          columns,
+          selectionOrderIds
+        );
+        setPackingQueue(tableData);
+        setFilteredPackingQueue(tableData);
+      }
     });
     // eslint-disable-next-line
   }, []);
 
   useEffect(() => {
     // When we toggle on, we need to make sure to apply the search and sorting again.
-    if (isFulfilledBatchesOn){
+    if (isFulfilledBatchesOn) {
       applySearch(
         packingQueue,
         searchString,
@@ -236,14 +243,25 @@ const PackingQueueTable = ({
       );
     }
 
-    recheckIfNeeded(selectedOrderNumber, tableData, selectionOrderIds, setIsSelectAll);
+    recheckIfNeeded(
+      selectedOrderNumber,
+      tableData,
+      selectionOrderIds,
+      setIsSelectAll
+    );
     // eslint-disable-next-line
   }, [isFulfilledBatchesOn]);
 
   useEffect(() => {
+    setIsMounted(true);
     // Find the select all state when this first renders since this could re-render from a tab change.
-    recheckIfNeeded(selectedOrderNumber, tableData, selectionOrderIds, setIsSelectAll);
-    
+    recheckIfNeeded(
+      selectedOrderNumber,
+      tableData,
+      selectionOrderIds,
+      setIsSelectAll
+    );
+
     // eslint-disable-next-line
   }, []);
 
