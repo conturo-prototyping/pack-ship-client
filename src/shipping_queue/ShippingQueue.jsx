@@ -74,7 +74,7 @@ const ShippingQueue = () => {
     [
       { field: "shipmentId", sort: "asc" },
       { field: "trackingNumber", sort: "asc" },
-      { field: "dateCreated", sort: "asc" },
+      { field: "dateCreatedValue", sort: "asc" },
     ]
   );
   const [histTotalCount, setHistTotalCount] = useState(0);

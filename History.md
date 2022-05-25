@@ -1,2 +1,5 @@
 ## 1.0.1 / 05-25-2022
-* Added history file to track changes.
+* Changed "Date Created" cell format for consistency
+* Changed nav buttons text for clarity
+* Fixed sort behavior of "Date Created" column (use dateCreatedValue to sort)
+* Send dateCreatedValue to back-end when fetching PDF to include timezone data.
