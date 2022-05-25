@@ -17,23 +17,23 @@ import { getSortFromModel } from "./utils/sortModelFunctions";
 
 const useStyle = makeStyles((theme) => ({
   box: {
-    boxSizing: 'border-box',
-    height: '100%',
+    boxSizing: "border-box",
+    height: "100%",
   },
   topBarGrid: {
-    boxSizing: 'border-box',
-    height: '5.5rem',
-    marginBottom: '1rem!important',
-    paddingTop: '1rem!important',
-    paddingLeft: '1rem!important',
+    boxSizing: "border-box",
+    height: "5.5rem",
+    marginBottom: "1rem!important",
+    paddingTop: "1rem!important",
+    paddingLeft: "1rem!important",
   },
   bottomBarGrid: {
-    boxSizing: 'border-box',
-    marginTop: '1rem!important',
-    marginBottom: '0',
-    height: '3rem',
-    paddingRight: '1rem'
-  }
+    boxSizing: "border-box",
+    marginTop: "1rem!important",
+    marginBottom: "0",
+    height: "3rem",
+    paddingRight: "1rem",
+  },
 }));
 
 export const TabNames = {
@@ -117,12 +117,7 @@ const ShippingQueue = () => {
   );
 
   useEffect(() => {
-    fetchSearch(
-      getSortFromModel(sortShippingHistModel),
-      0,
-      "",
-      ""
-    );
+    fetchSearch(getSortFromModel(sortShippingHistModel), 0, "", "");
     // eslint-disable-next-line
   }, [fetchSearch]);
 
@@ -142,130 +137,135 @@ const ShippingQueue = () => {
   }
 
   return (
-    <Box
-      className={classes.box}
-    >
-      {currentTab === TabNames.Queue ? (
-        <Grid
-          className={classes.topBarGrid}
-          container
-          justifyContent="start"
-          spacing={2}
-        >
-          <Grid container item xs={"auto"}>
-            <CommonButton
-              label="Create Shipment"
-              disabled={selectedOrderIds.length === 0}
-              onClick={onCreateShipmentClick}
-            />
-          </Grid>
-          <Grid container item justifyContent="start" xs={6}>
-            <Search onSearch={onQueueSearch} />
-          </Grid>
+    <Box className={classes.box}>
+      <Grid container>
+        <Grid container item>
+          {currentTab === TabNames.Queue ? (
+            <Grid
+              className={classes.topBarGrid}
+              container
+              justifyContent="start"
+              spacing={2}
+            >
+              <Grid container item xs={"auto"}>
+                <CommonButton
+                  label="Create Shipment"
+                  disabled={selectedOrderIds.length === 0}
+                  onClick={onCreateShipmentClick}
+                />
+              </Grid>
+              <Grid container item justifyContent="start" xs={6}>
+                <Search onSearch={onQueueSearch} />
+              </Grid>
+            </Grid>
+          ) : (
+            <Grid
+              className={classes.topBarGrid}
+              container
+              item
+              justifyContent="start"
+              spacing={1}
+            >
+              <Grid container item xs>
+                <TextInput
+                  onChange={(e) => {
+                    if (
+                      (e === "" || e === undefined || e === null) &&
+                      (partNumber === "" ||
+                        partNumber === undefined ||
+                        partNumber === null)
+                    ) {
+                      onHistoryClearClick();
+                    }
+                    setOrderNumber(e);
+                  }}
+                  placeholder="Order"
+                  value={orderNumber}
+                />
+              </Grid>
+              <Grid container item xs={8}>
+                <TextInput
+                  onChange={(e) => {
+                    if (
+                      (e === "" || e === undefined || e === null) &&
+                      (orderNumber === "" ||
+                        orderNumber === undefined ||
+                        orderNumber === null)
+                    ) {
+                      onHistoryClearClick();
+                    }
+                    setPartNumber(e);
+                  }}
+                  placeholder="Part"
+                  value={partNumber}
+                />
+              </Grid>
+              <Grid container item xs={2} justifyContent="flex-end">
+                <CommonButton
+                  label="Clear"
+                  onClick={onHistoryClearClick}
+                  disabled={!orderNumber && !partNumber}
+                />
+              </Grid>
+              <Grid container item xs={1}>
+                <CommonButton
+                  label="Search"
+                  onClick={onHistorySearchClick}
+                  disabled={!orderNumber && !partNumber}
+                />
+              </Grid>
+            </Grid>
+          )}
         </Grid>
-      ) : (
-        <Grid
-          className={classes.topBarGrid}
-          container
-          justifyContent="start"
-          spacing={2}
-        >
-          <Grid container item xs={"auto"}>
-            <TextInput
-              onChange={(e) => {
-                if (
-                  (e === "" || e === undefined || e === null) &&
-                  (partNumber === "" ||
-                    partNumber === undefined ||
-                    partNumber === null)
-                ) {
-                  onHistoryClearClick();
-                }
-                setOrderNumber(e);
-              }}
-              placeholder="Order"
-              value={orderNumber}
-            />
-          </Grid>
-          <Grid container item xs={2}>
-            <TextInput
-              onChange={(e) => {
-                if (
-                  (e === "" || e === undefined || e === null) &&
-                  (orderNumber === "" ||
-                    orderNumber === undefined ||
-                    orderNumber === null)
-                ) {
-                  onHistoryClearClick();
-                }
-                setPartNumber(e);
-              }}
-              placeholder="Part"
-              value={partNumber}
-            />
-          </Grid>
-          <Grid container item xs={2}>
-            <CommonButton
-              label="Clear"
-              onClick={onHistoryClearClick}
-              disabled={!orderNumber && !partNumber}
-            />
-          </Grid>
-          <Grid container item xs justifyContent="flex-end">
-            <CommonButton
-              label="Search"
-              onClick={onHistorySearchClick}
-              disabled={!orderNumber && !partNumber}
-            />
-          </Grid>
+
+        <Grid item xs={12}>
+          <PackShipTabs
+            onTabChange={onTabChange}
+            queueTotal={shippingQueue?.length}
+            queueTab={
+              <ShippingQueueTable
+                shippingQueue={shippingQueue}
+                tableData={filteredShippingQueue}
+                setSortModel={setSortShippingQueueModel}
+                sortModel={sortShippingQueueModel}
+                selectedOrderIds={selectedOrderIds}
+                setSelectedOrderIds={setSelectedOrderIds}
+                onCreateShipmentClose={onCreateShipmentClose}
+                setShippingQueue={setShippingQueue}
+                setFilteredShippingQueue={setFilteredShippingQueue}
+                createShipmentOpen={createShipmentOpen}
+                currentDialogState={currentDialogState}
+                setCurrentDialogState={setCurrentDialogState}
+                searchText={queueSearchText}
+              />
+            }
+            historyTab={
+              <ShippingHistoryTable
+                fetchSearch={fetchSearch}
+                setSortModel={setSortShippingHistModel}
+                sortModel={sortShippingHistModel}
+                filteredShippingHist={filteredShippingHist}
+                setFilteredShippingHist={setFilteredShippingHist}
+                histResultsPerPage={histResultsPerPage}
+                histTotalCount={histTotalCount}
+                orderNumber={orderNumber}
+                partNumber={partNumber}
+              />
+            }
+          />
         </Grid>
-      )}
 
-      <PackShipTabs
-        onTabChange={onTabChange}
-        queueTotal={shippingQueue?.length}
-        queueTab={
-          <ShippingQueueTable
-            shippingQueue={shippingQueue}
-            tableData={filteredShippingQueue}
-            setSortModel={setSortShippingQueueModel}
-            sortModel={sortShippingQueueModel}
-            selectedOrderIds={selectedOrderIds}
-            setSelectedOrderIds={setSelectedOrderIds}
-            onCreateShipmentClose={onCreateShipmentClose}
-            setShippingQueue={setShippingQueue}
-            setFilteredShippingQueue={setFilteredShippingQueue}
-            createShipmentOpen={createShipmentOpen}
-            currentDialogState={currentDialogState}
-            setCurrentDialogState={setCurrentDialogState}
-            searchText={queueSearchText}
-          />
-        }
-        historyTab={
-          <ShippingHistoryTable
-            fetchSearch={fetchSearch}
-            setSortModel={setSortShippingHistModel}
-            sortModel={sortShippingHistModel}
-            filteredShippingHist={filteredShippingHist}
-            setFilteredShippingHist={setFilteredShippingHist}
-            histResultsPerPage={histResultsPerPage}
-            histTotalCount={histTotalCount}
-            orderNumber={orderNumber}
-            partNumber={partNumber}
-          />
-        }
-      />
-
-      <Grid
-        className={classes.bottomBarGrid}
-        container
-        item
-        xs
-        justifyContent="flex-end"
-      >
-        <Button component={Link} to={ROUTE_PACKING_SLIP} variant="contained">
-          Packing
-        </Button>
+        <Grid
+          className={classes.bottomBarGrid}
+          container
+          item
+          xs
+          justifyContent="flex-end"
+        >
+          <Button component={Link} to={ROUTE_PACKING_SLIP} variant="contained">
+            Packing
+          </Button>
+        </Grid>
       </Grid>
     </Box>
   );
