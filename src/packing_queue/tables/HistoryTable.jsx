@@ -84,7 +84,6 @@ const HistoryTable = ({ sortModel, setSortModel, searchString }) => {
             id: e._id,
             orderId: e.orderNumber,
             dateCreated: new Date(e.dateCreated).toLocaleString(),
-            dateCreatedValue: new Date(e.dateCreated).getTime()
           };
         }) || [];
       setRows(packingSlips);

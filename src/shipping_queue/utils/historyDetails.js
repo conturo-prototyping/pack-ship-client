@@ -7,7 +7,6 @@ export const extractHistoryDetails = (history) => {
         shipmentId: e.shipmentId,
         trackingNumber: e.trackingNumber,
         dateCreated: dc.toLocaleString(),
-        dateCreatedValue: dc.getTime()
         };
     });
 };
