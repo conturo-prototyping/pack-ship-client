@@ -129,8 +129,7 @@ const PackingQueue = () => {
         className={classes.topBarGrid}
         container
         justifyContent="start"
-        spacing={2}
-      >
+        spacing={2}>
         <Grid container item xs={12} spacing={2}>
           <Grid container item xs={"auto"}>
             <CommonButton
@@ -231,10 +230,9 @@ const PackingQueue = () => {
           container
           item
           xs
-          justifyContent="flex-end"
-        >
+          justifyContent="flex-end">
           <Button component={Link} to={ROUTE_SHIPMENTS} variant="contained">
-            Shipments
+            Go to Shipping
           </Button>
         </Grid>
       </Grid>

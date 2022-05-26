@@ -84,6 +84,7 @@ const HistoryTable = ({ sortModel, setSortModel, searchString }) => {
             ...e,
             id: e._id,
             orderId: e.orderNumber,
+            dateCreated: new Date(e.dateCreated).toLocaleString(),
           };
         }) || [];
       setRows(packingSlips);
@@ -304,7 +305,7 @@ const HistoryTable = ({ sortModel, setSortModel, searchString }) => {
     await API.downloadPDF(
       selectedRow._id,
       selectedRow.orderNumber,
-      selectedRow.dateCreated
+      selectedRow.dateCreatedValue
     )
       .then((data) => {
         pdfMake.createPdf(data.docDefinition).open();

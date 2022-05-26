@@ -11,7 +11,7 @@ export const API = {
       const response = await instance.post("/packingSlips/pdf", {
         packingSlipId, // this is the item._id not the item.packingSlipId the user interacts with (dumb name....)
         orderNumber,
-        dateCreated,
+        dateCreated
       });
       return response.data;
     } catch (error) {

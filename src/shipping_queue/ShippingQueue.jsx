@@ -260,7 +260,7 @@ const ShippingQueue = () => {
           xs
           justifyContent="flex-end">
           <Button component={Link} to={ROUTE_PACKING_SLIP} variant="contained">
-            Packing
+            Go to Packing
           </Button>
         </Grid>
       </Grid>
