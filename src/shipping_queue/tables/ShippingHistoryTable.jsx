@@ -17,7 +17,6 @@ const useStyle = makeStyles((theme) => ({
     alignItems: "center",
     justifyContent: "center",
     display: "flex",
-    minHeight: "400px",
   },
   fulfilledQtyHeader: {
     display: "flex",
@@ -292,8 +291,7 @@ const ShippingHistoryTable = ({
       onClick={() => {
         setIsEditShipmentOpen(true);
         setIsEditShipmentViewOnly(true);
-      }}
-    >
+      }}>
       View
     </MenuItem>,
     // <MenuItem key="download-menu-item">Download</MenuItem>,
@@ -302,8 +300,7 @@ const ShippingHistoryTable = ({
       onClick={() => {
         setIsEditShipmentOpen(true);
         setIsEditShipmentViewOnly(false);
-      }}
-    >
+      }}>
       Edit
     </MenuItem>,
     <MenuItem
@@ -311,8 +308,7 @@ const ShippingHistoryTable = ({
       onClick={() => {
         setHistoryMenuPosition(null);
         setConfirmShippingDeleteDialogOpen(true);
-      }}
-    >
+      }}>
       Delete
     </MenuItem>,
   ];
@@ -323,7 +319,7 @@ const ShippingHistoryTable = ({
         paginationMode="server"
         onPageChange={onPageChange}
         rowCount={histTotalCount}
-        sx={{ border: "none", height: "65vh" }}
+        sx={{ border: "none", height: "65vh", minHeight: "20rem" }}
         className={classes.table}
         disableSelectionOnClick={true}
         rows={filteredShippingHist}
@@ -349,8 +345,7 @@ const ShippingHistoryTable = ({
 
       <ContextMenu
         menuPosition={historyMenuPosition}
-        setMenuPosition={setHistoryMenuPosition}
-      >
+        setMenuPosition={setHistoryMenuPosition}>
         {historyRowMenuOptions}
       </ContextMenu>
 
@@ -415,8 +410,7 @@ const ShippingHistoryTable = ({
         setOpen={setConfirmShippingDeleteDialogOpen}
         onConfirm={() => {
           API.deleteShipment(clickedHistShipment._id).then(() => reloadData());
-        }}
-      >
+        }}>
         <Typography sx={{ fontWeight: 900 }}>
           {clickedHistShipment?.shipmentId}
         </Typography>

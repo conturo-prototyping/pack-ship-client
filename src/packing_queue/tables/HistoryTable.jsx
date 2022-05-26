@@ -17,7 +17,7 @@ const useStyle = makeStyles((theme) => ({
     alignItems: "center",
     justifyContent: "center",
     display: "flex",
-    minHeight: "400px",
+    minHeight: "20rem",
   },
   table: {
     backgroundColor: "white",
@@ -336,7 +336,7 @@ const HistoryTable = ({ sortModel, setSortModel, searchString }) => {
   return (
     <div className={classes.root}>
       <DataGrid
-        sx={{ border: "none", height: "65vh" }}
+        sx={{ border: "none", height: "65vh", minHeight: "20rem" }}
         className={classes.table}
         rows={filteredRows}
         columns={columns}
@@ -353,8 +353,7 @@ const HistoryTable = ({ sortModel, setSortModel, searchString }) => {
       />
       <ContextMenu
         menuPosition={menuPosition}
-        setMenuPosition={setMenuPosition}
-      >
+        setMenuPosition={setMenuPosition}>
         {historyRowMenuOptions}
       </ContextMenu>
       <EditPackingSlipDialog

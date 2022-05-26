@@ -139,84 +139,82 @@ const ShippingQueue = () => {
   return (
     <Box className={classes.box}>
       <Grid container>
-        <Grid container item>
-          {currentTab === TabNames.Queue ? (
-            <Grid
-              className={classes.topBarGrid}
-              container
-              justifyContent="start"
-              spacing={2}
-            >
-              <Grid container item xs={"auto"}>
-                <CommonButton
-                  label="Create Shipment"
-                  disabled={selectedOrderIds.length === 0}
-                  onClick={onCreateShipmentClick}
-                />
-              </Grid>
-              <Grid container item justifyContent="start" xs={6}>
-                <Search onSearch={onQueueSearch} />
-              </Grid>
+        {currentTab === TabNames.Queue ? (
+          <Grid
+            className={classes.topBarGrid}
+            container
+            item
+            justifyContent="start"
+            spacing={2}>
+            <Grid container item xs={"auto"}>
+              <CommonButton
+                label="Create Shipment"
+                disabled={selectedOrderIds.length === 0}
+                onClick={onCreateShipmentClick}
+              />
             </Grid>
-          ) : (
-            <Grid
-              className={classes.topBarGrid}
-              container
-              item
-              justifyContent="start"
-              spacing={1}
-            >
-              <Grid container item xs>
-                <TextInput
-                  onChange={(e) => {
-                    if (
-                      (e === "" || e === undefined || e === null) &&
-                      (partNumber === "" ||
-                        partNumber === undefined ||
-                        partNumber === null)
-                    ) {
-                      onHistoryClearClick();
-                    }
-                    setOrderNumber(e);
-                  }}
-                  placeholder="Order"
-                  value={orderNumber}
-                />
-              </Grid>
-              <Grid container item xs={8}>
-                <TextInput
-                  onChange={(e) => {
-                    if (
-                      (e === "" || e === undefined || e === null) &&
-                      (orderNumber === "" ||
-                        orderNumber === undefined ||
-                        orderNumber === null)
-                    ) {
-                      onHistoryClearClick();
-                    }
-                    setPartNumber(e);
-                  }}
-                  placeholder="Part"
-                  value={partNumber}
-                />
-              </Grid>
-              <Grid container item xs={2} justifyContent="flex-end">
-                <CommonButton
-                  label="Clear"
-                  onClick={onHistoryClearClick}
-                  disabled={!orderNumber && !partNumber}
-                />
-              </Grid>
-              <Grid container item xs={1}>
-                <CommonButton
-                  label="Search"
-                  onClick={onHistorySearchClick}
-                  disabled={!orderNumber && !partNumber}
-                />
-              </Grid>
+            <Grid container item justifyContent="start" xs={6}>
+              <Search onSearch={onQueueSearch} />
             </Grid>
-          )}
-        </Grid>
+          </Grid>
+        ) : (
+          <Grid
+            className={classes.topBarGrid}
+            container
+            item
+            justifyContent="start"
+            spacing={2}
+            xs={12}>
+            <Grid container item xs={4} md>
+              <TextInput
+                onChange={(e) => {
+                  if (
+                    (e === "" || e === undefined || e === null) &&
+                    (partNumber === "" ||
+                      partNumber === undefined ||
+                      partNumber === null)
+                  ) {
+                    onHistoryClearClick();
+                  }
+                  setOrderNumber(e);
+                }}
+                placeholder="Order"
+                value={orderNumber}
+              />
+            </Grid>
+            <Grid container item xs={4} md={8}>
+              <TextInput
+                onChange={(e) => {
+                  if (
+                    (e === "" || e === undefined || e === null) &&
+                    (orderNumber === "" ||
+                      orderNumber === undefined ||
+                      orderNumber === null)
+                  ) {
+                    onHistoryClearClick();
+                  }
+                  setPartNumber(e);
+                }}
+                placeholder="Part"
+                value={partNumber}
+              />
+            </Grid>
+            <Grid container item xs={2} md={2} justifyContent="flex-end">
+              <CommonButton
+                label="Clear"
+                onClick={onHistoryClearClick}
+                disabled={!orderNumber && !partNumber}
+              />
+            </Grid>
+            <Grid container item xs={1} md={1}>
+              <CommonButton
+                label="Search"
+                onClick={onHistorySearchClick}
+                disabled={!orderNumber && !partNumber}
+              />
+            </Grid>
+          </Grid>
+        )}
 
         <Grid item xs={12}>
           <PackShipTabs
@@ -260,8 +258,7 @@ const ShippingQueue = () => {
           container
           item
           xs
-          justifyContent="flex-end"
-        >
+          justifyContent="flex-end">
           <Button component={Link} to={ROUTE_PACKING_SLIP} variant="contained">
             Packing
           </Button>

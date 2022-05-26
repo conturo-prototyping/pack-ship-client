@@ -16,7 +16,6 @@ const useStyle = makeStyles((theme) => ({
     alignItems: "center",
     justifyContent: "center",
     display: "flex",
-    minHeight: "400px",
   },
   table: {
     backgroundColor: "white",
@@ -303,7 +302,7 @@ const ShippingQueueTable = ({
   return (
     <div className={classes.root}>
       <ShippingQueueDataGrid
-        sx={{ border: "none", height: "65vh" }}
+        sx={{ border: "none", height: "65vh", minHeight: "20rem" }}
         className={classes.table}
         onRowClick={(params) => {
           let tmpData = [...queueData];
