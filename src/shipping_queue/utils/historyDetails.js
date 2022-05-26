@@ -1,15 +1,13 @@
-const getFormattedDate = (dateString) => {
-    const dt = new Date(dateString);
-    return `${dt.getFullYear()}-${dt.getMonth() + 1}-${dt.getDate()}`;
-};
-
 export const extractHistoryDetails = (history) => {
     return history.map((e) => {
+        const dc = new Date(e.dateCreated);
+
         return {
         id: e._id,
         shipmentId: e.shipmentId,
         trackingNumber: e.trackingNumber,
-        dateCreated: getFormattedDate(e.dateCreated),
+        dateCreated: dc.toLocaleString(),
+        dateCreatedValue: dc.getTime()
         };
     });
 };

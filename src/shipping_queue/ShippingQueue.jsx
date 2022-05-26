@@ -100,25 +100,26 @@ const ShippingQueue = () => {
 
   const fetchSearch = useCallback(
     (sort, pageNumber, oNum, pNum) => {
-      API.searchShippingHistory(
-        sort.sortBy,
-        sort.sortOrder,
-        oNum,
-        pNum,
-        histResultsPerPage,
-        pageNumber
-      ).then((data) => {
-        if (data) {
-          if (isMounted) {
-            let historyTableData = extractHistoryDetails(data?.shipments);
-            setFilteredShippingHist(historyTableData);
-            setHistTotalCount(data?.totalCount);
+      if (isMounted)
+        API.searchShippingHistory(
+          sort.sortBy,
+          sort.sortOrder,
+          oNum,
+          pNum,
+          histResultsPerPage,
+          pageNumber
+        ).then((data) => {
+          if (data) {
+            if (isMounted) {
+              let historyTableData = extractHistoryDetails(data?.shipments);
+              setFilteredShippingHist(historyTableData);
+              setHistTotalCount(data?.totalCount);
+            }
           }
-        }
-      });
+        });
     },
     // eslint-disable-next-line
-    [histResultsPerPage]
+    [histResultsPerPage, isMounted]
   );
 
   useEffect(() => {
@@ -126,9 +127,10 @@ const ShippingQueue = () => {
   }, []);
 
   useEffect(() => {
-    fetchSearch(getSortFromModel(sortShippingHistModel), 0, "", "");
+    if (isMounted)
+      fetchSearch(getSortFromModel(sortShippingHistModel), 0, "", "");
     // eslint-disable-next-line
-  }, [fetchSearch]);
+  }, [fetchSearch, isMounted]);
 
   function onHistorySearchClick() {
     fetchSearch(
@@ -152,8 +154,7 @@ const ShippingQueue = () => {
           className={classes.topBarGrid}
           container
           justifyContent="start"
-          spacing={2}
-        >
+          spacing={2}>
           <Grid container item xs={"auto"}>
             <CommonButton
               label="Create Shipment"
@@ -170,8 +171,7 @@ const ShippingQueue = () => {
           className={classes.topBarGrid}
           container
           justifyContent="start"
-          spacing={2}
-        >
+          spacing={2}>
           <Grid container item xs={"auto"}>
             <TextInput
               onChange={(e) => {
@@ -263,10 +263,9 @@ const ShippingQueue = () => {
         container
         item
         xs
-        justifyContent="flex-end"
-      >
+        justifyContent="flex-end">
         <Button component={Link} to={ROUTE_PACKING_SLIP} variant="contained">
-          Packing
+          Go to Packing
         </Button>
       </Grid>
     </Box>

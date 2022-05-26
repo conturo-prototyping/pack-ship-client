@@ -1,4 +1,4 @@
-import React, { useCallback, useState } from "react";
+import React, { useCallback, useState, useEffect } from "react";
 import makeStyles from "@mui/styles/makeStyles";
 import { DataGrid } from "@mui/x-data-grid";
 import { Typography, MenuItem } from "@mui/material";
@@ -68,6 +68,8 @@ const ShippingHistoryTable = ({
 }) => {
   const classes = useStyle();
 
+  const [isMounted, setIsMounted] = useState(false);
+
   const [historyMenuPosition, setHistoryMenuPosition] = useState(null);
   const [clickedHistShipment, setClickedHistShipment] = useState();
 
@@ -80,6 +82,10 @@ const ShippingHistoryTable = ({
   const [packingSlipToDelete, setPackingSlipToDelete] = useState();
   const [canErrorCheck, setCanErrorCheck] = useState(false);
   const [page, setPage] = useState(0);
+
+  useEffect(() => {
+    setIsMounted(true);
+  }, []);
 
   const onHistoryRowClick = useCallback((params, event, __) => {
     API.getShipment(params.id).then((data) => {
@@ -101,8 +107,14 @@ const ShippingHistoryTable = ({
   }, []);
 
   const reloadData = useCallback(() => {
-    fetchSearch(getSortFromModel(sortModel), page + 1, orderNumber, partNumber);
-  }, [fetchSearch, sortModel, page, orderNumber, partNumber]);
+    if (isMounted)
+      fetchSearch(
+        getSortFromModel(sortModel),
+        page + 1,
+        orderNumber,
+        partNumber
+      );
+  }, [fetchSearch, sortModel, page, orderNumber, partNumber, isMounted]);
 
   const onEditShipmentSubmit = useCallback(() => {
     setCanErrorCheck(true);
@@ -291,8 +303,7 @@ const ShippingHistoryTable = ({
       onClick={() => {
         setIsEditShipmentOpen(true);
         setIsEditShipmentViewOnly(true);
-      }}
-    >
+      }}>
       View
     </MenuItem>,
     // <MenuItem key="download-menu-item">Download</MenuItem>,
@@ -301,8 +312,7 @@ const ShippingHistoryTable = ({
       onClick={() => {
         setIsEditShipmentOpen(true);
         setIsEditShipmentViewOnly(false);
-      }}
-    >
+      }}>
       Edit
     </MenuItem>,
     <MenuItem
@@ -310,8 +320,7 @@ const ShippingHistoryTable = ({
       onClick={() => {
         setHistoryMenuPosition(null);
         setConfirmShippingDeleteDialogOpen(true);
-      }}
-    >
+      }}>
       Delete
     </MenuItem>,
   ];
@@ -348,8 +357,7 @@ const ShippingHistoryTable = ({
 
       <ContextMenu
         menuPosition={historyMenuPosition}
-        setMenuPosition={setHistoryMenuPosition}
-      >
+        setMenuPosition={setHistoryMenuPosition}>
         {historyRowMenuOptions}
       </ContextMenu>
 
@@ -414,8 +422,7 @@ const ShippingHistoryTable = ({
         setOpen={setConfirmShippingDeleteDialogOpen}
         onConfirm={() => {
           API.deleteShipment(clickedHistShipment._id).then(() => reloadData());
-        }}
-      >
+        }}>
         <Typography sx={{ fontWeight: 900 }}>
           {clickedHistShipment?.shipmentId}
         </Typography>

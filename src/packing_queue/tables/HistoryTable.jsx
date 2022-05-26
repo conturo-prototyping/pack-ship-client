@@ -81,22 +81,24 @@ const HistoryTable = ({ sortModel, setSortModel, searchString }) => {
       return await API.getPackingSlipHistory();
     }
 
-    fetchData().then((data) => {
-      if (isMounted) {
-        let packingSlips =
-          data?.packingSlips?.map((e) => {
-            return {
-              ...e,
-              id: e._id,
-              orderId: e.orderNumber,
-            };
-          }) || [];
-        setRows(packingSlips);
-        setFilteredRows(packingSlips);
-      }
-    });
+    if (isMounted)
+      fetchData().then((data) => {
+        if (isMounted) {
+          let packingSlips =
+            data?.packingSlips?.map((e) => {
+              return {
+                ...e,
+                id: e._id,
+                orderId: e.orderNumber,
+                dateCreated: new Date(e.dateCreated).toLocaleString(),
+              };
+            }) || [];
+          setRows(packingSlips);
+          setFilteredRows(packingSlips);
+        }
+      });
     // eslint-disable-next-line
-  }, []);
+  }, [isMounted]);
 
   useEffect(() => {
     setFilteredRows(
@@ -114,8 +116,8 @@ const HistoryTable = ({ sortModel, setSortModel, searchString }) => {
   }, [rows, searchString]);
 
   useEffect(() => {
-    reloadData();
-  }, [reloadData]);
+    if (isMounted) reloadData();
+  }, [reloadData, isMounted]);
 
   const onHistoryPackingSlipAdd = useCallback(
     (pageNum) => {
@@ -309,7 +311,7 @@ const HistoryTable = ({ sortModel, setSortModel, searchString }) => {
     await API.downloadPDF(
       selectedRow._id,
       selectedRow.orderNumber,
-      selectedRow.dateCreated
+      selectedRow.dateCreatedValue
     )
       .then((data) => {
         pdfMake.createPdf(data.docDefinition).open();
@@ -358,8 +360,7 @@ const HistoryTable = ({ sortModel, setSortModel, searchString }) => {
       />
       <ContextMenu
         menuPosition={menuPosition}
-        setMenuPosition={setMenuPosition}
-      >
+        setMenuPosition={setMenuPosition}>
         {historyRowMenuOptions}
       </ContextMenu>
       <EditPackingSlipDialog

@@ -201,33 +201,35 @@ const PackingQueueTable = ({
       }
     }
 
-    fetchData().then((data) => {
-      if (isMounted) {
-        let tableData = [];
-        data?.forEach((e) => {
-          tableData.push({
-            id: e._id,
-            part: `${e.partNumber} - ${e.partRev} (Batch ${e.batch})`,
-            batchQty: e.batchQty,
-            customer: e.customer,
-            orderNumber: e.orderNumber,
-            fulfilledQty: e.packedQty,
-            partDescription: e.partDescription,
+    if (isMounted) {
+      fetchData().then((data) => {
+        if (isMounted) {
+          let tableData = [];
+          data?.forEach((e) => {
+            tableData.push({
+              id: e._id,
+              part: `${e.partNumber} - ${e.partRev} (Batch ${e.batch})`,
+              batchQty: e.batchQty,
+              customer: e.customer,
+              orderNumber: e.orderNumber,
+              fulfilledQty: e.packedQty,
+              partDescription: e.partDescription,
+            });
           });
-        });
 
-        tableData = sortDataByModel(
-          sortModel,
-          tableData,
-          columns,
-          selectionOrderIds
-        );
-        setPackingQueue(tableData);
-        setFilteredPackingQueue(tableData);
-      }
-    });
+          tableData = sortDataByModel(
+            sortModel,
+            tableData,
+            columns,
+            selectionOrderIds
+          );
+          setPackingQueue(tableData);
+          setFilteredPackingQueue(tableData);
+        }
+      });
+    }
     // eslint-disable-next-line
-  }, []);
+  }, [isMounted]);
 
   useEffect(() => {
     // When we toggle on, we need to make sure to apply the search and sorting again.
