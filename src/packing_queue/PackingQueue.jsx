@@ -15,23 +15,23 @@ import { useLocalStorage } from "../utils/localStorage";
 
 const useStyle = makeStyles((theme) => ({
   box: {
-    boxSizing: 'border-box',
-    height: '100%',
+    boxSizing: "border-box",
+    height: "100%",
   },
   topBarGrid: {
-    boxSizing: 'border-box',
-    height: '5.5rem',
-    marginBottom: '1rem!important',
-    paddingTop: '1rem!important',
-    paddingLeft: '1rem!important',
+    boxSizing: "border-box",
+    height: "5.5rem",
+    marginBottom: "1rem!important",
+    paddingTop: "1rem!important",
+    paddingLeft: "1rem!important",
   },
   bottomBarGrid: {
-    boxSizing: 'border-box',
-    marginTop: '1rem!important',
-    marginBottom: '0',
-    height: '3rem',
-    paddingRight: '1rem'
-  }
+    boxSizing: "border-box",
+    marginTop: "1rem!important",
+    marginBottom: "0",
+    height: "3rem",
+    paddingRight: "1rem",
+  },
 }));
 
 const PackingQueue = () => {
@@ -124,118 +124,117 @@ const PackingQueue = () => {
   }
 
   return (
-    <Box
-      className={classes.box}
-    >
+    <Box className={classes.box}>
       <Grid
         className={classes.topBarGrid}
         container
         justifyContent="start"
-        spacing={2}
-      >
-        <Grid container item xs={"auto"}>
-          <CommonButton
-            label="Make Packing Slip"
-            disabled={selectedOrderIds.length === 0 || tabValue !== 0}
-            onClick={onPackingSlipClick}
-          />
-        </Grid>
-        <Grid container justifyContent="start" item xs={6}>
-          <Search onSearch={onSearch} />
-        </Grid>
-        <Grid container item xs justifyContent="flex-end">
-          <CheckboxForm
-            label="Show Unfinished Batches"
-            disabled={true}
-            onChange={() => console.log("not implemented yet")}
-            checked={true /*isShowUnfinishedBatches*/}
-          />
-        </Grid>
-        <Grid container item xs justifyContent="flex-end">
-          <CheckboxForm
-            label="Show Fulfilled Batches"
-            onChange={(checked) => {
-              setIsFulfilledBatchesOn(checked);
+        spacing={2}>
+        <Grid container item xs={12} spacing={2}>
+          <Grid container item xs={"auto"}>
+            <CommonButton
+              label="Make Packing Slip"
+              disabled={selectedOrderIds.length === 0 || tabValue !== 0}
+              onClick={onPackingSlipClick}
+            />
+          </Grid>
+          <Grid container justifyContent="start" item xs={6}>
+            <Search onSearch={onSearch} />
+          </Grid>
+          <Grid container item xs justifyContent="flex-end">
+            <CheckboxForm
+              label="Show Unfinished Batches"
+              disabled={true}
+              onChange={() => console.log("not implemented yet")}
+              checked={true /*isShowUnfinishedBatches*/}
+            />
+          </Grid>
+          <Grid container item xs justifyContent="flex-end">
+            <CheckboxForm
+              label="Show Fulfilled Batches"
+              onChange={(checked) => {
+                setIsFulfilledBatchesOn(checked);
 
-              if (isFulfilledBatchesOn) {
-                const tmpPackQueue = filteredPackingQueue.filter(
-                  (e) => e.fulfilledQty < e.batchQty
-                );
-                const orderIds = tmpPackQueue
-                  .filter((e) => selectedOrderIds.includes(e.id))
-                  .map((e) => e.id);
-                setSelectedOrderIds(orderIds);
-                setSelectedOrderNumber(
-                  orderIds.length === 0 ? null : selectedOrderNumber
-                );
-                setFilteredPackingQueue(tmpPackQueue);
-              } else {
-                setFilteredPackingQueue(packingQueue);
-              }
+                if (isFulfilledBatchesOn) {
+                  const tmpPackQueue = filteredPackingQueue.filter(
+                    (e) => e.fulfilledQty < e.batchQty
+                  );
+                  const orderIds = tmpPackQueue
+                    .filter((e) => selectedOrderIds.includes(e.id))
+                    .map((e) => e.id);
+                  setSelectedOrderIds(orderIds);
+                  setSelectedOrderNumber(
+                    orderIds.length === 0 ? null : selectedOrderNumber
+                  );
+                  setFilteredPackingQueue(tmpPackQueue);
+                } else {
+                  setFilteredPackingQueue(packingQueue);
+                }
+              }}
+              checked={isFulfilledBatchesOn}
+            />
+          </Grid>
+        </Grid>
+        <Grid item xs={12}>
+          <PackShipTabs
+            onTabChange={(_, v) => {
+              setTabValue(v);
             }}
-            checked={isFulfilledBatchesOn}
+            queueTotal={packingQueue?.length}
+            queueTab={
+              <PackingQueueTable
+                tableData={filteredPackingQueue}
+                packingQueue={packingQueue}
+                selectedOrderNumber={selectedOrderNumber}
+                selectionOrderIds={selectedOrderIds}
+                sortModel={sortPackQueueModel}
+                setSortModel={setSortPackQueueModel}
+                setPackingQueue={setPackingQueue}
+                setFilteredPackingQueue={setFilteredPackingQueue}
+                isShowUnfinishedBatches={true /*isShowUnfinishedBatches*/}
+                setSelectedOrderIds={setSelectedOrderIds}
+                setSelectedOrderNumber={setSelectedOrderNumber}
+                searchString={searchString}
+                isFulfilledBatchesOn={isFulfilledBatchesOn}
+              />
+            }
+            historyTab={
+              <HistoryTable
+                sortModel={sortPackHistoryModel}
+                setSortModel={setSortPackHistoryModel}
+                searchString={searchString}
+              />
+            }
           />
         </Grid>
-      </Grid>
 
-      <PackShipTabs
-        onTabChange={(_, v) => {
-          setTabValue(v);
-        }}
-        queueTotal={packingQueue?.length}
-        queueTab={
-          <PackingQueueTable
-            tableData={filteredPackingQueue}
-            packingQueue={packingQueue}
-            selectedOrderNumber={selectedOrderNumber}
-            selectionOrderIds={selectedOrderIds}
-            sortModel={sortPackQueueModel}
-            setSortModel={setSortPackQueueModel}
-            setPackingQueue={setPackingQueue}
-            setFilteredPackingQueue={setFilteredPackingQueue}
-            isShowUnfinishedBatches={true /*isShowUnfinishedBatches*/}
-            setSelectedOrderIds={setSelectedOrderIds}
-            setSelectedOrderNumber={setSelectedOrderNumber}
-            searchString={searchString}
-            isFulfilledBatchesOn={isFulfilledBatchesOn}
-          />
-        }
-        historyTab={
-          <HistoryTable
-            sortModel={sortPackHistoryModel}
-            setSortModel={setSortPackHistoryModel}
-            searchString={searchString}
-          />
-        }
-      />
+        <PackingSlipDialog
+          onSubmit={onPackingSlipSubmit}
+          open={packingSlipOpen}
+          onClose={onPackingSlipClose}
+          orderNum={selectedOrderNumber}
+          title={`Create Packing Slip for ${selectedOrderNumber}`}
+          parts={filteredPackingQueue
+            .filter((e) => selectedOrderIds.includes(e.id))
+            .map((e) => {
+              return {
+                ...e,
+                packQty:
+                  e.fulfilledQty > e.batchQty ? 0 : e.batchQty - e.fulfilledQty,
+              };
+            })}
+        />
 
-      <PackingSlipDialog
-        onSubmit={onPackingSlipSubmit}
-        open={packingSlipOpen}
-        onClose={onPackingSlipClose}
-        orderNum={selectedOrderNumber}
-        title={`Create Packing Slip for ${selectedOrderNumber}`}
-        parts={filteredPackingQueue
-          .filter((e) => selectedOrderIds.includes(e.id))
-          .map((e) => {
-            return {
-              ...e,
-              packQty:
-                e.fulfilledQty > e.batchQty ? 0 : e.batchQty - e.fulfilledQty,
-            };
-          })}
-      />
-
-      <Grid
-        className={classes.bottomBarGrid}
-        container
-        item
-        xs
-        justifyContent="flex-end"
-      >
-        <Button component={Link} to={ROUTE_SHIPMENTS} variant="contained">
-          Go to Shipping
-        </Button>
+        <Grid
+          className={classes.bottomBarGrid}
+          container
+          item
+          xs
+          justifyContent="flex-end">
+          <Button component={Link} to={ROUTE_SHIPMENTS} variant="contained">
+            Go to Shipping
+          </Button>
+        </Grid>
       </Grid>
     </Box>
   );

@@ -417,7 +417,7 @@ const PackingQueueTable = ({
   return (
     <div className={classes.root}>
       <DataGrid
-        sx={{ border: "none", height: "65vh" }}
+        sx={{ border: "none", height: "65vh", minHeight: "20rem" }}
         className={classes.table}
         rows={queueData.slice(
           page * numRowsPerPage,
