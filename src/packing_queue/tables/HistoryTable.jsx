@@ -17,6 +17,7 @@ const useStyle = makeStyles((theme) => ({
     alignItems: "center",
     justifyContent: "center",
     display: "flex",
+    minHeight: "20rem",
   },
   table: {
     backgroundColor: "white",
@@ -93,18 +94,18 @@ const HistoryTable = ({ sortModel, setSortModel, searchString }) => {
 
   useEffect(() => {
     setFilteredRows(
-      rows?.filter(
-        (order) => {
-          // console.log(order);
+      rows?.filter((order) => {
+        // console.log(order);
 
-          return (order.orderNumber
+        return (
+          order.orderNumber
             ?.toLowerCase()
-            ?.includes(searchString.toLowerCase()) ) ||
-          (order.packingSlipId
+            ?.includes(searchString.toLowerCase()) ||
+          order.packingSlipId
             ?.toLowerCase()
-            ?.includes(searchString.toLowerCase()) );
-        }
-      )
+            ?.includes(searchString.toLowerCase())
+        );
+      })
     );
   }, [rows, searchString]);
 
@@ -336,7 +337,7 @@ const HistoryTable = ({ sortModel, setSortModel, searchString }) => {
   return (
     <div className={classes.root}>
       <DataGrid
-        sx={{ border: "none", height: "65vh" }}
+        sx={{ border: "none", height: "65vh", minHeight: "20rem" }}
         className={classes.table}
         rows={filteredRows}
         columns={columns}
@@ -353,8 +354,7 @@ const HistoryTable = ({ sortModel, setSortModel, searchString }) => {
       />
       <ContextMenu
         menuPosition={menuPosition}
-        setMenuPosition={setMenuPosition}
-      >
+        setMenuPosition={setMenuPosition}>
         {historyRowMenuOptions}
       </ContextMenu>
       <EditPackingSlipDialog
