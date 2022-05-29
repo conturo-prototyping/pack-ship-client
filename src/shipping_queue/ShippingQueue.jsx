@@ -22,7 +22,7 @@ const useStyle = makeStyles((theme) => ({
   },
   topBarGrid: {
     boxSizing: "border-box",
-    height: "5.5rem",
+    height: "5rem",
     marginBottom: "1rem!important",
     paddingTop: "1rem!important",
     paddingLeft: "1rem!important",
@@ -163,9 +163,17 @@ const ShippingQueue = () => {
             container
             item
             justifyContent="start"
-            spacing={2}
+            spacing={1}
             xs={12}>
-            <Grid container item xs={4} md>
+            <Grid container item xs={4} md={5} justifyContent="flex-end">
+              <CommonButton
+                label="Clear"
+                onClick={onHistoryClearClick}
+                disabled={!orderNumber && !partNumber}
+                color="error"
+              />
+            </Grid>
+            <Grid container item xs={2} md={1}>
               <TextInput
                 onChange={(e) => {
                   if (
@@ -182,7 +190,7 @@ const ShippingQueue = () => {
                 value={orderNumber}
               />
             </Grid>
-            <Grid container item xs={4} md={8}>
+            <Grid container item xs={2} md={1} justifyContent="start">
               <TextInput
                 onChange={(e) => {
                   if (
@@ -199,18 +207,12 @@ const ShippingQueue = () => {
                 value={partNumber}
               />
             </Grid>
-            <Grid container item xs={2} md={2} justifyContent="flex-end">
-              <CommonButton
-                label="Clear"
-                onClick={onHistoryClearClick}
-                disabled={!orderNumber && !partNumber}
-              />
-            </Grid>
-            <Grid container item xs={1} md={1}>
+            <Grid container item xs={4} md={5}>
               <CommonButton
                 label="Search"
                 onClick={onHistorySearchClick}
                 disabled={!orderNumber && !partNumber}
+                sx={{ marginLeft: "2rem" }}
               />
             </Grid>
           </Grid>
