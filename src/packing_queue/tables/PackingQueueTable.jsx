@@ -59,20 +59,43 @@ const applySearch = (
   staticCols,
   setFilteredPackingQueue
 ) => {
-  let filteredQueue = packingQueue.filter(
-    (order) =>
-      order.orderNumber.toLowerCase().includes(searchString.toLowerCase()) ||
-      order.part.toLowerCase().includes(searchString.toLowerCase()) ||
-      selectionOrderIds.includes(order.id) // Ensure selected rows are included
-  );
+  async function fetchData() {
+    if (true /*isShowUnfinishedBatches*/) {
+      return await API.getAllWorkOrders();
+    } else {
+      return await API.getPackingQueue();
+    }
+  }
 
-  filteredQueue = sortDataByModel(
-    sortModel,
-    filteredQueue,
-    staticCols,
-    selectionOrderIds
-  );
-  setFilteredPackingQueue(filteredQueue);
+  fetchData().then((data) => {
+    let tableData = [];
+    data?.forEach((e) => {
+      tableData.push({
+        id: e._id,
+        part: `${e.partNumber} - ${e.partRev} (Batch ${e.batch})`,
+        batchQty: e.batchQty,
+        customer: e.customer,
+        orderNumber: e.orderNumber,
+        fulfilledQty: e.packedQty,
+        partDescription: e.partDescription,
+      });
+    });
+
+    let filteredQueue = packingQueue.filter(
+      (order) =>
+        order.orderNumber.toLowerCase().includes(searchString.toLowerCase()) ||
+        order.part.toLowerCase().includes(searchString.toLowerCase()) ||
+        selectionOrderIds.includes(order.id) // Ensure selected rows are included
+    );
+
+    filteredQueue = sortDataByModel(
+      sortModel,
+      filteredQueue,
+      staticCols,
+      selectionOrderIds
+    );
+    setFilteredPackingQueue(filteredQueue);
+  });
 };
 
 const PackingQueueTable = ({
