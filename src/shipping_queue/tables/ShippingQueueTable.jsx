@@ -65,6 +65,7 @@ const ShippingQueueTable = ({
   const [queueData, setQueueData] = useState(tableData);
   const [selectedCustomerId, setSelectedCustomerId] = useState(null);
   const [isSelectAllOn, setIsSelectAll] = useState(false);
+  const [isMounted, setIsMounted] = useState(false);
 
   const numRowsPerPage = 10;
 
@@ -78,39 +79,51 @@ const ShippingQueueTable = ({
     [selectedCustomerId]
   );
 
+  useEffect(() => {
+    setIsMounted(true);
+  }, []);
+
   const reloadData = useCallback(() => {
     async function fetchData() {
       const data = await Promise.all([API.getShippingQueue()]);
       return { queue: data[0] };
     }
 
-    fetchData().then((data) => {
-      // Gather the queue data for the table
-      let queueTableData = [];
-      data?.queue?.packingSlips.forEach((e) => {
-        queueTableData.push({
-          id: e._id,
-          orderNumber: e.orderNumber,
-          packingSlipId: e.packingSlipId,
-          customer: e.customer,
-          items: e.items,
-        });
-      });
+    if (isMounted)
+      fetchData().then((data) => {
+        if (isMounted) {
+          // Gather the queue data for the table
+          let queueTableData = [];
+          data?.queue?.packingSlips.forEach((e) => {
+            queueTableData.push({
+              id: e._id,
+              orderNumber: e.orderNumber,
+              packingSlipId: e.packingSlipId,
+              customer: e.customer,
+              items: e.items,
+            });
+          });
 
-      // The set state order is important
-      setSelectedCustomerId(null);
-      setSelectedOrderIds([]);
-      queueTableData = sortDataByModel(sortModel, queueTableData);
-      setShippingQueue(queueTableData);
-      setFilteredShippingQueue(queueTableData);
-      setIsSelectAll(false);
-    });
+          // The set state order is important
+          setSelectedCustomerId(null);
+          setSelectedOrderIds([]);
+          queueTableData = sortDataByModel(sortModel, queueTableData);
+          setShippingQueue(queueTableData);
+          setFilteredShippingQueue(queueTableData);
+          setIsSelectAll(false);
+        }
+      });
     // eslint-disable-next-line
-  }, [setFilteredShippingQueue, setSelectedOrderIds, setShippingQueue]);
+  }, [
+    setFilteredShippingQueue,
+    setSelectedOrderIds,
+    setShippingQueue,
+    isMounted,
+  ]);
 
   useEffect(() => {
-    reloadData();
-  }, [reloadData]);
+    if (isMounted) reloadData();
+  }, [reloadData, isMounted]);
 
   const handleSelection = useCallback(
     (selection, tableData) => {

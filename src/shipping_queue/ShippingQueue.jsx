@@ -44,6 +44,8 @@ export const TabNames = {
 const ShippingQueue = () => {
   const classes = useStyle();
 
+  const [isMounted, setIsMounted] = useState(false);
+
   // Common tab states
   const [currentTab, setCurrentTab] = useState(TabNames.Queue);
 
@@ -98,28 +100,37 @@ const ShippingQueue = () => {
 
   const fetchSearch = useCallback(
     (sort, pageNumber, oNum, pNum) => {
-      API.searchShippingHistory(
-        sort.sortBy,
-        sort.sortOrder,
-        oNum,
-        pNum,
-        histResultsPerPage,
-        pageNumber
-      ).then((data) => {
-        if (data) {
-          let historyTableData = extractHistoryDetails(data?.shipments);
-          setFilteredShippingHist(historyTableData);
-          setHistTotalCount(data?.totalCount);
-        }
-      });
+      if (isMounted)
+        API.searchShippingHistory(
+          sort.sortBy,
+          sort.sortOrder,
+          oNum,
+          pNum,
+          histResultsPerPage,
+          pageNumber
+        ).then((data) => {
+          if (data) {
+            if (isMounted) {
+              let historyTableData = extractHistoryDetails(data?.shipments);
+              setFilteredShippingHist(historyTableData);
+              setHistTotalCount(data?.totalCount);
+            }
+          }
+        });
     },
-    [histResultsPerPage]
+    // eslint-disable-next-line
+    [histResultsPerPage, isMounted]
   );
 
   useEffect(() => {
-    fetchSearch(getSortFromModel(sortShippingHistModel), 0, "", "");
+    setIsMounted(true);
+  }, []);
+
+  useEffect(() => {
+    if (isMounted)
+      fetchSearch(getSortFromModel(sortShippingHistModel), 0, "", "");
     // eslint-disable-next-line
-  }, [fetchSearch]);
+  }, [fetchSearch, isMounted]);
 
   function onHistorySearchClick() {
     fetchSearch(
