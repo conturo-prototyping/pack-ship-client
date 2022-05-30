@@ -8,7 +8,8 @@ const CommonButton = ({
   variant = "contained",
   autoFocus = false,
   color = "primary",
-  type = undefined
+  type = undefined,
+  sx = undefined,
 }) => {
   return (
     <Button
@@ -18,7 +19,7 @@ const CommonButton = ({
       onClick={onClick}
       autoFocus={autoFocus}
       type={type}
-    >
+      sx={sx}>
       {label}
     </Button>
   );
