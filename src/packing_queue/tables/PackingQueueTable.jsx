@@ -57,45 +57,25 @@ const applySearch = (
   sortDataByModel,
   sortModel,
   staticCols,
-  setFilteredPackingQueue
+  setFilteredPackingQueue,
+  setPackingQueue = undefined
 ) => {
-  async function fetchData() {
-    if (true /*isShowUnfinishedBatches*/) {
-      return await API.getAllWorkOrders();
-    } else {
-      return await API.getPackingQueue();
-    }
-  }
+  const tempQueue = sortDataByModel(
+    sortModel,
+    packingQueue,
+    staticCols,
+    selectionOrderIds
+  );
 
-  fetchData().then((data) => {
-    let tableData = [];
-    data?.forEach((e) => {
-      tableData.push({
-        id: e._id,
-        part: `${e.partNumber} - ${e.partRev} (Batch ${e.batch})`,
-        batchQty: e.batchQty,
-        customer: e.customer,
-        orderNumber: e.orderNumber,
-        fulfilledQty: e.packedQty,
-        partDescription: e.partDescription,
-      });
-    });
+  let filteredQueue = packingQueue.filter(
+    (order) =>
+      order.orderNumber.toLowerCase().includes(searchString.toLowerCase()) ||
+      order.part.toLowerCase().includes(searchString.toLowerCase()) ||
+      selectionOrderIds.includes(order.id) // Ensure selected rows are included
+  );
 
-    let filteredQueue = packingQueue.filter(
-      (order) =>
-        order.orderNumber.toLowerCase().includes(searchString.toLowerCase()) ||
-        order.part.toLowerCase().includes(searchString.toLowerCase()) ||
-        selectionOrderIds.includes(order.id) // Ensure selected rows are included
-    );
-
-    filteredQueue = sortDataByModel(
-      sortModel,
-      filteredQueue,
-      staticCols,
-      selectionOrderIds
-    );
-    setFilteredPackingQueue(filteredQueue);
-  });
+  setFilteredPackingQueue(filteredQueue);
+  if (setPackingQueue) setPackingQueue(tempQueue);
 };
 
 const PackingQueueTable = ({
@@ -254,26 +234,63 @@ const PackingQueueTable = ({
     // eslint-disable-next-line
   }, [isMounted]);
 
-  useEffect(() => {
-    // When we toggle on, we need to make sure to apply the search and sorting again.
-    if (isFulfilledBatchesOn) {
-      applySearch(
-        packingQueue,
-        searchString,
-        selectionOrderIds,
-        sortDataByModel,
-        sortModel,
-        staticCols,
-        setFilteredPackingQueue
-      );
+  useEffect(async () => {
+    const finalData = [];
+    async function fetchData() {
+      if (true /*isShowUnfinishedBatches*/) {
+        return await API.getAllWorkOrders();
+      } else {
+        return await API.getPackingQueue();
+      }
     }
 
-    recheckIfNeeded(
-      selectedOrderNumber,
-      tableData,
-      selectionOrderIds,
-      setIsSelectAll
-    );
+    if (isMounted) {
+      await fetchData().then((data) => {
+        if (isMounted) {
+          data?.forEach((e) => {
+            finalData.push({
+              id: e._id,
+              part: `${e.partNumber} - ${e.partRev} (Batch ${e.batch})`,
+              batchQty: e.batchQty,
+              customer: e.customer,
+              orderNumber: e.orderNumber,
+              fulfilledQty: e.packedQty,
+              partDescription: e.partDescription,
+            });
+          });
+        }
+      });
+
+      // When we toggle on, we need to make sure to apply the search and sorting again.
+      if (isFulfilledBatchesOn) {
+        applySearch(
+          finalData,
+          searchString,
+          selectionOrderIds,
+          sortDataByModel,
+          sortModel,
+          staticCols,
+          setFilteredPackingQueue,
+          setPackingQueue
+        );
+      } else {
+        const tableData = sortDataByModel(
+          sortModel,
+          finalData,
+          columns,
+          selectionOrderIds
+        );
+        setPackingQueue(tableData);
+        setFilteredPackingQueue(tableData);
+      }
+
+      recheckIfNeeded(
+        selectedOrderNumber,
+        tableData,
+        selectionOrderIds,
+        setIsSelectAll
+      );
+    }
     // eslint-disable-next-line
   }, [isFulfilledBatchesOn]);
 
