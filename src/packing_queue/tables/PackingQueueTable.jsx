@@ -76,6 +76,8 @@ const applySearch = (
 
   setFilteredPackingQueue(filteredQueue);
   if (setPackingQueue) setPackingQueue(tempQueue);
+
+  return filteredQueue;
 };
 
 const PackingQueueTable = ({
@@ -234,63 +236,26 @@ const PackingQueueTable = ({
     // eslint-disable-next-line
   }, [isMounted]);
 
-  useEffect(async () => {
-    const finalData = [];
-    async function fetchData() {
-      if (true /*isShowUnfinishedBatches*/) {
-        return await API.getAllWorkOrders();
-      } else {
-        return await API.getPackingQueue();
-      }
-    }
-
-    if (isMounted) {
-      await fetchData().then((data) => {
-        if (isMounted) {
-          data?.forEach((e) => {
-            finalData.push({
-              id: e._id,
-              part: `${e.partNumber} - ${e.partRev} (Batch ${e.batch})`,
-              batchQty: e.batchQty,
-              customer: e.customer,
-              orderNumber: e.orderNumber,
-              fulfilledQty: e.packedQty,
-              partDescription: e.partDescription,
-            });
-          });
-        }
-      });
-
-      // When we toggle on, we need to make sure to apply the search and sorting again.
-      if (isFulfilledBatchesOn) {
-        applySearch(
-          finalData,
-          searchString,
-          selectionOrderIds,
-          sortDataByModel,
-          sortModel,
-          staticCols,
-          setFilteredPackingQueue,
-          setPackingQueue
-        );
-      } else {
-        const tableData = sortDataByModel(
-          sortModel,
-          finalData,
-          columns,
-          selectionOrderIds
-        );
-        setPackingQueue(tableData);
-        setFilteredPackingQueue(tableData);
-      }
-
-      recheckIfNeeded(
-        selectedOrderNumber,
-        tableData,
+  useEffect(() => {
+    // When we toggle on, we need to make sure to apply the search and sorting again.
+    if (isFulfilledBatchesOn) {
+      applySearch(
+        packingQueue,
+        searchString,
         selectionOrderIds,
-        setIsSelectAll
+        sortDataByModel,
+        sortModel,
+        staticCols,
+        setFilteredPackingQueue
       );
     }
+
+    recheckIfNeeded(
+      selectedOrderNumber,
+      tableData,
+      selectionOrderIds,
+      setIsSelectAll
+    );
     // eslint-disable-next-line
   }, [isFulfilledBatchesOn]);
 
@@ -404,6 +369,7 @@ const PackingQueueTable = ({
   );
 
   useEffect(() => {
+    console.log("BOOP");
     if (searchString) {
       applySearch(
         packingQueue,

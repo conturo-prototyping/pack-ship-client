@@ -1,4 +1,4 @@
-import React, { useState, useCallback } from "react";
+import React, { useState, useCallback, useEffect } from "react";
 import Search from "../components/Search";
 import PackShipTabs from "../components/Tabs";
 import CheckboxForm from "../components/CheckboxForm";
@@ -37,6 +37,8 @@ const useStyle = makeStyles((theme) => ({
 const PackingQueue = () => {
   const classes = useStyle();
 
+  const [isMounted, setIsMounted] = useState(false);
+
   const [searchString, setSearchString] = useState("");
   const [tabValue, setTabValue] = useState(0);
 
@@ -64,6 +66,11 @@ const PackingQueue = () => {
       { field: "dateCreated", sort: "asc" },
     ]
   );
+
+  useEffect(() => {
+    setIsMounted(true);
+  }, []);
+
   function onPackingSlipClick() {
     setTimeout(() => setPackingSlipOpen(true), 0);
   }
@@ -152,24 +159,48 @@ const PackingQueue = () => {
           <Grid container item xs justifyContent="flex-end">
             <CheckboxForm
               label="Show Fulfilled Batches"
-              onChange={(checked) => {
-                setIsFulfilledBatchesOn(checked);
-
-                if (isFulfilledBatchesOn) {
-                  const tmpPackQueue = filteredPackingQueue.filter(
-                    (e) => e.fulfilledQty < e.batchQty
-                  );
-                  const orderIds = tmpPackQueue
-                    .filter((e) => selectedOrderIds.includes(e.id))
-                    .map((e) => e.id);
-                  setSelectedOrderIds(orderIds);
-                  setSelectedOrderNumber(
-                    orderIds.length === 0 ? null : selectedOrderNumber
-                  );
-                  setFilteredPackingQueue(tmpPackQueue);
-                } else {
-                  setFilteredPackingQueue(packingQueue);
+              onChange={async (checked) => {
+                const finalData = [];
+                async function fetchData() {
+                  if (true /*isShowUnfinishedBatches*/) {
+                    return await API.getAllWorkOrders();
+                  } else {
+                    return await API.getPackingQueue();
+                  }
                 }
+                await fetchData().then((data) => {
+                  if (isMounted) {
+                    data?.forEach((e) => {
+                      finalData.push({
+                        id: e._id,
+                        part: `${e.partNumber} - ${e.partRev} (Batch ${e.batch})`,
+                        batchQty: e.batchQty,
+                        customer: e.customer,
+                        orderNumber: e.orderNumber,
+                        fulfilledQty: e.packedQty,
+                        partDescription: e.partDescription,
+                      });
+                    });
+
+                    if (isFulfilledBatchesOn) {
+                      const tmpPackQueue = finalData.filter(
+                        (e) => e.fulfilledQty < e.batchQty
+                      );
+                      const orderIds = tmpPackQueue
+                        .filter((e) => selectedOrderIds.includes(e.id))
+                        .map((e) => e.id);
+                      setSelectedOrderIds(orderIds);
+                      setSelectedOrderNumber(
+                        orderIds.length === 0 ? null : selectedOrderNumber
+                      );
+                      setFilteredPackingQueue(tmpPackQueue);
+                    } else {
+                      setFilteredPackingQueue(finalData);
+                    }
+                  }
+                });
+
+                setIsFulfilledBatchesOn(checked);
               }}
               checked={isFulfilledBatchesOn}
             />
