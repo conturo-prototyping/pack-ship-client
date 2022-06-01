@@ -57,16 +57,8 @@ const applySearch = (
   sortDataByModel,
   sortModel,
   staticCols,
-  setFilteredPackingQueue,
-  setPackingQueue = undefined
+  setFilteredPackingQueue
 ) => {
-  const tempQueue = sortDataByModel(
-    sortModel,
-    packingQueue,
-    staticCols,
-    selectionOrderIds
-  );
-
   let filteredQueue = packingQueue.filter(
     (order) =>
       order.orderNumber.toLowerCase().includes(searchString.toLowerCase()) ||
@@ -74,10 +66,13 @@ const applySearch = (
       selectionOrderIds.includes(order.id) // Ensure selected rows are included
   );
 
+  filteredQueue = sortDataByModel(
+    sortModel,
+    filteredQueue,
+    staticCols,
+    selectionOrderIds
+  );
   setFilteredPackingQueue(filteredQueue);
-  if (setPackingQueue) setPackingQueue(tempQueue);
-
-  return filteredQueue;
 };
 
 const PackingQueueTable = ({
@@ -369,7 +364,6 @@ const PackingQueueTable = ({
   );
 
   useEffect(() => {
-    console.log("BOOP");
     if (searchString) {
       applySearch(
         packingQueue,
