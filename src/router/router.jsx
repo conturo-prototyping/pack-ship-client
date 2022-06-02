@@ -33,12 +33,18 @@ const Router = () => {
         withCredentials: true,
       })
       .then((res) => {
+
         const { user } = res.data;
         setIsUserAuthenticated(true);
         setAuthUser(user);
 
         // Only change pages on re-auth if it comes from login page. Otherwise refreshes should remain on page.
-        if (location.pathname === "/login") navigate(ROUTE_PACKING_SLIP);
+        if (
+          location.pathname === "/login" ||
+          location.pathname === "/"
+        ) {
+          navigate(ROUTE_PACKING_SLIP); 
+        }
       })
       .catch((err) => {
         console.log("Not properly authenticated.");
