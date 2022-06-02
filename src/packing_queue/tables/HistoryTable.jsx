@@ -56,6 +56,8 @@ const HistoryTable = ({ sortModel, setSortModel, searchString }) => {
   const classes = useStyle();
 
   const [isMounted, setIsMounted] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
+
   const [menuPosition, setMenuPosition] = useState();
 
   const [selectedRow, setSelectedRow] = useState({});
@@ -82,22 +84,28 @@ const HistoryTable = ({ sortModel, setSortModel, searchString }) => {
       return await API.getPackingSlipHistory();
     }
 
-    if (isMounted)
-      fetchData().then((data) => {
-        if (isMounted) {
-          let packingSlips =
-            data?.packingSlips?.map((e) => {
-              return {
-                ...e,
-                id: e._id,
-                orderId: e.orderNumber,
-                dateCreated: new Date(e.dateCreated).toLocaleString(),
-              };
-            }) || [];
-          setRows(packingSlips);
-          setFilteredRows(packingSlips);
-        }
-      });
+    if (isMounted) {
+      setIsLoading(true);
+      fetchData()
+        .then((data) => {
+          if (isMounted) {
+            let packingSlips =
+              data?.packingSlips?.map((e) => {
+                return {
+                  ...e,
+                  id: e._id,
+                  orderId: e.orderNumber,
+                  dateCreated: new Date(e.dateCreated).toLocaleString(),
+                };
+              }) || [];
+            setRows(packingSlips);
+            setFilteredRows(packingSlips);
+          }
+        })
+        .finally(() => {
+          setIsLoading(false);
+        });
+    }
     // eslint-disable-next-line
   }, [isMounted]);
 
@@ -358,6 +366,7 @@ const HistoryTable = ({ sortModel, setSortModel, searchString }) => {
         }}
         sortModel={sortModel}
         onSortModelChange={setSortModel}
+        loading={isLoading}
       />
       <ContextMenu
         menuPosition={menuPosition}

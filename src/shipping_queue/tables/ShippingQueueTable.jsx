@@ -66,6 +66,7 @@ const ShippingQueueTable = ({
   const [selectedCustomerId, setSelectedCustomerId] = useState(null);
   const [isSelectAllOn, setIsSelectAll] = useState(false);
   const [isMounted, setIsMounted] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
 
   const numRowsPerPage = 10;
 
@@ -83,36 +84,42 @@ const ShippingQueueTable = ({
     setIsMounted(true);
   }, []);
 
-  const reloadData = useCallback(() => {
+  const reloadData = useCallback(async () => {
     async function fetchData() {
       const data = await Promise.all([API.getShippingQueue()]);
       return { queue: data[0] };
     }
 
-    if (isMounted)
-      fetchData().then((data) => {
-        if (isMounted) {
-          // Gather the queue data for the table
-          let queueTableData = [];
-          data?.queue?.packingSlips.forEach((e) => {
-            queueTableData.push({
-              id: e._id,
-              orderNumber: e.orderNumber,
-              packingSlipId: e.packingSlipId,
-              customer: e.customer,
-              items: e.items,
+    if (isMounted) {
+      setIsLoading(true);
+      fetchData()
+        .then((data) => {
+          if (isMounted) {
+            // Gather the queue data for the table
+            let queueTableData = [];
+            data?.queue?.packingSlips.forEach((e) => {
+              queueTableData.push({
+                id: e._id,
+                orderNumber: e.orderNumber,
+                packingSlipId: e.packingSlipId,
+                customer: e.customer,
+                items: e.items,
+              });
             });
-          });
 
-          // The set state order is important
-          setSelectedCustomerId(null);
-          setSelectedOrderIds([]);
-          queueTableData = sortDataByModel(sortModel, queueTableData);
-          setShippingQueue(queueTableData);
-          setFilteredShippingQueue(queueTableData);
-          setIsSelectAll(false);
-        }
-      });
+            // The set state order is important
+            setSelectedCustomerId(null);
+            setSelectedOrderIds([]);
+            queueTableData = sortDataByModel(sortModel, queueTableData);
+            setShippingQueue(queueTableData);
+            setFilteredShippingQueue(queueTableData);
+            setIsSelectAll(false);
+          }
+        })
+        .finally(() => {
+          setIsLoading(false);
+        });
+    }
     // eslint-disable-next-line
   }, [
     setFilteredShippingQueue,
@@ -340,6 +347,7 @@ const ShippingQueueTable = ({
         checkboxSelection={false}
         disableSelectionOnClick={true}
         editMode="row"
+        loading={isLoading}
         sortingMode="server"
         sortModel={sortModel}
         onSortModelChange={(model) => {

@@ -97,6 +97,8 @@ const PackingQueueTable = ({
   const [queueData, setQueueData] = useState(tableData);
   const [isSelectAllOn, setIsSelectAll] = useState(false);
 
+  const [isLoading, setIsLoading] = useState(false);
+
   const isDisabled = useCallback(
     (params) => {
       return (
@@ -202,31 +204,36 @@ const PackingQueueTable = ({
     }
 
     if (isMounted) {
-      fetchData().then((data) => {
-        if (isMounted) {
-          let tableData = [];
-          data?.forEach((e) => {
-            tableData.push({
-              id: e._id,
-              part: `${e.partNumber} - ${e.partRev} (Batch ${e.batch})`,
-              batchQty: e.batchQty,
-              customer: e.customer,
-              orderNumber: e.orderNumber,
-              fulfilledQty: e.packedQty,
-              partDescription: e.partDescription,
+      setIsLoading(true);
+      fetchData()
+        .then((data) => {
+          if (isMounted) {
+            let tableData = [];
+            data?.forEach((e) => {
+              tableData.push({
+                id: e._id,
+                part: `${e.partNumber} - ${e.partRev} (Batch ${e.batch})`,
+                batchQty: e.batchQty,
+                customer: e.customer,
+                orderNumber: e.orderNumber,
+                fulfilledQty: e.packedQty,
+                partDescription: e.partDescription,
+              });
             });
-          });
 
-          tableData = sortDataByModel(
-            sortModel,
-            tableData,
-            columns,
-            selectionOrderIds
-          );
-          setPackingQueue(tableData);
-          setFilteredPackingQueue(tableData);
-        }
-      });
+            tableData = sortDataByModel(
+              sortModel,
+              tableData,
+              columns,
+              selectionOrderIds
+            );
+            setPackingQueue(tableData);
+            setFilteredPackingQueue(tableData);
+          }
+        })
+        .finally(() => {
+          setIsLoading(false);
+        });
     }
     // eslint-disable-next-line
   }, [isMounted]);
@@ -433,6 +440,7 @@ const PackingQueueTable = ({
         checkboxSelection={false}
         disableSelectionOnClick={true}
         sortingMode="server"
+        loading={isLoading}
         sortModel={sortModel}
         onSortModelChange={(model) => {
           setSortModel(model);
