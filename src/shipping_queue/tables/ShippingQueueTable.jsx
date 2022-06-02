@@ -92,30 +92,33 @@ const ShippingQueueTable = ({
 
     if (isMounted) {
       setIsLoading(true);
-      fetchData().then((data) => {
-        if (isMounted) {
-          // Gather the queue data for the table
-          let queueTableData = [];
-          data?.queue?.packingSlips.forEach((e) => {
-            queueTableData.push({
-              id: e._id,
-              orderNumber: e.orderNumber,
-              packingSlipId: e.packingSlipId,
-              customer: e.customer,
-              items: e.items,
+      fetchData()
+        .then((data) => {
+          if (isMounted) {
+            // Gather the queue data for the table
+            let queueTableData = [];
+            data?.queue?.packingSlips.forEach((e) => {
+              queueTableData.push({
+                id: e._id,
+                orderNumber: e.orderNumber,
+                packingSlipId: e.packingSlipId,
+                customer: e.customer,
+                items: e.items,
+              });
             });
-          });
 
-          // The set state order is important
-          setSelectedCustomerId(null);
-          setSelectedOrderIds([]);
-          queueTableData = sortDataByModel(sortModel, queueTableData);
-          setShippingQueue(queueTableData);
-          setFilteredShippingQueue(queueTableData);
-          setIsSelectAll(false);
-        }
-        setIsLoading(false);
-      });
+            // The set state order is important
+            setSelectedCustomerId(null);
+            setSelectedOrderIds([]);
+            queueTableData = sortDataByModel(sortModel, queueTableData);
+            setShippingQueue(queueTableData);
+            setFilteredShippingQueue(queueTableData);
+            setIsSelectAll(false);
+          }
+        })
+        .finally(() => {
+          setIsLoading(false);
+        });
     }
     // eslint-disable-next-line
   }, [

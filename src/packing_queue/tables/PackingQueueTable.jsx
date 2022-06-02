@@ -205,33 +205,35 @@ const PackingQueueTable = ({
 
     if (isMounted) {
       setIsLoading(true);
-      fetchData().then((data) => {
-        if (isMounted) {
-          let tableData = [];
-          data?.forEach((e) => {
-            tableData.push({
-              id: e._id,
-              part: `${e.partNumber} - ${e.partRev} (Batch ${e.batch})`,
-              batchQty: e.batchQty,
-              customer: e.customer,
-              orderNumber: e.orderNumber,
-              fulfilledQty: e.packedQty,
-              partDescription: e.partDescription,
+      fetchData()
+        .then((data) => {
+          if (isMounted) {
+            let tableData = [];
+            data?.forEach((e) => {
+              tableData.push({
+                id: e._id,
+                part: `${e.partNumber} - ${e.partRev} (Batch ${e.batch})`,
+                batchQty: e.batchQty,
+                customer: e.customer,
+                orderNumber: e.orderNumber,
+                fulfilledQty: e.packedQty,
+                partDescription: e.partDescription,
+              });
             });
-          });
 
-          tableData = sortDataByModel(
-            sortModel,
-            tableData,
-            columns,
-            selectionOrderIds
-          );
-          setPackingQueue(tableData);
-          setFilteredPackingQueue(tableData);
-        }
-
-        setIsLoading(false);
-      });
+            tableData = sortDataByModel(
+              sortModel,
+              tableData,
+              columns,
+              selectionOrderIds
+            );
+            setPackingQueue(tableData);
+            setFilteredPackingQueue(tableData);
+          }
+        })
+        .finally(() => {
+          setIsLoading(false);
+        });
     }
     // eslint-disable-next-line
   }, [isMounted]);

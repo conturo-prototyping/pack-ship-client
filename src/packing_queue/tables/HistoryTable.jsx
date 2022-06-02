@@ -86,22 +86,25 @@ const HistoryTable = ({ sortModel, setSortModel, searchString }) => {
 
     if (isMounted) {
       setIsLoading(true);
-      fetchData().then((data) => {
-        if (isMounted) {
-          let packingSlips =
-            data?.packingSlips?.map((e) => {
-              return {
-                ...e,
-                id: e._id,
-                orderId: e.orderNumber,
-                dateCreated: new Date(e.dateCreated).toLocaleString(),
-              };
-            }) || [];
-          setRows(packingSlips);
-          setFilteredRows(packingSlips);
-        }
-        setIsLoading(false);
-      });
+      fetchData()
+        .then((data) => {
+          if (isMounted) {
+            let packingSlips =
+              data?.packingSlips?.map((e) => {
+                return {
+                  ...e,
+                  id: e._id,
+                  orderId: e.orderNumber,
+                  dateCreated: new Date(e.dateCreated).toLocaleString(),
+                };
+              }) || [];
+            setRows(packingSlips);
+            setFilteredRows(packingSlips);
+          }
+        })
+        .finally(() => {
+          setIsLoading(false);
+        });
     }
     // eslint-disable-next-line
   }, [isMounted]);
