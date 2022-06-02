@@ -13,6 +13,7 @@ import { themes } from "../themes/base";
 import GoogleButton from "react-google-button";
 import axios from "axios";
 import { LoginSuccess } from "../components/LoginSuccess";
+import { CircularProgress } from "@mui/material";
 
 export const ROUTE_PACKING_SLIP = "/packing-slips";
 export const ROUTE_SHIPMENTS = "/shipments";
@@ -22,8 +23,37 @@ const Router = () => {
   const navigate = useNavigate();
 
   const { setTheme } = useContext(CustomThemeContext);
-  const [isUserAuthenticated, setIsAuthenticated] = useState(false);
+  const [isUserAuthenticated, setIsUserAuthenticated] = useState(false);
   const [, setAuthUser] = useState(null);
+  const [loading, setLoading] = useState(true);
+
+  const fetchAuthUser = async () => {
+    await axios
+      .get(`${process.env.REACT_APP_API_URL}/users/me`, {
+        withCredentials: true,
+      })
+      .then((res) => {
+        const { user } = res.data;
+        setIsUserAuthenticated(true);
+        setAuthUser(user);
+
+        // Only change pages on re-auth if it comes from login page. Otherwise refreshes should remain on page.
+        if (location.pathname === "/login") navigate(ROUTE_PACKING_SLIP);
+      })
+      .catch((err) => {
+        console.log("Not properly authenticated.");
+        console.error(err);
+        setIsUserAuthenticated(false);
+        setAuthUser(null);
+      });
+  };
+
+  useEffect(() => {
+    fetchAuthUser().finally(() => {
+      setLoading(false);
+    });
+    // eslint-disable-next-line
+  }, []);
 
   useEffect(() => {
     switch (location.pathname) {
@@ -36,25 +66,6 @@ const Router = () => {
         setTheme(themes.PACKING);
     }
   }, [location, setTheme]);
-
-  const fetchAuthUser = () => {
-    axios
-      .get(`${process.env.REACT_APP_API_URL}/users/me`, {
-        withCredentials: true,
-      })
-      .then((res) => {
-        const { user } = res.data;
-        setIsAuthenticated(true);
-        setAuthUser(user);
-        navigate(ROUTE_PACKING_SLIP);
-      })
-      .catch((err) => {
-        console.log("Not properly authenticated.");
-        console.error(err);
-        setIsAuthenticated(false);
-        setAuthUser(null);
-      });
-  };
 
   const PrivateRoute = ({ children }) => {
     if (!isUserAuthenticated) {
@@ -86,7 +97,9 @@ const Router = () => {
     }
   };
 
-  return (
+  return loading ? (
+    <CircularProgress sx={{ position: "absolute", top: "50%", left: "50%" }} />
+  ) : (
     <Routes>
       <Route path="" element={<Navigate to="/login" />} />
       <Route
