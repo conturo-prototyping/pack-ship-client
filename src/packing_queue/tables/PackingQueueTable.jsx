@@ -229,8 +229,9 @@ const PackingQueueTable = ({
           setPackingQueue(tableData);
           setFilteredPackingQueue(tableData);
         }
+
+        setIsLoading(false);
       });
-      setIsLoading(false);
     }
     // eslint-disable-next-line
   }, [isMounted]);

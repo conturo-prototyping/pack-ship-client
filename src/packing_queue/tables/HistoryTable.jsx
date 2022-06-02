@@ -100,8 +100,8 @@ const HistoryTable = ({ sortModel, setSortModel, searchString }) => {
           setRows(packingSlips);
           setFilteredRows(packingSlips);
         }
+        setIsLoading(false);
       });
-      setIsLoading(false);
     }
     // eslint-disable-next-line
   }, [isMounted]);
