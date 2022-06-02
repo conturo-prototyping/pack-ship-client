@@ -66,6 +66,7 @@ const ShippingQueueTable = ({
   const [selectedCustomerId, setSelectedCustomerId] = useState(null);
   const [isSelectAllOn, setIsSelectAll] = useState(false);
   const [isMounted, setIsMounted] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
 
   const numRowsPerPage = 10;
 
@@ -83,14 +84,15 @@ const ShippingQueueTable = ({
     setIsMounted(true);
   }, []);
 
-  const reloadData = useCallback(() => {
+  const reloadData = useCallback(async () => {
     async function fetchData() {
       const data = await Promise.all([API.getShippingQueue()]);
       return { queue: data[0] };
     }
 
-    if (isMounted)
-      fetchData().then((data) => {
+    if (isMounted) {
+      setIsLoading(true);
+      await fetchData().then((data) => {
         if (isMounted) {
           // Gather the queue data for the table
           let queueTableData = [];
@@ -113,6 +115,8 @@ const ShippingQueueTable = ({
           setIsSelectAll(false);
         }
       });
+      setIsLoading(false);
+    }
     // eslint-disable-next-line
   }, [
     setFilteredShippingQueue,
@@ -340,6 +344,7 @@ const ShippingQueueTable = ({
         checkboxSelection={false}
         disableSelectionOnClick={true}
         editMode="row"
+        loading={isLoading}
         sortingMode="server"
         sortModel={sortModel}
         onSortModelChange={(model) => {

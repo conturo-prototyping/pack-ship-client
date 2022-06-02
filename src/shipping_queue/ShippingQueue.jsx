@@ -45,6 +45,7 @@ const ShippingQueue = () => {
   const classes = useStyle();
 
   const [isMounted, setIsMounted] = useState(false);
+  const [historyLoading, setHistoryLoading] = useState(false);
 
   // Common tab states
   const [currentTab, setCurrentTab] = useState(TabNames.Queue);
@@ -99,9 +100,9 @@ const ShippingQueue = () => {
   }
 
   const fetchSearch = useCallback(
-    (sort, pageNumber, oNum, pNum) => {
+    async (sort, pageNumber, oNum, pNum) => {
       if (isMounted)
-        API.searchShippingHistory(
+        await API.searchShippingHistory(
           sort.sortBy,
           sort.sortOrder,
           oNum,
@@ -127,24 +128,34 @@ const ShippingQueue = () => {
   }, []);
 
   useEffect(() => {
-    if (isMounted)
-      fetchSearch(getSortFromModel(sortShippingHistModel), 0, "", "");
+    if (isMounted) {
+      setHistoryLoading(true);
+      fetchSearch(getSortFromModel(sortShippingHistModel), 0, "", "").finally(
+        () => {
+          setHistoryLoading(false);
+        }
+      );
+    }
     // eslint-disable-next-line
   }, [fetchSearch, isMounted]);
 
-  function onHistorySearchClick() {
-    fetchSearch(
+  async function onHistorySearchClick() {
+    setHistoryLoading(true);
+    await fetchSearch(
       getSortFromModel(sortShippingHistModel),
       0,
       orderNumber,
       partNumber
     );
+    setHistoryLoading(false);
   }
 
-  function onHistoryClearClick() {
+  async function onHistoryClearClick() {
     setOrderNumber("");
     setPartNumber("");
-    fetchSearch(getSortFromModel(sortShippingHistModel), 0, "", "");
+    setHistoryLoading(true);
+    await fetchSearch(getSortFromModel(sortShippingHistModel), 0, "", "");
+    setHistoryLoading(false);
   }
 
   return (
@@ -261,6 +272,7 @@ const ShippingQueue = () => {
                 histTotalCount={histTotalCount}
                 orderNumber={orderNumber}
                 partNumber={partNumber}
+                loading={historyLoading}
               />
             }
           />

@@ -97,6 +97,8 @@ const PackingQueueTable = ({
   const [queueData, setQueueData] = useState(tableData);
   const [isSelectAllOn, setIsSelectAll] = useState(false);
 
+  const [isLoading, setIsLoading] = useState(false);
+
   const isDisabled = useCallback(
     (params) => {
       return (
@@ -202,6 +204,7 @@ const PackingQueueTable = ({
     }
 
     if (isMounted) {
+      setIsLoading(true);
       fetchData().then((data) => {
         if (isMounted) {
           let tableData = [];
@@ -227,6 +230,7 @@ const PackingQueueTable = ({
           setFilteredPackingQueue(tableData);
         }
       });
+      setIsLoading(false);
     }
     // eslint-disable-next-line
   }, [isMounted]);
@@ -433,6 +437,7 @@ const PackingQueueTable = ({
         checkboxSelection={false}
         disableSelectionOnClick={true}
         sortingMode="server"
+        loading={isLoading}
         sortModel={sortModel}
         onSortModelChange={(model) => {
           setSortModel(model);

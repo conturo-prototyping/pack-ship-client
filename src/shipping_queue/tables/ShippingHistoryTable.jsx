@@ -65,10 +65,12 @@ const ShippingHistoryTable = ({
   histTotalCount,
   orderNumber,
   partNumber,
+  historyLoading,
 }) => {
   const classes = useStyle();
 
   const [isMounted, setIsMounted] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
 
   const [historyMenuPosition, setHistoryMenuPosition] = useState(null);
   const [clickedHistShipment, setClickedHistShipment] = useState();
@@ -106,14 +108,17 @@ const ShippingHistoryTable = ({
     setCanErrorCheck(false);
   }, []);
 
-  const reloadData = useCallback(() => {
-    if (isMounted)
-      fetchSearch(
+  const reloadData = useCallback(async () => {
+    if (isMounted) {
+      setIsLoading(true);
+      await fetchSearch(
         getSortFromModel(sortModel),
         page + 1,
         orderNumber,
         partNumber
       );
+      setIsLoading(false);
+    }
   }, [fetchSearch, sortModel, page, orderNumber, partNumber, isMounted]);
 
   const onEditShipmentSubmit = useCallback(() => {
@@ -258,14 +263,16 @@ const ShippingHistoryTable = ({
   }, [clickedHistShipment, packingSlipToDelete]);
 
   const onPageChange = useCallback(
-    (pageNumber) => {
+    async (pageNumber) => {
       setPage(pageNumber);
-      fetchSearch(
+      setIsLoading(true);
+      await fetchSearch(
         getSortFromModel(sortModel),
         pageNumber + 1,
         orderNumber,
         partNumber
       );
+      setIsLoading(false);
     },
     [fetchSearch, sortModel, orderNumber, partNumber]
   );
@@ -344,15 +351,18 @@ const ShippingHistoryTable = ({
         sortingMode="server"
         onRowClick={onHistoryRowClick}
         sortModel={sortModel}
-        onSortModelChange={(model) => {
+        onSortModelChange={async (model) => {
           setSortModel(model);
-          fetchSearch(
+          setIsLoading(true);
+          await fetchSearch(
             getSortFromModel(model),
             page + 1,
             orderNumber,
             partNumber
           );
+          setIsLoading(false);
         }}
+        loading={isLoading || historyLoading}
       />
 
       <ContextMenu
