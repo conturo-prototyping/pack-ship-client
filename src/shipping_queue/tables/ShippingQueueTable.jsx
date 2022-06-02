@@ -92,7 +92,7 @@ const ShippingQueueTable = ({
 
     if (isMounted) {
       setIsLoading(true);
-      await fetchData().then((data) => {
+      fetchData().then((data) => {
         if (isMounted) {
           // Gather the queue data for the table
           let queueTableData = [];
@@ -114,8 +114,8 @@ const ShippingQueueTable = ({
           setFilteredShippingQueue(queueTableData);
           setIsSelectAll(false);
         }
+        setIsLoading(false);
       });
-      setIsLoading(false);
     }
     // eslint-disable-next-line
   }, [
