@@ -1,3 +1,4 @@
+import React, { useCallback, useMemo } from "react";
 import { hasValueError } from "../../utils/validators/number_validator";
 import { Typography } from "@mui/material";
 import PackShipEditableTable from "../../components/EdittableTable";
@@ -11,67 +12,86 @@ const EditPackingSlipTable = ({
   onPackQtyChange,
   viewOnly,
 }) => {
-  function renderPart(params) {
-    if (params.row.isNew && params.row.packQty === undefined) {
-      return (
-        <EditTableDropdown
-          menuKeyValue={"orderNumber"}
-          choices={params.row.possibleItems.filter(
-            (e) => e.orderNumber === params.row.orderNumber
-          )}
-          value={params.row}
-          onChange={onNewPartRowChange}
-          valueKey="partNumber"
-        />
-      );
-    } else {
-      if (params.row.partNumber !== undefined) {
+  const renderPart = useCallback(
+    (params) => {
+      if (params.row.isNew && params.row.packQty === undefined) {
         return (
-          <div>
-            <Typography sx={{ padding: "4px" }} color="textSecondary">
-              {`${params.row.partNumber} - Rev ${params.row.partRev} (Batch ${params.row.batch})`}
-            </Typography>
-            <Typography sx={{ padding: "4px" }} color="textSecondary">
-              {params.row.partDescription}
-            </Typography>
-          </div>
+          <EditTableDropdown
+            menuKeyValue={"orderNumber"}
+            choices={params.row.possibleItems.filter(
+              (e) => e.orderNumber === params.row.orderNumber
+            )}
+            value={params.row}
+            onChange={onNewPartRowChange}
+            valueKey="partNumber"
+          />
         );
+      } else {
+        if (params.row.partNumber !== undefined) {
+          return (
+            <div>
+              <Typography sx={{ padding: "4px" }} color="textSecondary">
+                {`${params.row.partNumber} - Rev ${params.row.partRev} (Batch ${params.row.batch})`}
+              </Typography>
+              <Typography sx={{ padding: "4px" }} color="textSecondary">
+                {params.row.partDescription}
+              </Typography>
+            </div>
+          );
+        }
       }
-    }
-  }
+    },
+    [onNewPartRowChange]
+  );
 
-  const columns = [
-    {
-      field: "part",
-      renderHeader: (params) => {
-        return <Typography sx={{ fontWeight: 900 }}>Part</Typography>;
+  const columns = useMemo(
+    () => [
+      {
+        field: "part",
+        renderHeader: (params) => {
+          return <Typography sx={{ fontWeight: 900 }}>Part</Typography>;
+        },
+        renderCell: renderPart,
+        flex: 1,
       },
-      renderCell: renderPart,
-      flex: 1,
-    },
-    {
-      field: "quantity",
-      renderHeader: (params) => {
-        return <Typography sx={{ fontWeight: 900 }}>Batch Qty</Typography>;
+      {
+        field: "quantity",
+        renderHeader: (params) => {
+          return <Typography sx={{ fontWeight: 900 }}>Batch Qty</Typography>;
+        },
+        type: "number",
+        flex: 1,
       },
-      type: "number",
-      flex: 1,
-    },
-    {
-      field: "packQty",
-      renderHeader: (params) => {
-        return <Typography sx={{ fontWeight: 900 }}>Pack Qty</Typography>;
+      {
+        field: "packQty",
+        renderHeader: (params) => {
+          return <Typography sx={{ fontWeight: 900 }}>Pack Qty</Typography>;
+        },
+        flex: 1,
+        default: 0,
+        type: "number",
+        editable: !viewOnly,
+        preProcessEditCellProps: (params) => {
+          const hasError = !hasValueError(params.props.value);
+          return { ...params.props, error: hasError };
+        },
       },
-      flex: 1,
-      default: 0,
-      type: "number",
-      editable: !viewOnly,
-      preProcessEditCellProps: (params) => {
-        const hasError = !hasValueError(params.props.value);
-        return { ...params.props, error: hasError };
-      },
-    },
-  ];
+    ],
+    [viewOnly, renderPart]
+  );
+
+  const tableData = useMemo(
+    () =>
+      rowData.items.map((e) => {
+        return {
+          ...e.item,
+          id: e._id || e.item._id,
+          packQty: e.qty,
+          quantity: e.item.batchQty || e.item.quantity,
+        };
+      }),
+    [rowData]
+  );
 
   return (
     <PackShipEditableTable
@@ -84,25 +104,15 @@ const EditPackingSlipTable = ({
           },
         },
       }}
-      tableData={rowData.items.map((e) => {
-        return {
-          ...e.item,
-          id: e._id || e.item._id,
-          packQty: e.qty,
-          quantity: e.item.batchQty || e.item.quantity,
-        };
-      })}
+      tableData={tableData}
       columns={columns}
       onDelete={onDelete}
       onAdd={onAdd}
       onEditRowsModelChange={(params) => {
         if (params && Object.keys(params).length > 0) {
-          Object.keys(params).map((e) => 
-          onPackQtyChange(
-            e,
-            params[e]["packQty"]["value"]
-          )
-          )
+          Object.keys(params).map((e) =>
+            onPackQtyChange(e, params[e]["packQty"]["value"])
+          );
         }
       }}
       editMode={"row"}
@@ -111,4 +121,4 @@ const EditPackingSlipTable = ({
   );
 };
 
-export default EditPackingSlipTable;
+export default React.memo(EditPackingSlipTable);

@@ -75,12 +75,12 @@ const PackShipEditableTable = ({
       id: addRowId,
     });
     return newRows;
-  // eslint-disable-next-line
+    // eslint-disable-next-line
   }, [tableData]);
 
   const localPageSize = useMemo(() => {
-    return viewOnly ? pageSize : newRows.length
-  }, [newRows.length, viewOnly, pageSize])
+    return viewOnly ? pageSize : newRows.length;
+  }, [newRows.length, viewOnly, pageSize]);
 
   return (
     <div className={classes.root}>

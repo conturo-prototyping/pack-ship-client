@@ -175,64 +175,81 @@ const HistoryTable = ({ sortModel, setSortModel, searchString }) => {
     [selectedRow]
   );
 
-  function onNewPartRowChange(oldVal, newVal) {
-    const itemIndex = selectedRow?.items?.findIndex(
-      (e) =>
-        e.item.orderNumber === oldVal.orderNumber &&
-        e.item.partNumber === oldVal.partNumber
-    );
-    let updatedPackingSlip = {
-      ...selectedRow,
-    };
+  const onNewPartRowChange = useCallback(
+    (oldVal, newVal) => {
+      const itemIndex = selectedRow?.items?.findIndex(
+        (e) =>
+          e.item.orderNumber === oldVal.orderNumber &&
+          e.item.partNumber === oldVal.partNumber
+      );
+      let updatedPackingSlip = {
+        ...selectedRow,
+      };
 
-    updatedPackingSlip.items[itemIndex] = {
-      ...updatedPackingSlip.items[itemIndex],
-      item: {
-        ...oldVal,
-        ...newVal,
-      },
-    };
+      updatedPackingSlip.items[itemIndex] = {
+        ...updatedPackingSlip.items[itemIndex],
+        item: {
+          ...oldVal,
+          ...newVal,
+        },
+      };
 
-    API.getPackingQueue().then((data) => {
-      updatedPackingSlip.items = updatedPackingSlip.items.map((e) => {
-        if (e.item.isNew) {
-          const newPossibleChoices = data.filter(
-            (m) =>
-              m.customer === selectedRow.customer._id &&
-              (!updatedPackingSlip.items.some((t) => t.item._id === m._id) ||
-                m._id === e.item._id)
-          );
+      API.getPackingQueue().then((data) => {
+        updatedPackingSlip.items = updatedPackingSlip.items.map((e) => {
+          if (e.item.isNew) {
+            const newPossibleChoices = data.filter(
+              (m) =>
+                m.customer === selectedRow.customer._id &&
+                (!updatedPackingSlip.items.some((t) => t.item._id === m._id) ||
+                  m._id === e.item._id)
+            );
 
-          return {
-            ...e,
-            item: {
-              ...e.item,
-              possibleItems: newPossibleChoices,
-            },
-          };
-        }
-        return e;
+            return {
+              ...e,
+              item: {
+                ...e.item,
+                possibleItems: newPossibleChoices,
+              },
+            };
+          }
+          return e;
+        });
+        setSelectedRow(updatedPackingSlip);
       });
-      setSelectedRow(updatedPackingSlip);
-    });
-  }
+    },
+    [selectedRow]
+  );
 
-  function onPackQtyChange(id, value) {
-    const itemIndex = selectedRow?.items?.findIndex(
-      (e) => e._id === id || e.item._id === id
-    );
-    let updatedPackingSlip = {
-      ...selectedRow,
-    };
+  const onPackQtyChange = useCallback(
+    (id, value) => {
+      setTimeout(() => {
+        const itemIndex = selectedRow?.items?.findIndex(
+          (e) => e._id === id || e.item._id === id
+        );
+        let updatedPackingSlip = {
+          ...selectedRow,
+        };
 
-    updatedPackingSlip.items[itemIndex] = {
-      ...updatedPackingSlip.items[itemIndex],
-      item: { ...updatedPackingSlip.items[itemIndex].item, packQty: value },
-      qty: value,
-    };
+        if (
+          !isNaN(value) &&
+          updatedPackingSlip.items[itemIndex].qty !== value &&
+          value !== undefined
+        ) {
+          updatedPackingSlip.items[itemIndex] = {
+            ...updatedPackingSlip.items[itemIndex],
+            item: {
+              ...updatedPackingSlip.items[itemIndex].item,
+              packQty: value,
+            },
+            qty: value,
+          };
 
-    setSelectedRow(updatedPackingSlip);
-  }
+          setSelectedRow(updatedPackingSlip);
+        }
+      }, 0);
+    },
+    [selectedRow]
+  );
 
   function onItemDelete() {
     if (itemToDelete) {

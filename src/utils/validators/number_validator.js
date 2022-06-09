@@ -1,3 +1,3 @@
 export function hasValueError(value) {
-  return /^[-+]?(\d+)$/.test(value);
+  return value === undefined || /^[-+]?(\d+)$/.test(value);
 }
