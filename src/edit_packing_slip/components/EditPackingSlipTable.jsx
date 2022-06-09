@@ -53,6 +53,7 @@ const EditPackingSlipTable = ({
         },
         renderCell: renderPart,
         flex: 1,
+        hasChanged: true,
       },
       {
         field: "quantity",
@@ -61,6 +62,7 @@ const EditPackingSlipTable = ({
         },
         type: "number",
         flex: 1,
+        hasChanged: true,
       },
       {
         field: "packQty",
@@ -71,6 +73,7 @@ const EditPackingSlipTable = ({
         default: 0,
         type: "number",
         editable: !viewOnly,
+        hasChanged: true,
         preProcessEditCellProps: (params) => {
           const hasError = !hasValueError(params.props.value);
           return { ...params.props, error: hasError };

@@ -46,7 +46,7 @@ const PackShipDataGrid = ({
   useEffect(() => {
     if (rowData[0].packQty !== undefined && packQtyCol[0].editable) {
       apiRef.current.setCellFocus(rowData[0].id, "packQty");
-      apiRef.current.startRowEditMode({ id: rowData[0].id, field: "packQty" });
+      apiRef.current.setCellMode(rowData[0].id, "packQty", "edit");
 
       return apiRef.current.subscribeEvent(
         "cellModeChange",
@@ -60,13 +60,9 @@ const PackShipDataGrid = ({
   }, []);
 
   const handleCellClick = React.useCallback(
-    (params) => {
-      if (
-        params.field === "packQty" &&
-        packQtyCol[0].editable &&
-        apiRef.current.getRowMode(params.id) !== "edit"
-      ) {
-        apiRef.current.startRowEditMode({ id: params.id });
+    (params, event) => {
+      if (params.field === "packQty" && packQtyCol[0].editable) {
+        apiRef.current.setCellMode(params.id, params.field, "edit");
       }
     },
     [apiRef, packQtyCol]
@@ -89,7 +85,9 @@ const PackShipDataGrid = ({
         },
       }}>
       <ThisDataGrid
-        experimentalFeatures={{ newEditingApi: true }}
+        experimentalFeatures={{
+          preventCommitWhileValidating: true,
+        }}
         rows={rowData}
         columns={columns}
         onEditRowsModelChange={onEditRowsModelChange}
