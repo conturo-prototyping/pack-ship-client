@@ -99,9 +99,9 @@ const ShippingQueue = () => {
     setCurrentTab(Object.keys(TabNames)[newValue]);
   }
 
-  const fetchSearch = useCallback(
+  const fetchHistorySearch = useCallback(
     async (sort, pageNumber, oNum, pNum) => {
-      if (isMounted)
+      if (isMounted && currentTab === TabNames.History)
         await API.searchShippingHistory(
           sort.sortBy,
           sort.sortOrder,
@@ -120,7 +120,7 @@ const ShippingQueue = () => {
         });
     },
     // eslint-disable-next-line
-    [histResultsPerPage, isMounted]
+    [histResultsPerPage, isMounted, currentTab]
   );
 
   useEffect(() => {
@@ -130,18 +130,21 @@ const ShippingQueue = () => {
   useEffect(() => {
     if (isMounted) {
       setHistoryLoading(true);
-      fetchSearch(getSortFromModel(sortShippingHistModel), 0, "", "").finally(
-        () => {
-          setHistoryLoading(false);
-        }
-      );
+      fetchHistorySearch(
+        getSortFromModel(sortShippingHistModel),
+        0,
+        "",
+        ""
+      ).finally(() => {
+        setHistoryLoading(false);
+      });
     }
     // eslint-disable-next-line
-  }, [fetchSearch, isMounted]);
+  }, [fetchHistorySearch, isMounted]);
 
   async function onHistorySearchClick() {
     setHistoryLoading(true);
-    await fetchSearch(
+    await fetchHistorySearch(
       getSortFromModel(sortShippingHistModel),
       0,
       orderNumber,
@@ -154,7 +157,12 @@ const ShippingQueue = () => {
     setOrderNumber("");
     setPartNumber("");
     setHistoryLoading(true);
-    await fetchSearch(getSortFromModel(sortShippingHistModel), 0, "", "");
+    await fetchHistorySearch(
+      getSortFromModel(sortShippingHistModel),
+      0,
+      "",
+      ""
+    );
     setHistoryLoading(false);
   }
 
@@ -167,7 +175,8 @@ const ShippingQueue = () => {
             container
             item
             justifyContent="start"
-            spacing={2}>
+            spacing={2}
+          >
             <Grid container item xs={"auto"}>
               <CommonButton
                 label="Create Shipment"
@@ -186,7 +195,8 @@ const ShippingQueue = () => {
             item
             justifyContent="start"
             spacing={1}
-            xs={12}>
+            xs={12}
+          >
             <Grid container item xs={4} md={5} justifyContent="flex-end">
               <CommonButton
                 label="Clear"
@@ -263,7 +273,7 @@ const ShippingQueue = () => {
             }
             historyTab={
               <ShippingHistoryTable
-                fetchSearch={fetchSearch}
+                fetchSearch={fetchHistorySearch}
                 setSortModel={setSortShippingHistModel}
                 sortModel={sortShippingHistModel}
                 filteredShippingHist={filteredShippingHist}
@@ -283,12 +293,14 @@ const ShippingQueue = () => {
           container
           item
           xs
-          justifyContent="flex-end">
+          justifyContent="flex-end"
+        >
           <Button
             component={Link}
             to={ROUTE_PACKING_SLIP}
             variant="contained"
-            color="secondary">
+            color="secondary"
+          >
             Go to Packing
           </Button>
         </Grid>
