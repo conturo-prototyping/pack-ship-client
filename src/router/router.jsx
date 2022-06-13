@@ -100,7 +100,7 @@ const Router = () => {
   };
 
   return loading ? (
-    <CircularProgress sx={{ position: "absolute", top: "50%", left: "50%" }} />
+    <CircularProgress sx={{ position: "absolute", top: "calc(50% - 4rem)", left: "calc(50% - 4rem)" }} size='8rem' thickness='8' />
   ) : (
     <Routes>
       <Route path="" element={<Navigate to="/login" />} />
