@@ -222,7 +222,7 @@ const CreateShipmentDialog = ({
   return (
     <PackingDialog
       fullWidth={currentState === ShippingDialogStates.CreateShipmentTable}
-      titleText={`Create Shipment / ${customer?.customerTag}`}
+      titleText={`Create Shipment / ${customer?.tag}`}
       open={open}
       onClose={onClose}
       actions={renderDialogActions()}
