@@ -56,11 +56,11 @@ const PackShipDataGrid = ({
         { isFirst: true }
       );
     }
-  // eslint-disable-next-line
+    // eslint-disable-next-line
   }, []);
 
   const handleCellClick = React.useCallback(
-    (params) => {
+    (params, event) => {
       if (params.field === "packQty" && packQtyCol[0].editable) {
         apiRef.current.setCellMode(params.id, params.field, "edit");
       }
@@ -83,9 +83,11 @@ const PackShipDataGrid = ({
           color: (theme) =>
             theme.palette.mode === "dark" ? "#ff4343" : "#750f0f",
         },
-      }}
-    >
+      }}>
       <ThisDataGrid
+        experimentalFeatures={{
+          preventCommitWhileValidating: true,
+        }}
         rows={rowData}
         columns={columns}
         onEditRowsModelChange={onEditRowsModelChange}
