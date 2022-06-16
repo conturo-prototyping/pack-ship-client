@@ -41,8 +41,7 @@ const ShipmentDetails = ({
                       container
                       direction="row"
                       alignItems="center"
-                      spacing={5}
-                    >
+                      spacing={5}>
                       <Grid item container xs={3} justifyContent="flex-end">
                         <Typography sx={{ fontWeight: 900 }}>
                           {"Carrier Service:"}
@@ -70,7 +69,11 @@ const ShipmentDetails = ({
                   />
                   <TitleTextInput
                     title="Customer Account:"
-                    value={shipment?.customerAccount}
+                    value={
+                      shipment?.customerAccount === "false"
+                        ? ""
+                        : shipment?.customerAccount
+                    }
                     viewOnly={viewOnly}
                     onChange={onCustomerAccountChange}
                   />
