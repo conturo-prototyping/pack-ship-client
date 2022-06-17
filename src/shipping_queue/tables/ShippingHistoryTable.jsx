@@ -9,6 +9,7 @@ import ConfirmDialog from "../../components/ConfirmDialog";
 import { isShippingInfoValid } from "../../utils/Validators";
 import { API } from "../../services/server";
 import { getSortFromModel } from "../utils/sortModelFunctions";
+import { PackShipProgress } from "../../common/CircularProgress";
 
 const useStyle = makeStyles((theme) => ({
   root: {
@@ -310,7 +311,8 @@ const ShippingHistoryTable = ({
       onClick={() => {
         setIsEditShipmentOpen(true);
         setIsEditShipmentViewOnly(true);
-      }}>
+      }}
+    >
       View
     </MenuItem>,
     // <MenuItem key="download-menu-item">Download</MenuItem>,
@@ -319,7 +321,8 @@ const ShippingHistoryTable = ({
       onClick={() => {
         setIsEditShipmentOpen(true);
         setIsEditShipmentViewOnly(false);
-      }}>
+      }}
+    >
       Edit
     </MenuItem>,
     <MenuItem
@@ -327,7 +330,8 @@ const ShippingHistoryTable = ({
       onClick={() => {
         setHistoryMenuPosition(null);
         setConfirmShippingDeleteDialogOpen(true);
-      }}>
+      }}
+    >
       Delete
     </MenuItem>,
   ];
@@ -341,7 +345,7 @@ const ShippingHistoryTable = ({
         sx={{ border: "none", height: "65vh", minHeight: "20rem" }}
         className={classes.table}
         disableSelectionOnClick={true}
-        rows={filteredShippingHist}
+        rows={isLoading || historyLoading ? [] : filteredShippingHist}
         rowHeight={65}
         columns={columns}
         pageSize={histResultsPerPage}
@@ -363,11 +367,15 @@ const ShippingHistoryTable = ({
           setIsLoading(false);
         }}
         loading={isLoading || historyLoading}
+        components={{
+          LoadingOverlay: () => <PackShipProgress />,
+        }}
       />
 
       <ContextMenu
         menuPosition={historyMenuPosition}
-        setMenuPosition={setHistoryMenuPosition}>
+        setMenuPosition={setHistoryMenuPosition}
+      >
         {historyRowMenuOptions}
       </ContextMenu>
 
@@ -432,7 +440,8 @@ const ShippingHistoryTable = ({
         setOpen={setConfirmShippingDeleteDialogOpen}
         onConfirm={() => {
           API.deleteShipment(clickedHistShipment._id).then(() => reloadData());
-        }}>
+        }}
+      >
         <Typography sx={{ fontWeight: 900 }}>
           {clickedHistShipment?.shipmentId}
         </Typography>

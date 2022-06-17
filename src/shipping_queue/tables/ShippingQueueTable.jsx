@@ -8,6 +8,7 @@ import { getCheckboxColumn } from "../../components/CheckboxColumn";
 import ShipQueuePackSlipDrowdown from "./ShipQueuePackSlipDropdown";
 import { API } from "../../services/server";
 import CreateShipmentDialog from "../../create_shipment/CreateShipmentDialog";
+import { PackShipProgress } from "../../common/CircularProgress";
 
 const useStyle = makeStyles((theme) => ({
   root: {
@@ -332,10 +333,14 @@ const ShippingQueueTable = ({
           tmpData[tmpIndex].open = !tmpData || !tmpData[tmpIndex].open;
           setQueueData(tmpData);
         }}
-        rows={queueData.slice(
-          page * numRowsPerPage,
-          page * numRowsPerPage + numRowsPerPage
-        )}
+        rows={
+          isLoading
+            ? []
+            : queueData.slice(
+                page * numRowsPerPage,
+                page * numRowsPerPage + numRowsPerPage
+              )
+        }
         rowHeight={65}
         columns={columns}
         pageSize={numRowsPerPage}
@@ -355,6 +360,7 @@ const ShippingQueueTable = ({
           setQueueData(sortDataByModel(model, tableData));
         }}
         components={{
+          LoadingOverlay: () => <PackShipProgress />,
           Footer: () =>
             selectedOrderIds.length > 0 ? (
               <Grid container alignItems="center" spacing={2}>
