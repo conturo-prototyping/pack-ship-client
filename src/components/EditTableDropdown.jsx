@@ -7,6 +7,7 @@ const EditTableDropdown = ({
   value,
   valueKey,
   menuKeyValue,
+  menuOptionFn,
 }) => {
   return (
     <Select
@@ -28,7 +29,7 @@ const EditTableDropdown = ({
             key={`${e[valueKey]}-${e[menuKeyValue]}`}
             value={e[valueKey]}
           >
-            {e[valueKey]}
+            {menuOptionFn(e)}
           </MenuItem>
         );
       })}
