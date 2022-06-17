@@ -9,6 +9,7 @@ import EditPackingSlipDialog from "../../edit_packing_slip/EditPackingSlipDialog
 import ConfirmDialog from "../../components/ConfirmDialog";
 import pdfMake from "pdfmake/build/pdfmake";
 import pdfFonts from "pdfmake/build/vfs_fonts";
+import { PackShipProgress } from "../../common/CircularProgress";
 pdfMake.vfs = pdfFonts.pdfMake.vfs;
 
 const useStyle = makeStyles((theme) => ({
@@ -371,7 +372,7 @@ const HistoryTable = ({ sortModel, setSortModel, searchString }) => {
       <DataGrid
         sx={{ border: "none", height: "65vh", minHeight: "20rem" }}
         className={classes.table}
-        rows={filteredRows}
+        rows={isLoading ? [] : filteredRows}
         columns={columns}
         pageSize={10}
         rowsPerPageOptions={[10]}
@@ -384,10 +385,14 @@ const HistoryTable = ({ sortModel, setSortModel, searchString }) => {
         sortModel={sortModel}
         onSortModelChange={setSortModel}
         loading={isLoading}
+        components={{
+          LoadingOverlay: () => <PackShipProgress />,
+        }}
       />
       <ContextMenu
         menuPosition={menuPosition}
-        setMenuPosition={setMenuPosition}>
+        setMenuPosition={setMenuPosition}
+      >
         {historyRowMenuOptions}
       </ContextMenu>
       <EditPackingSlipDialog

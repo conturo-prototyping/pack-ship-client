@@ -13,7 +13,7 @@ import { themes } from "../themes/base";
 import GoogleButton from "react-google-button";
 import axios from "axios";
 import { LoginSuccess } from "../components/LoginSuccess";
-import { CircularProgress } from "@mui/material";
+import { PackShipProgress } from "../common/CircularProgress";
 
 export const ROUTE_PACKING_SLIP = "/packing-slips";
 export const ROUTE_SHIPMENTS = "/shipments";
@@ -100,7 +100,7 @@ const Router = () => {
   };
 
   return loading ? (
-    <CircularProgress sx={{ position: "absolute", top: "calc(50% - 4rem)", left: "calc(50% - 4rem)" }} size='8rem' thickness='8' />
+    <PackShipProgress />
   ) : (
     <Routes>
       <Route path="" element={<Navigate to="/login" />} />

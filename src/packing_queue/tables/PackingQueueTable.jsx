@@ -6,6 +6,7 @@ import HelpTooltip from "../../components/HelpTooltip";
 import { createColumnFilters } from "../../utils/TableFilters";
 import { getCheckboxColumn } from "../../components/CheckboxColumn";
 import { API } from "../../services/server";
+import { PackShipProgress } from "../../common/CircularProgress";
 
 const useStyle = makeStyles((theme) => ({
   root: {
@@ -426,10 +427,14 @@ const PackingQueueTable = ({
       <DataGrid
         sx={{ border: "none", height: "65vh", minHeight: "20rem" }}
         className={classes.table}
-        rows={queueData.slice(
-          page * numRowsPerPage,
-          page * numRowsPerPage + numRowsPerPage
-        )}
+        rows={
+          isLoading
+            ? []
+            : queueData.slice(
+                page * numRowsPerPage,
+                page * numRowsPerPage + numRowsPerPage
+              )
+        }
         columns={columns}
         pageSize={numRowsPerPage}
         rowsPerPageOptions={[numRowsPerPage]}
@@ -449,6 +454,7 @@ const PackingQueueTable = ({
           );
         }}
         components={{
+          LoadingOverlay: () => <PackShipProgress />,
           Footer: () =>
             selectionOrderIds.length > 0 ? (
               <Grid container item alignItems="center" spacing={2}>

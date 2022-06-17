@@ -282,7 +282,7 @@ const ShippingQueue = () => {
                 histTotalCount={histTotalCount}
                 orderNumber={orderNumber}
                 partNumber={partNumber}
-                loading={historyLoading}
+                historyLoading={historyLoading}
               />
             }
           />
