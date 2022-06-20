@@ -3,8 +3,8 @@ export const extractHistoryDetails = (history) => {
     const dc = new Date(e.dateCreated);
 
     return {
+      ...e,
       id: e._id,
-      packingSlipId: e.packingSlipId,
       orderId: e.orderNumber,
       dateCreated: dc.toLocaleString(),
       dateCreatedValue: dc.getTime(),

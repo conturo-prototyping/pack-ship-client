@@ -9,7 +9,7 @@ export const PackShipProgress = () => {
         left: "calc(50% - 4rem)",
       }}
       size="8rem"
-      thickness="8"
+      thickness={8}
     />
   );
 };

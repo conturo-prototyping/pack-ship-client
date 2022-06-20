@@ -203,20 +203,7 @@ const PackingQueue = () => {
         spacing={2}
       >
         <Grid container item xs={12} spacing={2}>
-          {tabValue === 0 ? (
-            <Grid container spacing={2}>
-              <Grid container item xs={"auto"}>
-                <CommonButton
-                  label="Make Packing Slip"
-                  disabled={selectedOrderIds.length === 0 || tabValue !== 0}
-                  onClick={onPackingSlipClick}
-                />
-              </Grid>
-              <Grid container item justifyContent="start" xs={6}>
-                <Search onSearch={onSearch} />
-              </Grid>
-            </Grid>
-          ) : (
+          {tabValue === 1 && (
             <OrderPartNumberSearch
               partNumber={partNumber}
               orderNumber={orderNumber}
@@ -227,63 +214,77 @@ const PackingQueue = () => {
             />
           )}
 
-          <Grid container item xs justifyContent="flex-end">
-            <CheckboxForm
-              label="Show Unfinished Batches"
-              disabled={true}
-              onChange={() => console.log("not implemented yet")}
-              checked={true /*isShowUnfinishedBatches*/}
-            />
-          </Grid>
-          <Grid container item xs justifyContent="flex-end">
-            <CheckboxForm
-              label="Show Fulfilled Batches"
-              onChange={async (checked) => {
-                const finalData = [];
-                async function fetchData() {
-                  if (true /*isShowUnfinishedBatches*/) {
-                    return await API.getAllWorkOrders();
-                  } else {
-                    return await API.getPackingQueue();
-                  }
-                }
-                await fetchData().then((data) => {
-                  if (isMounted) {
-                    data?.forEach((e) => {
-                      finalData.push({
-                        id: e._id,
-                        part: `${e.partNumber} - ${e.partRev} (Batch ${e.batch})`,
-                        batchQty: e.batchQty,
-                        customer: e.customer,
-                        orderNumber: e.orderNumber,
-                        fulfilledQty: e.packedQty,
-                        partDescription: e.partDescription,
-                      });
+          {tabValue === 0 && (
+            <>
+              <Grid container item xs={"auto"}>
+                <CommonButton
+                  label="Make Packing Slip"
+                  disabled={selectedOrderIds.length === 0 || tabValue !== 0}
+                  onClick={onPackingSlipClick}
+                />
+              </Grid>
+              <Grid container item justifyContent="start" xs={6}>
+                <Search onSearch={onSearch} />
+              </Grid>
+              <Grid container item xs justifyContent="flex-end">
+                <CheckboxForm
+                  label="Show Unfinished Batches"
+                  disabled={true}
+                  onChange={() => console.log("not implemented yet")}
+                  checked={true /*isShowUnfinishedBatches*/}
+                />
+              </Grid>
+              <Grid container item xs justifyContent="flex-end">
+                <CheckboxForm
+                  label="Show Fulfilled Batches"
+                  onChange={async (checked) => {
+                    const finalData = [];
+                    async function fetchData() {
+                      if (true /*isShowUnfinishedBatches*/) {
+                        return await API.getAllWorkOrders();
+                      } else {
+                        return await API.getPackingQueue();
+                      }
+                    }
+                    await fetchData().then((data) => {
+                      if (isMounted) {
+                        data?.forEach((e) => {
+                          finalData.push({
+                            id: e._id,
+                            part: `${e.partNumber} - ${e.partRev} (Batch ${e.batch})`,
+                            batchQty: e.batchQty,
+                            customer: e.customer,
+                            orderNumber: e.orderNumber,
+                            fulfilledQty: e.packedQty,
+                            partDescription: e.partDescription,
+                          });
+                        });
+
+                        if (isFulfilledBatchesOn) {
+                          const tmpPackQueue = finalData.filter(
+                            (e) => e.fulfilledQty < e.batchQty
+                          );
+                          const orderIds = tmpPackQueue
+                            .filter((e) => selectedOrderIds.includes(e.id))
+                            .map((e) => e.id);
+                          setSelectedOrderIds(orderIds);
+                          setSelectedOrderNumber(
+                            orderIds.length === 0 ? null : selectedOrderNumber
+                          );
+                          setFilteredPackingQueue(tmpPackQueue);
+                        } else {
+                          setFilteredPackingQueue(finalData);
+                        }
+                      }
                     });
 
-                    if (isFulfilledBatchesOn) {
-                      const tmpPackQueue = finalData.filter(
-                        (e) => e.fulfilledQty < e.batchQty
-                      );
-                      const orderIds = tmpPackQueue
-                        .filter((e) => selectedOrderIds.includes(e.id))
-                        .map((e) => e.id);
-                      setSelectedOrderIds(orderIds);
-                      setSelectedOrderNumber(
-                        orderIds.length === 0 ? null : selectedOrderNumber
-                      );
-                      setFilteredPackingQueue(tmpPackQueue);
-                    } else {
-                      setFilteredPackingQueue(finalData);
-                    }
-                  }
-                });
-
-                setIsFulfilledBatchesOn(checked);
-              }}
-              checked={isFulfilledBatchesOn}
-            />
-          </Grid>
+                    setIsFulfilledBatchesOn(checked);
+                  }}
+                  checked={isFulfilledBatchesOn}
+                />
+              </Grid>
+            </>
+          )}
         </Grid>
         <Grid item xs={12}>
           <PackShipTabs
