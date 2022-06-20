@@ -10,7 +10,6 @@ import CommonButton from "../common/Button";
 import ShippingQueueTable from "./tables/ShippingQueueTable";
 import ShippingDialogStates from "../create_shipment/constants/ShippingDialogConstants";
 import ShippingHistoryTable from "./tables/ShippingHistoryTable";
-import TextInput from "../components/TextInput";
 import { useLocalStorage } from "../utils/localStorage";
 import { extractHistoryDetails } from "./utils/historyDetails";
 import { getSortFromModel } from "./utils/sortModelFunctions";

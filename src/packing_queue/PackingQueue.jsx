@@ -48,6 +48,7 @@ const PackingQueue = () => {
   const [partNumber, setPartNumber] = useState("");
   const [historyLoading, setHistoryLoading] = useState(false);
   const [histTotalCount, setHistTotalCount] = useState(0);
+  const [histPageNum, setHistPageNum] = useState(0);
   const histResultsPerPage = 10;
 
   // const [isShowUnfinishedBatches, setIsShowUnfinishedBatches] = useState(true);
@@ -78,15 +79,16 @@ const PackingQueue = () => {
 
   const fetchSearch = useCallback(
     async (sort, pageNumber, oNum, pNum) => {
-      if (isMounted && tabValue === 1)
-        await API.searchPackingSlipsHistory(
-          sort.sortBy,
-          sort.sortOrder,
-          oNum,
-          pNum,
-          histResultsPerPage,
-          pageNumber
-        ).then((data) => {
+      if (isMounted && tabValue === 1) setHistoryLoading(true);
+      await API.searchPackingSlipsHistory(
+        sort.sortBy,
+        sort.sortOrder,
+        oNum,
+        pNum,
+        histResultsPerPage,
+        pageNumber
+      )
+        .then((data) => {
           if (data) {
             if (isMounted) {
               let tableData = extractHistoryDetails(data?.packingSlips);
@@ -94,6 +96,9 @@ const PackingQueue = () => {
               setHistTotalCount(data?.totalCount);
             }
           }
+        })
+        .finally(() => {
+          setHistoryLoading(false);
         });
     },
     // eslint-disable-next-line
@@ -103,18 +108,6 @@ const PackingQueue = () => {
   useEffect(() => {
     setIsMounted(true);
   }, []);
-
-  useEffect(() => {
-    if (isMounted) {
-      setHistoryLoading(true);
-      fetchSearch(getSortFromModel(sortPackHistoryModel), 0, "", "").finally(
-        () => {
-          setHistoryLoading(false);
-        }
-      );
-    }
-    // eslint-disable-next-line
-  }, [fetchSearch, isMounted]);
 
   function onPackingSlipClick() {
     setTimeout(() => setPackingSlipOpen(true), 0);
@@ -176,23 +169,34 @@ const PackingQueue = () => {
   }
 
   async function onHistorySearchClick() {
-    setHistoryLoading(true);
+    setHistPageNum(0);
     await fetchSearch(
       getSortFromModel(sortPackHistoryModel),
       0,
       orderNumber,
       partNumber
     );
-    setHistoryLoading(false);
   }
 
   async function onHistoryClearClick() {
     setOrderNumber("");
     setPartNumber("");
-    setHistoryLoading(true);
+    setHistPageNum(0);
     await fetchSearch(getSortFromModel(sortPackHistoryModel), 0, "", "");
-    setHistoryLoading(false);
   }
+
+  const onHistPageChange = useCallback(
+    async (pageNumber) => {
+      setHistPageNum(pageNumber);
+      await fetchSearch(
+        getSortFromModel(sortPackHistoryModel),
+        pageNumber,
+        orderNumber,
+        partNumber
+      );
+    },
+    [fetchSearch, sortPackHistoryModel, orderNumber, partNumber]
+  );
 
   return (
     <Box className={classes.box}>
@@ -317,10 +321,11 @@ const PackingQueue = () => {
                 histTotalCount={histTotalCount}
                 historyLoading={historyLoading}
                 filteredHist={filteredHist}
-                setFilteredHist={setFilteredHist}
                 histResultsPerPage={histResultsPerPage}
                 orderNumber={orderNumber}
                 partNumber={partNumber}
+                pageNumber={histPageNum}
+                onPageChange={onHistPageChange}
               />
             }
           />

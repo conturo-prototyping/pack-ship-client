@@ -61,21 +61,19 @@ const HistoryTable = ({
   histTotalCount,
   historyLoading,
   filteredHist,
-  setFilteredHist,
   histResultsPerPage,
   orderNumber,
   partNumber,
+  pageNumber,
+  onPageChange,
 }) => {
   const classes = useStyle();
 
   const [isMounted, setIsMounted] = useState(false);
-  const [isLoading, setIsLoading] = useState(false);
 
   const [menuPosition, setMenuPosition] = useState();
 
   const [selectedRow, setSelectedRow] = useState({});
-  const [rows, setRows] = useState([]);
-  const [filteredRows, setFilteredRows] = useState([]);
 
   // Deletions
   const [confirmDeleteDialogOpen, setConfirmDeleteDialogOpen] = useState(false);
@@ -88,38 +86,13 @@ const HistoryTable = ({
     viewOnly: false,
   });
 
-  const [page, setPage] = useState(0);
-
   useEffect(() => {
     setIsMounted(true);
   }, []);
 
   const reloadData = useCallback(() => {
-    async function fetchData() {
-      return await API.getPackingSlipHistory();
-    }
-
     if (isMounted) {
-      setIsLoading(true);
-      fetchData()
-        .then((data) => {
-          if (isMounted) {
-            let packingSlips =
-              data?.packingSlips?.map((e) => {
-                return {
-                  ...e,
-                  id: e._id,
-                  orderId: e.orderNumber,
-                  dateCreated: new Date(e.dateCreated).toLocaleString(),
-                };
-              }) || [];
-            setRows(packingSlips);
-            setFilteredRows(packingSlips);
-          }
-        })
-        .finally(() => {
-          setIsLoading(false);
-        });
+      fetchSearch(getSortFromModel(sortModel), 0, "", "").finally(() => {});
     }
     // eslint-disable-next-line
   }, [isMounted]);
@@ -366,21 +339,6 @@ const HistoryTable = ({
     [onDownloadPDFClick]
   );
 
-  const onPageChange = useCallback(
-    async (pageNumber) => {
-      setPage(pageNumber);
-      setIsLoading(true);
-      await fetchSearch(
-        getSortFromModel(sortModel),
-        pageNumber + 1,
-        orderNumber,
-        partNumber
-      );
-      setIsLoading(false);
-    },
-    [fetchSearch, sortModel, orderNumber, partNumber]
-  );
-
   return (
     <div className={classes.root}>
       <DataGrid
@@ -390,8 +348,9 @@ const HistoryTable = ({
         sx={{ border: "none", height: "65vh", minHeight: "20rem" }}
         className={classes.table}
         disableSelectionOnClick={true}
-        rows={isLoading || historyLoading ? [] : filteredHist}
+        rows={historyLoading ? [] : filteredHist}
         rowHeight={65}
+        page={pageNumber}
         columns={columns}
         pageSize={histResultsPerPage}
         rowsPerPageOptions={[10]}
@@ -405,16 +364,14 @@ const HistoryTable = ({
         sortModel={sortModel}
         onSortModelChange={async (model) => {
           setSortModel(model);
-          setIsLoading(true);
           await fetchSearch(
             getSortFromModel(model),
-            page,
+            pageNumber,
             orderNumber,
             partNumber
           );
-          setIsLoading(false);
         }}
-        loading={isLoading || historyLoading}
+        loading={historyLoading}
         components={{
           LoadingOverlay: () => <PackShipProgress />,
         }}
