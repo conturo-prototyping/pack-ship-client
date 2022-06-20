@@ -36,6 +36,7 @@ const EditShipmentTableDialog = ({
           onChange={onNewRowChange}
           value={params.row}
           valueKey="packingSlipId"
+          menuOptionFn={(e) => `${e.packingSlipId}`}
         />
       );
     } else if (!params.id.includes("add-row-id")) {
@@ -71,7 +72,9 @@ const EditShipmentTableDialog = ({
         }`}
         onClose={onClose}
         onSubmit={onSubmit}
-        actions={viewOnly ? <DialogActions sx={{height: "43.5px"}}/> : undefined}
+        actions={
+          viewOnly ? <DialogActions sx={{ height: "43.5px" }} /> : undefined
+        }
       >
         <PackShipEditableTable
           tableData={shipment?.manifest?.map((e) => {

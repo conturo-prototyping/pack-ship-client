@@ -179,9 +179,7 @@ const HistoryTable = ({ sortModel, setSortModel, searchString }) => {
   const onNewPartRowChange = useCallback(
     (oldVal, newVal) => {
       const itemIndex = selectedRow?.items?.findIndex(
-        (e) =>
-          e.item.orderNumber === oldVal.orderNumber &&
-          e.item.partNumber === oldVal.partNumber
+        (e) => e.item._id === oldVal._id
       );
       let updatedPackingSlip = {
         ...selectedRow,

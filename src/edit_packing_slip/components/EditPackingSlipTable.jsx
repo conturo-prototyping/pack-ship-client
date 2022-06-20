@@ -23,7 +23,10 @@ const EditPackingSlipTable = ({
             )}
             value={params.row}
             onChange={onNewPartRowChange}
-            valueKey="partNumber"
+            valueKey="_id"
+            menuOptionFn={(e) =>
+              `${e.partNumber} - Rev ${e.partRev} (Batch ${e.batch})`
+            }
           />
         );
       } else {
