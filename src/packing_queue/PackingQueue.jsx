@@ -12,6 +12,9 @@ import PackingSlipDialog from "../packing_slip/PackingSlipDialog";
 import PackingQueueTable from "./tables/PackingQueueTable";
 import HistoryTable from "./tables/HistoryTable";
 import { useLocalStorage } from "../utils/localStorage";
+import { OrderPartNumberSearch } from "../components/OrderAndPartSearchBar";
+import { extractHistoryDetails } from "./utils/historyDetails";
+import { getSortFromModel } from "./utils/sortModelFunctions";
 
 const useStyle = makeStyles((theme) => ({
   box: {
@@ -41,6 +44,11 @@ const PackingQueue = () => {
 
   const [searchString, setSearchString] = useState("");
   const [tabValue, setTabValue] = useState(0);
+  const [orderNumber, setOrderNumber] = useState("");
+  const [partNumber, setPartNumber] = useState("");
+  const [historyLoading, setHistoryLoading] = useState(false);
+  const [histTotalCount, setHistTotalCount] = useState(0);
+  const histResultsPerPage = 10;
 
   // const [isShowUnfinishedBatches, setIsShowUnfinishedBatches] = useState(true);
   const [isFulfilledBatchesOn, setIsFulfilledBatchesOn] = useState(true);
@@ -48,6 +56,7 @@ const PackingQueue = () => {
   const [selectedOrderNumber, setSelectedOrderNumber] = useState(null);
   const [packingQueue, setPackingQueue] = useState([]);
   const [filteredPackingQueue, setFilteredPackingQueue] = useState([]);
+  const [filteredHist, setFilteredHist] = useState([]);
   const [packingSlipOpen, setPackingSlipOpen] = useState(false);
   const [sortPackQueueModel, setSortPackQueueModel] = useLocalStorage(
     "sortPackQueueModel",
@@ -67,9 +76,45 @@ const PackingQueue = () => {
     ]
   );
 
+  const fetchSearch = useCallback(
+    async (sort, pageNumber, oNum, pNum) => {
+      if (isMounted && tabValue === 1)
+        await API.searchPackingSlipsHistory(
+          sort.sortBy,
+          sort.sortOrder,
+          oNum,
+          pNum,
+          histResultsPerPage,
+          pageNumber
+        ).then((data) => {
+          if (data) {
+            if (isMounted) {
+              let tableData = extractHistoryDetails(data?.packingSlips);
+              setFilteredHist(tableData);
+              setHistTotalCount(data?.totalCount);
+            }
+          }
+        });
+    },
+    // eslint-disable-next-line
+    [histResultsPerPage, isMounted, tabValue]
+  );
+
   useEffect(() => {
     setIsMounted(true);
   }, []);
+
+  useEffect(() => {
+    if (isMounted) {
+      setHistoryLoading(true);
+      fetchSearch(getSortFromModel(sortPackHistoryModel), 0, "", "").finally(
+        () => {
+          setHistoryLoading(false);
+        }
+      );
+    }
+    // eslint-disable-next-line
+  }, [fetchSearch, isMounted]);
 
   function onPackingSlipClick() {
     setTimeout(() => setPackingSlipOpen(true), 0);
@@ -130,24 +175,58 @@ const PackingQueue = () => {
     setSearchString(value);
   }
 
+  async function onHistorySearchClick() {
+    setHistoryLoading(true);
+    await fetchSearch(
+      getSortFromModel(sortPackHistoryModel),
+      0,
+      orderNumber,
+      partNumber
+    );
+    setHistoryLoading(false);
+  }
+
+  async function onHistoryClearClick() {
+    setOrderNumber("");
+    setPartNumber("");
+    setHistoryLoading(true);
+    await fetchSearch(getSortFromModel(sortPackHistoryModel), 0, "", "");
+    setHistoryLoading(false);
+  }
+
   return (
     <Box className={classes.box}>
       <Grid
         className={classes.topBarGrid}
         container
         justifyContent="start"
-        spacing={2}>
+        spacing={2}
+      >
         <Grid container item xs={12} spacing={2}>
-          <Grid container item xs={"auto"}>
-            <CommonButton
-              label="Make Packing Slip"
-              disabled={selectedOrderIds.length === 0 || tabValue !== 0}
-              onClick={onPackingSlipClick}
+          {tabValue === 0 ? (
+            <Grid container spacing={2}>
+              <Grid container item xs={"auto"}>
+                <CommonButton
+                  label="Make Packing Slip"
+                  disabled={selectedOrderIds.length === 0 || tabValue !== 0}
+                  onClick={onPackingSlipClick}
+                />
+              </Grid>
+              <Grid container item justifyContent="start" xs={6}>
+                <Search onSearch={onSearch} />
+              </Grid>
+            </Grid>
+          ) : (
+            <OrderPartNumberSearch
+              partNumber={partNumber}
+              orderNumber={orderNumber}
+              onClearClick={onHistoryClearClick}
+              onSearchClick={onHistorySearchClick}
+              setOrderNumber={setOrderNumber}
+              setPartNumber={setPartNumber}
             />
-          </Grid>
-          <Grid container justifyContent="start" item xs={6}>
-            <Search onSearch={onSearch} />
-          </Grid>
+          )}
+
           <Grid container item xs justifyContent="flex-end">
             <CheckboxForm
               label="Show Unfinished Batches"
@@ -233,7 +312,14 @@ const PackingQueue = () => {
               <HistoryTable
                 sortModel={sortPackHistoryModel}
                 setSortModel={setSortPackHistoryModel}
-                searchString={searchString}
+                fetchSearch={fetchSearch}
+                histTotalCount={histTotalCount}
+                historyLoading={historyLoading}
+                filteredHist={filteredHist}
+                setFilteredHist={setFilteredHist}
+                histResultsPerPage={histResultsPerPage}
+                orderNumber={orderNumber}
+                partNumber={partNumber}
               />
             }
           />
@@ -261,12 +347,14 @@ const PackingQueue = () => {
           container
           item
           xs
-          justifyContent="flex-end">
+          justifyContent="flex-end"
+        >
           <Button
             component={Link}
             to={ROUTE_SHIPMENTS}
             variant="contained"
-            color="secondary">
+            color="secondary"
+          >
             Go to Shipping
           </Button>
         </Grid>
