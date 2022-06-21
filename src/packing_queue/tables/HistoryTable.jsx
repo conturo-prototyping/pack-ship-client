@@ -10,6 +10,7 @@ import ConfirmDialog from "../../components/ConfirmDialog";
 import pdfMake from "pdfmake/build/pdfmake";
 import pdfFonts from "pdfmake/build/vfs_fonts";
 import { PackShipProgress } from "../../common/CircularProgress";
+import { getSortFromModel } from "../utils/sortModelFunctions";
 pdfMake.vfs = pdfFonts.pdfMake.vfs;
 
 const useStyle = makeStyles((theme) => ({
@@ -53,17 +54,26 @@ const columns = [
   },
 ];
 
-const HistoryTable = ({ sortModel, setSortModel, searchString }) => {
+const HistoryTable = ({
+  sortModel,
+  setSortModel,
+  fetchSearch,
+  histTotalCount,
+  historyLoading,
+  filteredHist,
+  histResultsPerPage,
+  orderNumber,
+  partNumber,
+  pageNumber,
+  onPageChange,
+}) => {
   const classes = useStyle();
 
   const [isMounted, setIsMounted] = useState(false);
-  const [isLoading, setIsLoading] = useState(false);
 
   const [menuPosition, setMenuPosition] = useState();
 
   const [selectedRow, setSelectedRow] = useState({});
-  const [rows, setRows] = useState([]);
-  const [filteredRows, setFilteredRows] = useState([]);
 
   // Deletions
   const [confirmDeleteDialogOpen, setConfirmDeleteDialogOpen] = useState(false);
@@ -81,49 +91,11 @@ const HistoryTable = ({ sortModel, setSortModel, searchString }) => {
   }, []);
 
   const reloadData = useCallback(() => {
-    async function fetchData() {
-      return await API.getPackingSlipHistory();
-    }
-
     if (isMounted) {
-      setIsLoading(true);
-      fetchData()
-        .then((data) => {
-          if (isMounted) {
-            let packingSlips =
-              data?.packingSlips?.map((e) => {
-                return {
-                  ...e,
-                  id: e._id,
-                  orderId: e.orderNumber,
-                  dateCreated: new Date(e.dateCreated).toLocaleString(),
-                };
-              }) || [];
-            setRows(packingSlips);
-            setFilteredRows(packingSlips);
-          }
-        })
-        .finally(() => {
-          setIsLoading(false);
-        });
+      fetchSearch(getSortFromModel(sortModel), 0, "", "").finally(() => {});
     }
     // eslint-disable-next-line
   }, [isMounted]);
-
-  useEffect(() => {
-    setFilteredRows(
-      rows?.filter((order) => {
-        return (
-          order.orderNumber
-            ?.toLowerCase()
-            ?.includes(searchString.toLowerCase()) ||
-          order.packingSlipId
-            ?.toLowerCase()
-            ?.includes(searchString.toLowerCase())
-        );
-      })
-    );
-  }, [rows, searchString]);
 
   useEffect(() => {
     if (isMounted) reloadData();
@@ -368,25 +340,41 @@ const HistoryTable = ({ sortModel, setSortModel, searchString }) => {
   return (
     <div className={classes.root}>
       <DataGrid
+        paginationMode="server"
+        onPageChange={onPageChange}
+        rowCount={histTotalCount}
         sx={{ border: "none", height: "65vh", minHeight: "20rem" }}
         className={classes.table}
-        rows={isLoading ? [] : filteredRows}
+        disableSelectionOnClick={true}
+        rows={historyLoading ? [] : filteredHist}
+        rowHeight={65}
+        page={pageNumber}
         columns={columns}
-        pageSize={10}
+        pageSize={histResultsPerPage}
         rowsPerPageOptions={[10]}
         checkboxSelection={false}
-        disableSelectionOnClick
+        editMode="row"
+        sortingMode="server"
         onRowClick={(params, event, details) => {
           setSelectedRow(params.row);
           setMenuPosition({ left: event.pageX, top: event.pageY });
         }}
         sortModel={sortModel}
-        onSortModelChange={setSortModel}
-        loading={isLoading}
+        onSortModelChange={async (model) => {
+          setSortModel(model);
+          await fetchSearch(
+            getSortFromModel(model),
+            pageNumber,
+            orderNumber,
+            partNumber
+          );
+        }}
+        loading={historyLoading}
         components={{
           LoadingOverlay: () => <PackShipProgress />,
         }}
       />
+
       <ContextMenu
         menuPosition={menuPosition}
         setMenuPosition={setMenuPosition}

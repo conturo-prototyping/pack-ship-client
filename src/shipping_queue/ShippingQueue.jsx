@@ -10,10 +10,10 @@ import CommonButton from "../common/Button";
 import ShippingQueueTable from "./tables/ShippingQueueTable";
 import ShippingDialogStates from "../create_shipment/constants/ShippingDialogConstants";
 import ShippingHistoryTable from "./tables/ShippingHistoryTable";
-import TextInput from "../components/TextInput";
 import { useLocalStorage } from "../utils/localStorage";
 import { extractHistoryDetails } from "./utils/historyDetails";
 import { getSortFromModel } from "./utils/sortModelFunctions";
+import { OrderPartNumberSearch } from "../components/OrderAndPartSearchBar";
 
 const useStyle = makeStyles((theme) => ({
   box: {
@@ -189,65 +189,14 @@ const ShippingQueue = () => {
             </Grid>
           </Grid>
         ) : (
-          <Grid
-            className={classes.topBarGrid}
-            container
-            item
-            justifyContent="start"
-            spacing={1}
-            xs={12}
-          >
-            <Grid container item xs={4} md={5} justifyContent="flex-end">
-              <CommonButton
-                label="Clear"
-                onClick={onHistoryClearClick}
-                disabled={!orderNumber && !partNumber}
-                color="error"
-              />
-            </Grid>
-            <Grid container item xs={2} md={1}>
-              <TextInput
-                onChange={(e) => {
-                  if (
-                    (e === "" || e === undefined || e === null) &&
-                    (partNumber === "" ||
-                      partNumber === undefined ||
-                      partNumber === null)
-                  ) {
-                    onHistoryClearClick();
-                  }
-                  setOrderNumber(e);
-                }}
-                placeholder="Order"
-                value={orderNumber}
-              />
-            </Grid>
-            <Grid container item xs={2} md={1} justifyContent="start">
-              <TextInput
-                onChange={(e) => {
-                  if (
-                    (e === "" || e === undefined || e === null) &&
-                    (orderNumber === "" ||
-                      orderNumber === undefined ||
-                      orderNumber === null)
-                  ) {
-                    onHistoryClearClick();
-                  }
-                  setPartNumber(e);
-                }}
-                placeholder="Part"
-                value={partNumber}
-              />
-            </Grid>
-            <Grid container item xs={4} md={5}>
-              <CommonButton
-                label="Search"
-                onClick={onHistorySearchClick}
-                disabled={!orderNumber && !partNumber}
-                sx={{ marginLeft: "2rem" }}
-              />
-            </Grid>
-          </Grid>
+          <OrderPartNumberSearch
+            partNumber={partNumber}
+            orderNumber={orderNumber}
+            onClearClick={onHistoryClearClick}
+            onSearchClick={onHistorySearchClick}
+            setOrderNumber={setOrderNumber}
+            setPartNumber={setPartNumber}
+          />
         )}
 
         <Grid item xs={12}>

@@ -11,7 +11,7 @@ export const API = {
       const response = await instance.post("/packingSlips/pdf", {
         packingSlipId, // this is the item._id not the item.packingSlipId the user interacts with (dumb name....)
         orderNumber,
-        dateCreated
+        dateCreated,
       });
       return response.data;
     } catch (error) {
@@ -59,6 +59,31 @@ export const API = {
       return response.data;
     } catch (error) {
       console.error("searchPackingSlips", error);
+    }
+  },
+
+  async searchPackingSlipsHistory(
+    sortBy,
+    sortOrder,
+    matchOrder,
+    matchPart,
+    resultsPerPage,
+    pageNumber
+  ) {
+    try {
+      const response = await instance.get("/packingSlips/histSearch", {
+        params: {
+          sortBy,
+          sortOrder,
+          matchOrder,
+          matchPart,
+          resultsPerPage,
+          pageNumber,
+        },
+      });
+      return response.data;
+    } catch (error) {
+      console.error("searchPackingSlipsHistory", error);
     }
   },
 
