@@ -69,14 +69,16 @@ const PackShipEditableTable = ({
   }, [columns, onAdd, onDelete, viewOnly]);
 
   const newRows = React.useMemo(() => {
-    // Add row for the ability to add a new row
-    const newRows = [...tableData];
-    newRows.push({
-      id: addRowId,
-    });
-    return newRows;
-    // eslint-disable-next-line
-  }, [tableData]);
+    // Add row for the ability to add a new row when not in viewONly
+    return viewOnly
+      ? tableData
+      : [
+          ...tableData,
+          {
+            id: addRowId,
+          },
+        ];
+  }, [tableData, viewOnly]);
 
   const localPageSize = useMemo(() => {
     return viewOnly ? pageSize : newRows.length;
