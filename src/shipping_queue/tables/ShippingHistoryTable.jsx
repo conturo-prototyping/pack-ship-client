@@ -86,6 +86,8 @@ const ShippingHistoryTable = ({
   const [canErrorCheck, setCanErrorCheck] = useState(false);
   const [page, setPage] = useState(0);
 
+  const [deletedPackingSlips, setDeletedPackingSlips] = useState([]);
+
   useEffect(() => {
     setIsMounted(true);
   }, []);
@@ -126,7 +128,10 @@ const ShippingHistoryTable = ({
     setCanErrorCheck(true);
 
     if (isShippingInfoValid(clickedHistShipment)) {
-      let sentData = { ...clickedHistShipment };
+      let sentData = {
+        ...clickedHistShipment,
+        deletedPackingSlips,
+      };
 
       sentData.newPackingSlips = clickedHistShipment.manifest
         .filter((e) => e?.isNew === true)
@@ -155,6 +160,8 @@ const ShippingHistoryTable = ({
           setHistoryMenuPosition(null);
 
           setCanErrorCheck(false);
+
+          setDeletedPackingSlips([]);
         })
         .catch(() => {
           alert("Something went wrong submitting edits");
@@ -165,6 +172,7 @@ const ShippingHistoryTable = ({
     filteredShippingHist,
     setFilteredShippingHist,
     reloadData,
+    deletedPackingSlips,
   ]);
 
   const onHistoryPackingSlipAdd = useCallback(
@@ -247,19 +255,20 @@ const ShippingHistoryTable = ({
 
   const onHistoryPackingSlipDelete = useCallback(() => {
     if (packingSlipToDelete) {
-      API.patchShipment(clickedHistShipment?._id, {
-        deletedPackingSlips: [packingSlipToDelete.id],
-      }).then((_) => {
-        // remove packing slip id from shipment
-        const newShipmentManifest = clickedHistShipment?.manifest?.filter(
-          (e) => e._id !== packingSlipToDelete.id
-        );
+      // remove packing slip id from shipment
+      const newShipmentManifest = clickedHistShipment?.manifest?.filter(
+        (e) => e._id !== packingSlipToDelete.id
+      );
 
-        setClickedHistShipment({
-          ...clickedHistShipment,
-          manifest: newShipmentManifest,
-        });
+      setClickedHistShipment({
+        ...clickedHistShipment,
+        manifest: newShipmentManifest,
       });
+
+      setDeletedPackingSlips((prevState) => [
+        ...prevState,
+        packingSlipToDelete.id,
+      ]);
     }
   }, [clickedHistShipment, packingSlipToDelete]);
 
@@ -311,8 +320,7 @@ const ShippingHistoryTable = ({
       onClick={() => {
         setIsEditShipmentOpen(true);
         setIsEditShipmentViewOnly(true);
-      }}
-    >
+      }}>
       View
     </MenuItem>,
     // <MenuItem key="download-menu-item">Download</MenuItem>,
@@ -321,8 +329,7 @@ const ShippingHistoryTable = ({
       onClick={() => {
         setIsEditShipmentOpen(true);
         setIsEditShipmentViewOnly(false);
-      }}
-    >
+      }}>
       Edit
     </MenuItem>,
     <MenuItem
@@ -330,8 +337,7 @@ const ShippingHistoryTable = ({
       onClick={() => {
         setHistoryMenuPosition(null);
         setConfirmShippingDeleteDialogOpen(true);
-      }}
-    >
+      }}>
       Delete
     </MenuItem>,
   ];
@@ -374,8 +380,7 @@ const ShippingHistoryTable = ({
 
       <ContextMenu
         menuPosition={historyMenuPosition}
-        setMenuPosition={setHistoryMenuPosition}
-      >
+        setMenuPosition={setHistoryMenuPosition}>
         {historyRowMenuOptions}
       </ContextMenu>
 
@@ -440,8 +445,7 @@ const ShippingHistoryTable = ({
         setOpen={setConfirmShippingDeleteDialogOpen}
         onConfirm={() => {
           API.deleteShipment(clickedHistShipment._id).then(() => reloadData());
-        }}
-      >
+        }}>
         <Typography sx={{ fontWeight: 900 }}>
           {clickedHistShipment?.shipmentId}
         </Typography>
