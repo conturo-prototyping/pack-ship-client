@@ -15,6 +15,7 @@ import { useLocalStorage } from "../utils/localStorage";
 import { OrderPartNumberSearch } from "../components/OrderAndPartSearchBar";
 import { extractHistoryDetails } from "./utils/historyDetails";
 import { getSortFromModel } from "./utils/sortModelFunctions";
+import { snackbarVariants, usePackShipSnackbar } from "../common/Snackbar";
 
 const useStyle = makeStyles((theme) => ({
   box: {
@@ -42,6 +43,7 @@ const PackingQueue = () => {
 
   const [isMounted, setIsMounted] = useState(false);
 
+  const enqueueSnackbar = usePackShipSnackbar();
   const [searchString, setSearchString] = useState("");
   const [tabValue, setTabValue] = useState(0);
   const [orderNumber, setOrderNumber] = useState("");
@@ -156,12 +158,15 @@ const PackingQueue = () => {
           setPackingQueue(updatedPackingQueue);
 
           onPackingSlipClose();
+          enqueueSnackbar("Packing slip created!", snackbarVariants.success);
         })
         .catch(() => {
-          alert("An error occurred submitting packing slip");
+          const msg = "An error occurred creating the packing slip";
+          alert(msg);
+          enqueueSnackbar(msg, snackbarVariants.error);
         });
     },
-    [filteredPackingQueue, packingQueue]
+    [filteredPackingQueue, packingQueue, enqueueSnackbar]
   );
 
   function onSearch(value) {

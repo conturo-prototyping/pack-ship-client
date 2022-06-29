@@ -11,6 +11,7 @@ import pdfMake from "pdfmake/build/pdfmake";
 import pdfFonts from "pdfmake/build/vfs_fonts";
 import { PackShipProgress } from "../../common/CircularProgress";
 import { getSortFromModel } from "../utils/sortModelFunctions";
+import { snackbarVariants, usePackShipSnackbar } from "../../common/Snackbar";
 pdfMake.vfs = pdfFonts.pdfMake.vfs;
 
 const useStyle = makeStyles((theme) => ({
@@ -85,6 +86,8 @@ const HistoryTable = ({
     open: false,
     viewOnly: false,
   });
+
+  const enqueueSnackbar = usePackShipSnackbar();
 
   useEffect(() => {
     setIsMounted(true);
@@ -260,9 +263,12 @@ const HistoryTable = ({
       .then(() => {
         handleDeleteConfirm();
         reloadData();
+        enqueueSnackbar("Packing slip deleted!", snackbarVariants.success);
       })
       .catch(() => {
-        alert("An error occurred deleting packing slip");
+        const msg = "An error occurred deleting packing slip";
+        alert(msg);
+        enqueueSnackbar(msg, snackbarVariants.error);
       });
   }
 
@@ -290,9 +296,12 @@ const HistoryTable = ({
         .then(() => {
           setIsEditPackingSlipOpen({ open: false, viewOnly: false });
           reloadData();
+          enqueueSnackbar("Packing slip edited!", snackbarVariants.success);
         })
         .catch(() => {
-          alert("Failed to submit edits.");
+          const msg = "An error occurred editing the packing slip";
+          enqueueSnackbar(msg, snackbarVariants.success);
+          alert(msg);
         });
     }
   };
