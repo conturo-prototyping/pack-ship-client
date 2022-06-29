@@ -10,6 +10,7 @@ import { isShippingInfoValid } from "../../utils/Validators";
 import { API } from "../../services/server";
 import { getSortFromModel } from "../utils/sortModelFunctions";
 import { PackShipProgress } from "../../common/CircularProgress";
+import { snackbarVariants, usePackShipSnackbar } from "../../common/Snackbar";
 
 const useStyle = makeStyles((theme) => ({
   root: {
@@ -86,6 +87,8 @@ const ShippingHistoryTable = ({
   const [canErrorCheck, setCanErrorCheck] = useState(false);
   const [page, setPage] = useState(0);
 
+  const enqueueSnackbar = usePackShipSnackbar();
+
   useEffect(() => {
     setIsMounted(true);
   }, []);
@@ -155,9 +158,15 @@ const ShippingHistoryTable = ({
           setHistoryMenuPosition(null);
 
           setCanErrorCheck(false);
+          enqueueSnackbar(
+            "Shipment edited successfully!",
+            snackbarVariants.success
+          );
         })
         .catch(() => {
-          alert("Something went wrong submitting edits");
+          const msg = "An error occurred while editing the shipment";
+          alert(msg);
+          enqueueSnackbar(msg, snackbarVariants.error);
         });
     }
   }, [
@@ -165,6 +174,7 @@ const ShippingHistoryTable = ({
     filteredShippingHist,
     setFilteredShippingHist,
     reloadData,
+    enqueueSnackbar,
   ]);
 
   const onHistoryPackingSlipAdd = useCallback(
@@ -439,7 +449,19 @@ const ShippingHistoryTable = ({
         open={confirmShippingDeleteDialogOpen}
         setOpen={setConfirmShippingDeleteDialogOpen}
         onConfirm={() => {
-          API.deleteShipment(clickedHistShipment._id).then(() => reloadData());
+          API.deleteShipment(clickedHistShipment._id)
+            .then(() => {
+              reloadData();
+              enqueueSnackbar(
+                "Shipment deleted successfully!",
+                snackbarVariants.success
+              );
+            })
+            .catch(() => {
+              const msg = "An error occurred deleting the shipment";
+              alert(msg);
+              enqueueSnackbar(msg, snackbarVariants.error);
+            });
         }}
       >
         <Typography sx={{ fontWeight: 900 }}>
