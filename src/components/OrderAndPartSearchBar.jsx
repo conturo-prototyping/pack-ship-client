@@ -31,8 +31,7 @@ export const OrderPartNumberSearch = ({
       item
       justifyContent="start"
       spacing={1}
-      xs={12}
-    >
+      xs={12}>
       <Grid container item xs={4} md={5} justifyContent="flex-end">
         <CommonButton
           label="Clear"

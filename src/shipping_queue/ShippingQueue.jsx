@@ -14,25 +14,30 @@ import { useLocalStorage } from "../utils/localStorage";
 import { extractHistoryDetails } from "./utils/historyDetails";
 import { getSortFromModel } from "./utils/sortModelFunctions";
 import { OrderPartNumberSearch } from "../components/OrderAndPartSearchBar";
+import {
+  PACKING_SLIP_TOP_MARGIN,
+  PACKING_SLIP_BOTTOM_MARGIN,
+  PACKING_SLIP_RIGHT_MARGIN,
+  PACKING_SLIP_LEFT_MARGIN,
+} from "../utils/Constants";
 
 const useStyle = makeStyles((theme) => ({
   box: {
     boxSizing: "border-box",
-    height: "100%",
+    marginRight: PACKING_SLIP_RIGHT_MARGIN,
+    marginLeft: PACKING_SLIP_LEFT_MARGIN,
   },
   topBarGrid: {
     boxSizing: "border-box",
     height: "5rem",
+    paddingTop: PACKING_SLIP_TOP_MARGIN,
     marginBottom: "1rem!important",
-    paddingTop: "1rem!important",
-    paddingLeft: "1rem!important",
   },
   bottomBarGrid: {
     boxSizing: "border-box",
     marginTop: "1rem!important",
-    marginBottom: "0",
+    marginBottom: PACKING_SLIP_BOTTOM_MARGIN,
     height: "3rem",
-    paddingRight: "1rem",
   },
 }));
 
@@ -168,36 +173,41 @@ const ShippingQueue = () => {
 
   return (
     <Box className={classes.box}>
-      <Grid container>
-        {currentTab === TabNames.Queue ? (
-          <Grid
-            className={classes.topBarGrid}
-            container
-            item
-            justifyContent="start"
-            spacing={2}
-          >
-            <Grid container item xs={"auto"}>
-              <CommonButton
-                label="Create Shipment"
-                disabled={selectedOrderIds.length === 0}
-                onClick={onCreateShipmentClick}
-              />
+      <Grid
+        className={classes.topBarGrid}
+        container
+        justifyContent="start"
+        spacing={2}>
+        <Grid container item xs={12} spacing={2}>
+          {currentTab === TabNames.Queue ? (
+            <Grid
+              container
+              item
+              xs={12}
+              spacing={2}
+              sx={{ marginBottom: "1rem!important" }}>
+              <Grid container item xs={"auto"}>
+                <CommonButton
+                  label="Create Shipment"
+                  disabled={selectedOrderIds.length === 0}
+                  onClick={onCreateShipmentClick}
+                />
+              </Grid>
+              <Grid container item justifyContent="start" xs={6}>
+                <Search onSearch={onQueueSearch} />
+              </Grid>
             </Grid>
-            <Grid container item justifyContent="start" xs={6}>
-              <Search onSearch={onQueueSearch} />
-            </Grid>
-          </Grid>
-        ) : (
-          <OrderPartNumberSearch
-            partNumber={partNumber}
-            orderNumber={orderNumber}
-            onClearClick={onHistoryClearClick}
-            onSearchClick={onHistorySearchClick}
-            setOrderNumber={setOrderNumber}
-            setPartNumber={setPartNumber}
-          />
-        )}
+          ) : (
+            <OrderPartNumberSearch
+              partNumber={partNumber}
+              orderNumber={orderNumber}
+              onClearClick={onHistoryClearClick}
+              onSearchClick={onHistorySearchClick}
+              setOrderNumber={setOrderNumber}
+              setPartNumber={setPartNumber}
+            />
+          )}
+        </Grid>
 
         <Grid item xs={12}>
           <PackShipTabs
@@ -242,14 +252,13 @@ const ShippingQueue = () => {
           container
           item
           xs
-          justifyContent="flex-end"
-        >
+          justifyContent="flex-end">
           <Button
             component={Link}
             to={ROUTE_PACKING_SLIP}
             variant="contained"
             color="secondary"
-          >
+            sx={{ marginRight: "0px" }}>
             Go to Packing
           </Button>
         </Grid>
