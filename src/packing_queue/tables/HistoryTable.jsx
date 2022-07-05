@@ -232,17 +232,10 @@ const HistoryTable = ({
             qty: e.qty || e.item.packQty,
           };
         });
-      API.patchPackingSlip(selectedRow.id, {
+      setSelectedRow({
+        ...selectedRow,
         items: itemsWithoutItem,
-      })
-        .then((_) => {
-          setSelectedRow({
-            ...selectedRow,
-            items: itemsWithoutItem,
-          });
-          reloadData();
-        })
-        .catch((_) => alert("Failed to delete item from packing slip"));
+      });
     }
   }
 
@@ -377,8 +370,7 @@ const HistoryTable = ({
 
       <ContextMenu
         menuPosition={menuPosition}
-        setMenuPosition={setMenuPosition}
-      >
+        setMenuPosition={setMenuPosition}>
         {historyRowMenuOptions}
       </ContextMenu>
       <EditPackingSlipDialog
