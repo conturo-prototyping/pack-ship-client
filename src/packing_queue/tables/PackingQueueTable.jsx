@@ -7,6 +7,10 @@ import { createColumnFilters } from "../../utils/TableFilters";
 import { getCheckboxColumn } from "../../components/CheckboxColumn";
 import { API } from "../../services/server";
 import { PackShipProgress } from "../../common/CircularProgress";
+import {
+  PACKING_SLIP_TOP_MARGIN,
+  PACKING_SLIP_BOTTOM_MARGIN,
+} from "../../utils/Constants";
 
 const useStyle = makeStyles((theme) => ({
   root: {
@@ -425,7 +429,11 @@ const PackingQueueTable = ({
   return (
     <div className={classes.root}>
       <DataGrid
-        sx={{ border: "none", height: "65vh", minHeight: "20rem" }}
+        sx={{
+          border: "none",
+          height: `calc(100vh - ${PACKING_SLIP_BOTTOM_MARGIN} - ${PACKING_SLIP_TOP_MARGIN} - 15rem)`,
+          minHeight: "20rem",
+        }}
         className={classes.table}
         rows={
           isLoading

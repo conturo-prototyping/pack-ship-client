@@ -6,10 +6,6 @@ import TabPanelUnstyled from "@mui/base/TabPanelUnstyled";
 import { buttonUnstyledClasses } from "@mui/base/ButtonUnstyled";
 import TabUnstyled, { tabUnstyledClasses } from "@mui/base/TabUnstyled";
 import { Box } from "@mui/material";
-import {
-  PACKING_SLIP_BOTTOM_MARGIN,
-  PACKING_SLIP_TOP_MARGIN,
-} from "../utils/Constants";
 
 const Tab = styled(TabUnstyled, {
   shouldForwardProp: (props) =>
@@ -70,7 +66,7 @@ export default function PackShipTabs({
       bgcolor="secondary.light"
       borderRadius="8px"
       boxSizing="border-box"
-      height={`calc(100% - ${PACKING_SLIP_TOP_MARGIN} - ${PACKING_SLIP_BOTTOM_MARGIN})`}>
+      p={1}>
       <TabsUnstyled defaultValue={0}>
         <Tabs value={false} onChange={onTabChange}>
           <Tab value={0}>Queue ({queueTotal})</Tab>

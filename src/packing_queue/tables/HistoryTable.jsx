@@ -11,6 +11,11 @@ import pdfMake from "pdfmake/build/pdfmake";
 import pdfFonts from "pdfmake/build/vfs_fonts";
 import { PackShipProgress } from "../../common/CircularProgress";
 import { getSortFromModel } from "../utils/sortModelFunctions";
+import {
+  PACKING_SLIP_TOP_MARGIN,
+  PACKING_SLIP_BOTTOM_MARGIN,
+} from "../../utils/Constants";
+
 pdfMake.vfs = pdfFonts.pdfMake.vfs;
 
 const useStyle = makeStyles((theme) => ({
@@ -336,7 +341,11 @@ const HistoryTable = ({
         paginationMode="server"
         onPageChange={onPageChange}
         rowCount={histTotalCount}
-        sx={{ border: "none", height: "65vh", minHeight: "20rem" }}
+        sx={{
+          border: "none",
+          height: `calc(100vh - ${PACKING_SLIP_BOTTOM_MARGIN} - ${PACKING_SLIP_TOP_MARGIN} - 15rem)`,
+          minHeight: "20rem",
+        }}
         className={classes.table}
         disableSelectionOnClick={true}
         rows={historyLoading ? [] : filteredHist}

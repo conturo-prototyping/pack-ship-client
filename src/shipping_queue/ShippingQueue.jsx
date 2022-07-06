@@ -26,6 +26,7 @@ const useStyle = makeStyles((theme) => ({
     boxSizing: "border-box",
     marginRight: PACKING_SLIP_RIGHT_MARGIN,
     marginLeft: PACKING_SLIP_LEFT_MARGIN,
+    marginBottom: PACKING_SLIP_BOTTOM_MARGIN,
   },
   topBarGrid: {
     boxSizing: "border-box",
@@ -36,7 +37,6 @@ const useStyle = makeStyles((theme) => ({
   bottomBarGrid: {
     boxSizing: "border-box",
     marginTop: "1rem!important",
-    marginBottom: PACKING_SLIP_BOTTOM_MARGIN,
     height: "3rem",
   },
 }));

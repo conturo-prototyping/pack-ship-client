@@ -29,10 +29,9 @@ export const OrderPartNumberSearch = ({
       className={classes.topBarGrid}
       container
       item
-      justifyContent="start"
-      spacing={1}
-      xs={12}>
-      <Grid container item xs={4} md={5} justifyContent="flex-end">
+      justifyContent="flex-start"
+      spacing={1}>
+      <Grid container item xs={"auto"}>
         <CommonButton
           label="Clear"
           onClick={onClearClick}
@@ -57,7 +56,7 @@ export const OrderPartNumberSearch = ({
           value={orderNumber}
         />
       </Grid>
-      <Grid container item xs={2} md={1} justifyContent="start">
+      <Grid container item xs={2} md={1}>
         <TextInput
           onChange={(e) => {
             if (
@@ -74,7 +73,7 @@ export const OrderPartNumberSearch = ({
           value={partNumber}
         />
       </Grid>
-      <Grid container item xs={4} md={5}>
+      <Grid container item xs={"auto"}>
         <CommonButton
           label="Search"
           onClick={onSearchClick}
