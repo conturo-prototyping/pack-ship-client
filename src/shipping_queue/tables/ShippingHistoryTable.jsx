@@ -88,6 +88,7 @@ const ShippingHistoryTable = ({
   const [page, setPage] = useState(0);
 
   const enqueueSnackbar = usePackShipSnackbar();
+  const [deletedPackingSlips, setDeletedPackingSlips] = useState([]);
 
   useEffect(() => {
     setIsMounted(true);
@@ -129,7 +130,10 @@ const ShippingHistoryTable = ({
     setCanErrorCheck(true);
 
     if (isShippingInfoValid(clickedHistShipment)) {
-      let sentData = { ...clickedHistShipment };
+      let sentData = {
+        ...clickedHistShipment,
+        deletedPackingSlips,
+      };
 
       sentData.newPackingSlips = clickedHistShipment.manifest
         .filter((e) => e?.isNew === true)
@@ -162,6 +166,8 @@ const ShippingHistoryTable = ({
             "Shipment edited successfully!",
             snackbarVariants.success
           );
+
+          setDeletedPackingSlips([]);
         })
         .catch(() => {
           const msg = "An error occurred while editing the shipment";
@@ -175,6 +181,7 @@ const ShippingHistoryTable = ({
     setFilteredShippingHist,
     reloadData,
     enqueueSnackbar,
+    deletedPackingSlips,
   ]);
 
   const onHistoryPackingSlipAdd = useCallback(
@@ -257,19 +264,20 @@ const ShippingHistoryTable = ({
 
   const onHistoryPackingSlipDelete = useCallback(() => {
     if (packingSlipToDelete) {
-      API.patchShipment(clickedHistShipment?._id, {
-        deletedPackingSlips: [packingSlipToDelete.id],
-      }).then((_) => {
-        // remove packing slip id from shipment
-        const newShipmentManifest = clickedHistShipment?.manifest?.filter(
-          (e) => e._id !== packingSlipToDelete.id
-        );
+      // remove packing slip id from shipment
+      const newShipmentManifest = clickedHistShipment?.manifest?.filter(
+        (e) => e._id !== packingSlipToDelete.id
+      );
 
-        setClickedHistShipment({
-          ...clickedHistShipment,
-          manifest: newShipmentManifest,
-        });
+      setClickedHistShipment({
+        ...clickedHistShipment,
+        manifest: newShipmentManifest,
       });
+
+      setDeletedPackingSlips((prevState) => [
+        ...prevState,
+        packingSlipToDelete.id,
+      ]);
     }
   }, [clickedHistShipment, packingSlipToDelete]);
 
@@ -459,7 +467,6 @@ const ShippingHistoryTable = ({
             })
             .catch(() => {
               const msg = "An error occurred deleting the shipment";
-              alert(msg);
               enqueueSnackbar(msg, snackbarVariants.error);
             });
         }}
