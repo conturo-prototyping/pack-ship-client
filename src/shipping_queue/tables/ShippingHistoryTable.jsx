@@ -173,9 +173,8 @@ const ShippingHistoryTable = ({
 
           setDeletedPackingSlips([]);
         })
-        .catch(() => {
-          const msg = "An error occurred while editing the shipment";
-          enqueueSnackbar(msg, snackbarVariants.error);
+        .catch((e) => {
+          enqueueSnackbar(e.message, snackbarVariants.error);
         });
     }
   }, [
@@ -472,9 +471,8 @@ const ShippingHistoryTable = ({
                 snackbarVariants.success
               );
             })
-            .catch(() => {
-              const msg = "An error occurred deleting the shipment";
-              enqueueSnackbar(msg, snackbarVariants.error);
+            .catch((e) => {
+              enqueueSnackbar(e.mesage, snackbarVariants.error);
             });
         }}
       >

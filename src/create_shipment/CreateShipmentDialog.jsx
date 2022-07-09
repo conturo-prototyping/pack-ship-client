@@ -114,9 +114,8 @@ const CreateShipmentDialog = ({
             snackbarVariants.success
           );
         })
-        .catch(() => {
-          const msg = "An error occurred creating the shipment";
-          enqueueSnackbar(msg, snackbarVariants.error);
+        .catch((e) => {
+          enqueueSnackbar(e.message, snackbarVariants.error);
         });
     }
   };

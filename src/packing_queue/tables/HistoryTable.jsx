@@ -294,9 +294,8 @@ const HistoryTable = ({
           reloadData();
           enqueueSnackbar("Packing slip edited!", snackbarVariants.success);
         })
-        .catch(() => {
-          const msg = "An error occurred editing the packing slip";
-          enqueueSnackbar(msg, snackbarVariants.error);
+        .catch((e) => {
+          enqueueSnackbar(e.message, snackbarVariants.error);
         });
     }
   };
@@ -319,9 +318,8 @@ const HistoryTable = ({
         setMenuPosition(null);
         enqueueSnackbar("Packing slip downloaded", snackbarVariants.error);
       })
-      .catch(() => {
-        const msg = "Could not download packing slip";
-        enqueueSnackbar(msg, snackbarVariants.error);
+      .catch((e) => {
+        enqueueSnackbar(e.message, snackbarVariants.error);
       });
   }, [selectedRow, enqueueSnackbar]);
 

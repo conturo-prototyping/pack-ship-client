@@ -165,9 +165,8 @@ const PackingQueue = () => {
           onPackingSlipClose();
           enqueueSnackbar("Packing slip created!", snackbarVariants.success);
         })
-        .catch(() => {
-          const msg = "An error occurred creating the packing slip";
-          enqueueSnackbar(msg, snackbarVariants.error);
+        .catch((e) => {
+          enqueueSnackbar(e.message, snackbarVariants.error);
         });
     },
     [filteredPackingQueue, packingQueue, enqueueSnackbar]
