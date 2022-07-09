@@ -9,11 +9,14 @@ import ShipQueuePackSlipDrowdown from "./ShipQueuePackSlipDropdown";
 import { API } from "../../services/server";
 import CreateShipmentDialog from "../../create_shipment/CreateShipmentDialog";
 import { PackShipProgress } from "../../common/CircularProgress";
+import {
+  PACKING_SLIP_TOP_MARGIN,
+  PACKING_SLIP_BOTTOM_MARGIN,
+} from "../../utils/Constants";
 
 const useStyle = makeStyles((theme) => ({
   root: {
     width: "100%",
-    height: "fit-content",
     alignItems: "center",
     justifyContent: "center",
     display: "flex",
@@ -323,7 +326,11 @@ const ShippingQueueTable = ({
   return (
     <div className={classes.root}>
       <ShippingQueueDataGrid
-        sx={{ border: "none", height: "65vh", minHeight: "20rem" }}
+        sx={{
+          border: "none",
+          height: `calc(100vh - ${PACKING_SLIP_BOTTOM_MARGIN} - ${PACKING_SLIP_TOP_MARGIN} - 15rem)`,
+          minHeight: "20rem",
+        }}
         className={classes.table}
         onRowClick={(params) => {
           let tmpData = [...queueData];

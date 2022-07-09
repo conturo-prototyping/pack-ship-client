@@ -16,25 +16,30 @@ import { OrderPartNumberSearch } from "../components/OrderAndPartSearchBar";
 import { extractHistoryDetails } from "./utils/historyDetails";
 import { getSortFromModel } from "./utils/sortModelFunctions";
 import { snackbarVariants, usePackShipSnackbar } from "../common/Snackbar";
+import {
+  PACKING_SLIP_TOP_MARGIN,
+  PACKING_SLIP_BOTTOM_MARGIN,
+  PACKING_SLIP_RIGHT_MARGIN,
+  PACKING_SLIP_LEFT_MARGIN,
+} from "../utils/Constants";
 
 const useStyle = makeStyles((theme) => ({
   box: {
     boxSizing: "border-box",
-    height: "100%",
+    marginRight: PACKING_SLIP_RIGHT_MARGIN,
+    marginLeft: PACKING_SLIP_LEFT_MARGIN,
   },
   topBarGrid: {
     boxSizing: "border-box",
-    height: "5.5rem",
+    height: "5rem",
+    paddingTop: PACKING_SLIP_TOP_MARGIN,
     marginBottom: "1rem!important",
-    paddingTop: "1rem!important",
-    paddingLeft: "1rem!important",
   },
   bottomBarGrid: {
     boxSizing: "border-box",
     marginTop: "1rem!important",
-    marginBottom: "0",
+    marginBottom: PACKING_SLIP_BOTTOM_MARGIN,
     height: "3rem",
-    paddingRight: "1rem",
   },
 }));
 
@@ -224,7 +229,13 @@ const PackingQueue = () => {
           )}
 
           {tabValue === 0 && (
-            <>
+            <Grid
+              container
+              item
+              xs={12}
+              spacing={2}
+              sx={{ marginBottom: "1rem!important" }}
+            >
               <Grid container item xs={"auto"}>
                 <CommonButton
                   label="Make Packing Slip"
@@ -292,7 +303,7 @@ const PackingQueue = () => {
                   checked={isFulfilledBatchesOn}
                 />
               </Grid>
-            </>
+            </Grid>
           )}
         </Grid>
         <Grid item xs={12}>
@@ -365,6 +376,7 @@ const PackingQueue = () => {
             to={ROUTE_SHIPMENTS}
             variant="contained"
             color="secondary"
+            sx={{ marginRight: "0px" }}
           >
             Go to Shipping
           </Button>

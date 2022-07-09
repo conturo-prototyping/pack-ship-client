@@ -11,6 +11,10 @@ import { API } from "../../services/server";
 import { getSortFromModel } from "../utils/sortModelFunctions";
 import { PackShipProgress } from "../../common/CircularProgress";
 import { snackbarVariants, usePackShipSnackbar } from "../../common/Snackbar";
+import {
+  PACKING_SLIP_TOP_MARGIN,
+  PACKING_SLIP_BOTTOM_MARGIN,
+} from "../../utils/Constants";
 
 const useStyle = makeStyles((theme) => ({
   root: {
@@ -360,7 +364,11 @@ const ShippingHistoryTable = ({
         paginationMode="server"
         onPageChange={onPageChange}
         rowCount={histTotalCount}
-        sx={{ border: "none", height: "65vh", minHeight: "20rem" }}
+        sx={{
+          border: "none",
+          height: `calc(100vh - ${PACKING_SLIP_BOTTOM_MARGIN} - ${PACKING_SLIP_TOP_MARGIN} - 15rem)`,
+          minHeight: "20rem",
+        }}
         className={classes.table}
         disableSelectionOnClick={true}
         rows={isLoading || historyLoading ? [] : filteredShippingHist}

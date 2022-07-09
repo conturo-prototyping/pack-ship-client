@@ -63,11 +63,10 @@ export default function PackShipTabs({
 }) {
   return (
     <Box
-      p={2}
       bgcolor="secondary.light"
       borderRadius="8px"
       boxSizing="border-box"
-      m={2}>
+      p={1}>
       <TabsUnstyled defaultValue={0}>
         <Tabs value={false} onChange={onTabChange}>
           <Tab value={0}>Queue ({queueTotal})</Tab>
