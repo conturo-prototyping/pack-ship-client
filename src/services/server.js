@@ -16,6 +16,7 @@ export const API = {
       return response.data;
     } catch (error) {
       console.error("downloadPDF", error);
+      throw "downloadPDF";
     }
   },
 
@@ -25,6 +26,7 @@ export const API = {
       return response.data;
     } catch (error) {
       console.error("getPackingQueue", error);
+      throw "getPackingQueue";
     }
   },
 
@@ -33,19 +35,24 @@ export const API = {
       const response = await instance.get("/workOrders");
       return response.data;
     } catch (error) {
-      console.log(error);
       console.error("getAllWorkOrders", error);
+      throw "getAllWorkOrders";
     }
   },
 
   async createPackingSlip(items, customer, orderNumber) {
-    const response = await instance.put("/packingSlips", {
-      items,
-      customer,
-      orderNumber,
-    });
+    try {
+      const response = await instance.put("/packingSlips", {
+        items,
+        customer,
+        orderNumber,
+      });
 
-    return response.data;
+      return response.data;
+    } catch (error) {
+      console.error("createPackingSlip", error);
+      throw "createPackingSlip";
+    }
   },
 
   async searchPackingSlips(customerId, shipmentId) {
@@ -59,6 +66,7 @@ export const API = {
       return response.data;
     } catch (error) {
       console.error("searchPackingSlips", error);
+      throw "searchPackingSlips";
     }
   },
 
@@ -84,6 +92,7 @@ export const API = {
       return response.data;
     } catch (error) {
       console.error("searchPackingSlipsHistory", error);
+      throw "searchPackingSlipsHistory";
     }
   },
 
@@ -93,6 +102,7 @@ export const API = {
       return response.data;
     } catch (error) {
       console.error("getShippingQueue", error);
+      throw "getShippingQueue";
     }
   },
 
@@ -102,6 +112,7 @@ export const API = {
       return response.data;
     } catch (error) {
       console.error("getShippingHistory", error);
+      throw "getShippingHistory";
     }
   },
 
@@ -111,6 +122,7 @@ export const API = {
       return response.data;
     } catch (error) {
       console.error("deleteShipment", error);
+      throw "deleteShipment";
     }
   },
 
@@ -120,6 +132,7 @@ export const API = {
       return response.data;
     } catch (error) {
       console.error("getShipment", error);
+      throw "getShipment";
     }
   },
 
@@ -132,6 +145,7 @@ export const API = {
       return response.data;
     } catch (error) {
       console.error("patchShipment", error);
+      throw "patchShipment";
     }
   },
 
@@ -157,6 +171,7 @@ export const API = {
       return response.data;
     } catch (error) {
       console.error("searchShippingHistory", error);
+      throw "searchShippingHistory";
     }
   },
 
@@ -166,6 +181,7 @@ export const API = {
       return response.data;
     } catch (error) {
       console.error("getPackingSlipHistory", error);
+      throw "getPackingSlipHistory";
     }
   },
 
@@ -174,7 +190,8 @@ export const API = {
       const response = await instance.delete(`/packingSlips/${id}`);
       return response.data;
     } catch (error) {
-      console.error("getPackingSlipHistory", error);
+      console.error("deletePackingSlip", error);
+      throw error?.response?.data;
     }
   },
 
@@ -189,24 +206,37 @@ export const API = {
     customerAccount = undefined,
     customerHandoffName = undefined
   ) {
-    const response = await instance.put("/shipments", {
-      manifest,
-      customer,
-      deliveryMethod,
-      trackingNumber,
-      cost,
-      carrier,
-      deliverySpeed,
-      customerAccount,
-      customerHandoffName,
-    });
+    try {
+      const response = await instance.put("/shipments", {
+        manifest,
+        customer,
+        deliveryMethod,
+        trackingNumber,
+        cost,
+        carrier,
+        deliverySpeed,
+        customerAccount,
+        customerHandoffName,
+      });
 
-    return response.data;
+      return response.data;
+    } catch (error) {
+      console.error("createShipment", error);
+      throw "createShipment";
+    }
   },
 
   async patchPackingSlip(id, updatedItems) {
-    const response = await instance.patch(`/packingSlips/${id}`, updatedItems);
+    try {
+      const response = await instance.patch(
+        `/packingSlips/${id}`,
+        updatedItems
+      );
 
-    return response.data;
+      return response.data;
+    } catch (error) {
+      console.error("patchPackingSlip", error);
+      throw "patchPackingSlip";
+    }
   },
 };

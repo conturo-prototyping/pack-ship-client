@@ -175,7 +175,6 @@ const ShippingHistoryTable = ({
         })
         .catch(() => {
           const msg = "An error occurred while editing the shipment";
-          alert(msg);
           enqueueSnackbar(msg, snackbarVariants.error);
         });
     }

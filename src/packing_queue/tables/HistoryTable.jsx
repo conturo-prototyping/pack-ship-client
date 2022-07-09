@@ -263,9 +263,8 @@ const HistoryTable = ({
         reloadData();
         enqueueSnackbar("Packing slip deleted!", snackbarVariants.success);
       })
-      .catch(() => {
-        const msg = "An error occurred deleting packing slip";
-        alert(msg);
+      .catch((e) => {
+        const msg = e ?? "An error occurred deleting packing slip";
         enqueueSnackbar(msg, snackbarVariants.error);
       });
   }
@@ -298,8 +297,7 @@ const HistoryTable = ({
         })
         .catch(() => {
           const msg = "An error occurred editing the packing slip";
-          enqueueSnackbar(msg, snackbarVariants.success);
-          alert(msg);
+          enqueueSnackbar(msg, snackbarVariants.error);
         });
     }
   };
@@ -320,9 +318,11 @@ const HistoryTable = ({
       .then((data) => {
         pdfMake.createPdf(data.docDefinition).open();
         setMenuPosition(null);
+        enqueueSnackbar("Packing slip downloaded", snackbarVariants.error);
       })
       .catch(() => {
-        alert("Could not download packing slip");
+        const msg = "Could not download packing slip";
+        enqueueSnackbar(msg, snackbarVariants.error);
       });
   }, [selectedRow]);
 
