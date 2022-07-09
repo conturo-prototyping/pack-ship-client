@@ -264,8 +264,7 @@ const HistoryTable = ({
         enqueueSnackbar("Packing slip deleted!", snackbarVariants.success);
       })
       .catch((e) => {
-        const msg = e ?? "An error occurred deleting packing slip";
-        enqueueSnackbar(msg, snackbarVariants.error);
+        enqueueSnackbar(e.message, snackbarVariants.error);
       });
   }
 
@@ -324,7 +323,7 @@ const HistoryTable = ({
         const msg = "Could not download packing slip";
         enqueueSnackbar(msg, snackbarVariants.error);
       });
-  }, [selectedRow]);
+  }, [selectedRow, enqueueSnackbar]);
 
   const historyRowMenuOptions = useMemo(
     () => [

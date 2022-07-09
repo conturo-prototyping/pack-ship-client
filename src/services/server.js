@@ -16,7 +16,9 @@ export const API = {
       return response.data;
     } catch (error) {
       console.error("downloadPDF", error);
-      throw "downloadPDF";
+      throw new Error(
+        error?.response?.data ?? "An error occurred downloading PDF"
+      );
     }
   },
 
@@ -26,7 +28,9 @@ export const API = {
       return response.data;
     } catch (error) {
       console.error("getPackingQueue", error);
-      throw "getPackingQueue";
+      throw new Error(
+        error?.response?.data ?? "An error occurred getting packing queue"
+      );
     }
   },
 
@@ -36,7 +40,9 @@ export const API = {
       return response.data;
     } catch (error) {
       console.error("getAllWorkOrders", error);
-      throw "getAllWorkOrders";
+      throw new Error(
+        error?.response?.data ?? "An error occurred getting all word orders"
+      );
     }
   },
 
@@ -51,7 +57,9 @@ export const API = {
       return response.data;
     } catch (error) {
       console.error("createPackingSlip", error);
-      throw "createPackingSlip";
+      throw new Error(
+        error?.response?.data ?? "An error occurred creating packing slip"
+      );
     }
   },
 
@@ -66,7 +74,9 @@ export const API = {
       return response.data;
     } catch (error) {
       console.error("searchPackingSlips", error);
-      throw "searchPackingSlips";
+      throw new Error(
+        error?.response?.data ?? "An error occurred searching packing slips"
+      );
     }
   },
 
@@ -92,7 +102,10 @@ export const API = {
       return response.data;
     } catch (error) {
       console.error("searchPackingSlipsHistory", error);
-      throw "searchPackingSlipsHistory";
+      throw new Error(
+        error?.response?.data ??
+          "An error occurred searching packing slip history"
+      );
     }
   },
 
@@ -102,7 +115,9 @@ export const API = {
       return response.data;
     } catch (error) {
       console.error("getShippingQueue", error);
-      throw "getShippingQueue";
+      throw new Error(
+        error?.response?.data ?? "An error occurred getting shipping queue"
+      );
     }
   },
 
@@ -112,7 +127,9 @@ export const API = {
       return response.data;
     } catch (error) {
       console.error("getShippingHistory", error);
-      throw "getShippingHistory";
+      throw new Error(
+        error?.response?.data ?? "An error occurred getting shipping history"
+      );
     }
   },
 
@@ -122,7 +139,9 @@ export const API = {
       return response.data;
     } catch (error) {
       console.error("deleteShipment", error);
-      throw "deleteShipment";
+      throw new Error(
+        error?.response?.data ?? "An error occurred deleting shipment"
+      );
     }
   },
 
@@ -132,7 +151,9 @@ export const API = {
       return response.data;
     } catch (error) {
       console.error("getShipment", error);
-      throw "getShipment";
+      throw new Error(
+        error?.response?.data ?? "An error occurred getting shipment"
+      );
     }
   },
 
@@ -145,7 +166,9 @@ export const API = {
       return response.data;
     } catch (error) {
       console.error("patchShipment", error);
-      throw "patchShipment";
+      throw new Error(
+        error?.response?.data ?? "An error occurred patching shipment"
+      );
     }
   },
 
@@ -171,7 +194,9 @@ export const API = {
       return response.data;
     } catch (error) {
       console.error("searchShippingHistory", error);
-      throw "searchShippingHistory";
+      throw new Error(
+        error?.response?.data ?? "An error occurred searching shipping history"
+      );
     }
   },
 
@@ -181,7 +206,10 @@ export const API = {
       return response.data;
     } catch (error) {
       console.error("getPackingSlipHistory", error);
-      throw "getPackingSlipHistory";
+      throw new Error(
+        error?.response?.data ??
+          "An error occurred getting packing slip history"
+      );
     }
   },
 
@@ -191,7 +219,9 @@ export const API = {
       return response.data;
     } catch (error) {
       console.error("deletePackingSlip", error);
-      throw error?.response?.data;
+      throw new Error(
+        error?.response?.data ?? "An error occurred deleting packing slip"
+      );
     }
   },
 
@@ -222,7 +252,9 @@ export const API = {
       return response.data;
     } catch (error) {
       console.error("createShipment", error);
-      throw "createShipment";
+      throw new Error(
+        error?.response?.data ?? "An error occurred creating shipment"
+      );
     }
   },
 
@@ -236,7 +268,9 @@ export const API = {
       return response.data;
     } catch (error) {
       console.error("patchPackingSlip", error);
-      throw "patchPackingSlip";
+      throw new Error(
+        error?.response?.data ?? "An error occurred patching packing slip"
+      );
     }
   },
 };
