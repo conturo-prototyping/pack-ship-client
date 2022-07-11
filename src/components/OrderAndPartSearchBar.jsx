@@ -30,7 +30,8 @@ export const OrderPartNumberSearch = ({
       container
       item
       justifyContent="flex-start"
-      spacing={1}>
+      spacing={1}
+    >
       <Grid container item xs={"auto"}>
         <CommonButton
           label="Clear"
@@ -41,6 +42,11 @@ export const OrderPartNumberSearch = ({
       </Grid>
       <Grid container item xs={2} md={1}>
         <TextInput
+          onKeyDown={(e) => {
+            if (e.key === "Enter") {
+              onSearchClick();
+            }
+          }}
           onChange={(e) => {
             if (
               (e === "" || e === undefined || e === null) &&
@@ -58,6 +64,11 @@ export const OrderPartNumberSearch = ({
       </Grid>
       <Grid container item xs={2} md={1}>
         <TextInput
+          onKeyDown={(e) => {
+            if (e.key === "Enter") {
+              onSearchClick();
+            }
+          }}
           onChange={(e) => {
             if (
               (e === "" || e === undefined || e === null) &&

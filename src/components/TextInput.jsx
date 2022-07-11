@@ -8,9 +8,11 @@ const TextInput = ({
   readOnly = false,
   error = false,
   canErrorCheck = false,
+  onKeyDown = null,
 }) => {
   return (
     <TextField
+      onKeyDown={onKeyDown}
       variant={readOnly ? "standard" : "outlined"}
       id="text-field-input"
       onChange={(e) => {
