@@ -10,6 +10,7 @@ import { isShippingInfoValid } from "../../utils/Validators";
 import { API } from "../../services/server";
 import { getSortFromModel } from "../utils/sortModelFunctions";
 import { PackShipProgress } from "../../common/CircularProgress";
+import { snackbarVariants, usePackShipSnackbar } from "../../common/Snackbar";
 import {
   PACKING_SLIP_TOP_MARGIN,
   PACKING_SLIP_BOTTOM_MARGIN,
@@ -90,6 +91,7 @@ const ShippingHistoryTable = ({
   const [canErrorCheck, setCanErrorCheck] = useState(false);
   const [page, setPage] = useState(0);
 
+  const enqueueSnackbar = usePackShipSnackbar();
   const [deletedPackingSlips, setDeletedPackingSlips] = useState([]);
 
   useEffect(() => {
@@ -164,11 +166,15 @@ const ShippingHistoryTable = ({
           setHistoryMenuPosition(null);
 
           setCanErrorCheck(false);
+          enqueueSnackbar(
+            "Shipment edited successfully!",
+            snackbarVariants.success
+          );
 
           setDeletedPackingSlips([]);
         })
-        .catch(() => {
-          alert("Something went wrong submitting edits");
+        .catch((e) => {
+          enqueueSnackbar(e.message, snackbarVariants.error);
         });
     }
   }, [
@@ -176,6 +182,7 @@ const ShippingHistoryTable = ({
     filteredShippingHist,
     setFilteredShippingHist,
     reloadData,
+    enqueueSnackbar,
     deletedPackingSlips,
   ]);
 
@@ -324,7 +331,8 @@ const ShippingHistoryTable = ({
       onClick={() => {
         setIsEditShipmentOpen(true);
         setIsEditShipmentViewOnly(true);
-      }}>
+      }}
+    >
       View
     </MenuItem>,
     // <MenuItem key="download-menu-item">Download</MenuItem>,
@@ -333,7 +341,8 @@ const ShippingHistoryTable = ({
       onClick={() => {
         setIsEditShipmentOpen(true);
         setIsEditShipmentViewOnly(false);
-      }}>
+      }}
+    >
       Edit
     </MenuItem>,
     <MenuItem
@@ -341,7 +350,8 @@ const ShippingHistoryTable = ({
       onClick={() => {
         setHistoryMenuPosition(null);
         setConfirmShippingDeleteDialogOpen(true);
-      }}>
+      }}
+    >
       Delete
     </MenuItem>,
   ];
@@ -388,7 +398,8 @@ const ShippingHistoryTable = ({
 
       <ContextMenu
         menuPosition={historyMenuPosition}
-        setMenuPosition={setHistoryMenuPosition}>
+        setMenuPosition={setHistoryMenuPosition}
+      >
         {historyRowMenuOptions}
       </ContextMenu>
 
@@ -452,8 +463,19 @@ const ShippingHistoryTable = ({
         open={confirmShippingDeleteDialogOpen}
         setOpen={setConfirmShippingDeleteDialogOpen}
         onConfirm={() => {
-          API.deleteShipment(clickedHistShipment._id).then(() => reloadData());
-        }}>
+          API.deleteShipment(clickedHistShipment._id)
+            .then(() => {
+              reloadData();
+              enqueueSnackbar(
+                "Shipment deleted successfully!",
+                snackbarVariants.success
+              );
+            })
+            .catch((e) => {
+              enqueueSnackbar(e.mesage, snackbarVariants.error);
+            });
+        }}
+      >
         <Typography sx={{ fontWeight: 900 }}>
           {clickedHistShipment?.shipmentId}
         </Typography>

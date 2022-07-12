@@ -15,6 +15,7 @@ import { useLocalStorage } from "../utils/localStorage";
 import { OrderPartNumberSearch } from "../components/OrderAndPartSearchBar";
 import { extractHistoryDetails } from "./utils/historyDetails";
 import { getSortFromModel } from "./utils/sortModelFunctions";
+import { snackbarVariants, usePackShipSnackbar } from "../common/Snackbar";
 import {
   PACKING_SLIP_TOP_MARGIN,
   PACKING_SLIP_BOTTOM_MARGIN,
@@ -47,6 +48,7 @@ const PackingQueue = () => {
 
   const [isMounted, setIsMounted] = useState(false);
 
+  const enqueueSnackbar = usePackShipSnackbar();
   const [searchString, setSearchString] = useState("");
   const [tabValue, setTabValue] = useState(0);
   const [orderNumber, setOrderNumber] = useState("");
@@ -161,12 +163,13 @@ const PackingQueue = () => {
           setPackingQueue(updatedPackingQueue);
 
           onPackingSlipClose();
+          enqueueSnackbar("Packing slip created!", snackbarVariants.success);
         })
-        .catch(() => {
-          alert("An error occurred submitting packing slip");
+        .catch((e) => {
+          enqueueSnackbar(e.message, snackbarVariants.error);
         });
     },
-    [filteredPackingQueue, packingQueue]
+    [filteredPackingQueue, packingQueue, enqueueSnackbar]
   );
 
   function onSearch(value) {
@@ -209,7 +212,8 @@ const PackingQueue = () => {
         className={classes.topBarGrid}
         container
         justifyContent="start"
-        spacing={2}>
+        spacing={2}
+      >
         <Grid container item xs={12} spacing={2}>
           {tabValue === 1 && (
             <OrderPartNumberSearch
@@ -228,7 +232,8 @@ const PackingQueue = () => {
               item
               xs={12}
               spacing={2}
-              sx={{ marginBottom: "1rem!important" }}>
+              sx={{ marginBottom: "1rem!important" }}
+            >
               <Grid container item xs={"auto"}>
                 <CommonButton
                   label="Make Packing Slip"
@@ -362,13 +367,15 @@ const PackingQueue = () => {
           container
           item
           xs
-          justifyContent="flex-end">
+          justifyContent="flex-end"
+        >
           <Button
             component={Link}
             to={ROUTE_SHIPMENTS}
             variant="contained"
             color="secondary"
-            sx={{ marginRight: "0px" }}>
+            sx={{ marginRight: "0px" }}
+          >
             Go to Shipping
           </Button>
         </Grid>

@@ -9,6 +9,7 @@ import { DialogActions, Grid } from "@mui/material";
 import { API } from "../services/server";
 import { useEffect } from "react";
 import { isShippingInfoValid } from "../utils/Validators";
+import { usePackShipSnackbar, snackbarVariants } from "../common/Snackbar";
 
 const CreateShipmentDialog = ({
   customer,
@@ -29,6 +30,7 @@ const CreateShipmentDialog = ({
   });
   const [canErrorCheck, setCanErrorCheck] = useState(false);
   const [reset, setReset] = useState(false);
+  const enqueueSnackbar = usePackShipSnackbar();
 
   useEffect(() => {
     if (
@@ -107,9 +109,13 @@ const CreateShipmentDialog = ({
           });
           reloadData();
           onClose();
+          enqueueSnackbar(
+            "Shipment created successfully!",
+            snackbarVariants.success
+          );
         })
-        .catch(() => {
-          alert("An error occurred submitting packing slip");
+        .catch((e) => {
+          enqueueSnackbar(e.message, snackbarVariants.error);
         });
     }
   };

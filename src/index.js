@@ -4,16 +4,19 @@ import "./index.css";
 import App from "./App";
 import reportWebVitals from "./reportWebVitals";
 import CustomThemeProvider from "./themes/customThemeProvider";
-import { LicenseInfo } from '@mui/x-data-grid-pro';
+import { LicenseInfo } from "@mui/x-data-grid-pro";
+import { SnackbarProvider } from "notistack";
 
 LicenseInfo.setLicenseKey(
-  '9ced39d34515975c7f9210f3e5c84842T1JERVI6Mzg4NDEsRVhQSVJZPTE2Nzc3NzA0MTcwMDAsS0VZVkVSU0lPTj0x',
+  "9ced39d34515975c7f9210f3e5c84842T1JERVI6Mzg4NDEsRVhQSVJZPTE2Nzc3NzA0MTcwMDAsS0VZVkVSU0lPTj0x"
 );
 
 ReactDOM.render(
   <React.StrictMode>
     <CustomThemeProvider>
-      <App />
+      <SnackbarProvider>
+        <App />
+      </SnackbarProvider>
     </CustomThemeProvider>
   </React.StrictMode>,
   document.getElementById("root")
