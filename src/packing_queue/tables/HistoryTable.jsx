@@ -227,6 +227,16 @@ const HistoryTable = ({
     [selectedRow]
   );
 
+  const onDestinationChange = useCallback(
+    (event, newDest) => {
+      setSelectedRow({
+        ...selectedRow,
+        destination: newDest,
+      });
+    },
+    [selectedRow]
+  );
+
   function onItemDelete() {
     if (itemToDelete) {
       const itemsWithoutItem = selectedRow.items
@@ -379,7 +389,8 @@ const HistoryTable = ({
 
       <ContextMenu
         menuPosition={menuPosition}
-        setMenuPosition={setMenuPosition}>
+        setMenuPosition={setMenuPosition}
+      >
         {historyRowMenuOptions}
       </ContextMenu>
       <EditPackingSlipDialog
@@ -387,6 +398,7 @@ const HistoryTable = ({
         viewOnly={isEditPackingSlipOpen.viewOnly}
         onClose={onPackingSlipClose}
         onSubmit={onPackingSlipSubmit}
+        onDestinationChange={onDestinationChange}
         packingSlipData={selectedRow}
         onAdd={onHistoryPackingSlipAdd}
         onNewPartRowChange={onNewPartRowChange}
