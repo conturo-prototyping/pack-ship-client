@@ -38,11 +38,12 @@ export const API = {
     }
   },
 
-  async createPackingSlip(items, customer, orderNumber) {
+  async createPackingSlip(items, customer, orderNumber, destination) {
     const response = await instance.put("/packingSlips", {
       items,
       customer,
       orderNumber,
+      destination,
     });
 
     return response.data;

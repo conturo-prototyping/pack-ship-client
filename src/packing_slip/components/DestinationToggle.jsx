@@ -26,11 +26,15 @@ const DestinationToggle = ({
           disabled={disabled}
           color="primary"
           value={destination}
-          exclusive
-          onChange={onDestinationChange}
+          exclusive={true}
+          onChange={(e, newValue) => {
+            if (newValue !== null) {
+              onDestinationChange(newValue);
+            }
+          }}
         >
-          <ToggleButton value="vendor">Vendor</ToggleButton>
-          <ToggleButton value="customer">Customer</ToggleButton>
+          <ToggleButton value="VENDOR">Vendor</ToggleButton>
+          <ToggleButton value="CUSTOMER">Customer</ToggleButton>
         </ToggleButtonGroup>
       </Grid>
     </Grid>

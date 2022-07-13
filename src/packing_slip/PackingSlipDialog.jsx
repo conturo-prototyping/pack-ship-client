@@ -11,7 +11,7 @@ const PackingSlipDialog = ({
   parts,
   title,
   onDestinationChange,
-  destination = "customer",
+  destination = "CUSTOMER",
   actions = undefined,
   viewOnly = false,
 }) => {
@@ -31,7 +31,7 @@ const PackingSlipDialog = ({
       titleText={title}
       onClose={onClose}
       onBackdropClick={onClose}
-      onSubmit={() => onSubmit(filledForm, orderNum)}
+      onSubmit={() => onSubmit(filledForm, orderNum, destination)}
       submitDisabled={!isSubmittable()}
       actions={actions}
     >

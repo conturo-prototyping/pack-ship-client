@@ -228,7 +228,7 @@ const HistoryTable = ({
   );
 
   const onDestinationChange = useCallback(
-    (event, newDest) => {
+    (newDest) => {
       setSelectedRow({
         ...selectedRow,
         destination: newDest,
@@ -294,6 +294,7 @@ const HistoryTable = ({
             qty: e.qty || e.item.packQty,
           };
         }),
+        destination: selectedRow?.destination,
       })
         .then(() => {
           setIsEditPackingSlipOpen({ open: false, viewOnly: false });
