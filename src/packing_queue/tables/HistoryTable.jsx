@@ -11,6 +11,7 @@ import pdfMake from "pdfmake/build/pdfmake";
 import pdfFonts from "pdfmake/build/vfs_fonts";
 import { PackShipProgress } from "../../common/CircularProgress";
 import { getSortFromModel } from "../utils/sortModelFunctions";
+import { snackbarVariants, usePackShipSnackbar } from "../../common/Snackbar";
 import {
   PACKING_SLIP_TOP_MARGIN,
   PACKING_SLIP_BOTTOM_MARGIN,
@@ -90,6 +91,8 @@ const HistoryTable = ({
     open: false,
     viewOnly: false,
   });
+
+  const enqueueSnackbar = usePackShipSnackbar();
 
   useEffect(() => {
     setIsMounted(true);
@@ -268,9 +271,10 @@ const HistoryTable = ({
       .then(() => {
         handleDeleteConfirm();
         reloadData();
+        enqueueSnackbar("Packing slip deleted!", snackbarVariants.success);
       })
-      .catch(() => {
-        alert("An error occurred deleting packing slip");
+      .catch((e) => {
+        enqueueSnackbar(e.message, snackbarVariants.error);
       });
   }
 
@@ -299,9 +303,10 @@ const HistoryTable = ({
         .then(() => {
           setIsEditPackingSlipOpen({ open: false, viewOnly: false });
           reloadData();
+          enqueueSnackbar("Packing slip edited!", snackbarVariants.success);
         })
-        .catch(() => {
-          alert("Failed to submit edits.");
+        .catch((e) => {
+          enqueueSnackbar(e.message, snackbarVariants.error);
         });
     }
   };
@@ -322,11 +327,12 @@ const HistoryTable = ({
       .then((data) => {
         pdfMake.createPdf(data.docDefinition).open();
         setMenuPosition(null);
+        enqueueSnackbar("Packing slip downloaded", snackbarVariants.error);
       })
-      .catch(() => {
-        alert("Could not download packing slip");
+      .catch((e) => {
+        enqueueSnackbar(e.message, snackbarVariants.error);
       });
-  }, [selectedRow]);
+  }, [selectedRow, enqueueSnackbar]);
 
   const historyRowMenuOptions = useMemo(
     () => [

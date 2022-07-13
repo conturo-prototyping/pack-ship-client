@@ -16,6 +16,9 @@ export const API = {
       return response.data;
     } catch (error) {
       console.error("downloadPDF", error);
+      throw new Error(
+        error?.response?.data ?? "An error occurred downloading PDF"
+      );
     }
   },
 
@@ -25,6 +28,9 @@ export const API = {
       return response.data;
     } catch (error) {
       console.error("getPackingQueue", error);
+      throw new Error(
+        error?.response?.data ?? "An error occurred getting packing queue"
+      );
     }
   },
 
@@ -33,20 +39,29 @@ export const API = {
       const response = await instance.get("/workOrders");
       return response.data;
     } catch (error) {
-      console.log(error);
       console.error("getAllWorkOrders", error);
+      throw new Error(
+        error?.response?.data ?? "An error occurred getting all word orders"
+      );
     }
   },
 
   async createPackingSlip(items, customer, orderNumber, destination) {
-    const response = await instance.put("/packingSlips", {
-      items,
-      customer,
-      orderNumber,
-      destination,
-    });
+    try {
+      const response = await instance.put("/packingSlips", {
+        items,
+        customer,
+        orderNumber,
+        destination,
+      });
 
-    return response.data;
+      return response.data;
+    } catch (error) {
+      console.error("createPackingSlip", error);
+      throw new Error(
+        error?.response?.data ?? "An error occurred creating packing slip"
+      );
+    }
   },
 
   async searchPackingSlips(customerId, shipmentId) {
@@ -60,6 +75,9 @@ export const API = {
       return response.data;
     } catch (error) {
       console.error("searchPackingSlips", error);
+      throw new Error(
+        error?.response?.data ?? "An error occurred searching packing slips"
+      );
     }
   },
 
@@ -85,6 +103,10 @@ export const API = {
       return response.data;
     } catch (error) {
       console.error("searchPackingSlipsHistory", error);
+      throw new Error(
+        error?.response?.data ??
+          "An error occurred searching packing slip history"
+      );
     }
   },
 
@@ -94,6 +116,9 @@ export const API = {
       return response.data;
     } catch (error) {
       console.error("getShippingQueue", error);
+      throw new Error(
+        error?.response?.data ?? "An error occurred getting shipping queue"
+      );
     }
   },
 
@@ -103,6 +128,9 @@ export const API = {
       return response.data;
     } catch (error) {
       console.error("getShippingHistory", error);
+      throw new Error(
+        error?.response?.data ?? "An error occurred getting shipping history"
+      );
     }
   },
 
@@ -112,6 +140,9 @@ export const API = {
       return response.data;
     } catch (error) {
       console.error("deleteShipment", error);
+      throw new Error(
+        error?.response?.data ?? "An error occurred deleting shipment"
+      );
     }
   },
 
@@ -121,6 +152,9 @@ export const API = {
       return response.data;
     } catch (error) {
       console.error("getShipment", error);
+      throw new Error(
+        error?.response?.data ?? "An error occurred getting shipment"
+      );
     }
   },
 
@@ -133,6 +167,9 @@ export const API = {
       return response.data;
     } catch (error) {
       console.error("patchShipment", error);
+      throw new Error(
+        error?.response?.data ?? "An error occurred patching shipment"
+      );
     }
   },
 
@@ -158,6 +195,9 @@ export const API = {
       return response.data;
     } catch (error) {
       console.error("searchShippingHistory", error);
+      throw new Error(
+        error?.response?.data ?? "An error occurred searching shipping history"
+      );
     }
   },
 
@@ -167,6 +207,10 @@ export const API = {
       return response.data;
     } catch (error) {
       console.error("getPackingSlipHistory", error);
+      throw new Error(
+        error?.response?.data ??
+          "An error occurred getting packing slip history"
+      );
     }
   },
 
@@ -175,7 +219,10 @@ export const API = {
       const response = await instance.delete(`/packingSlips/${id}`);
       return response.data;
     } catch (error) {
-      console.error("getPackingSlipHistory", error);
+      console.error("deletePackingSlip", error);
+      throw new Error(
+        error?.response?.data ?? "An error occurred deleting packing slip"
+      );
     }
   },
 
@@ -190,24 +237,41 @@ export const API = {
     customerAccount = undefined,
     customerHandoffName = undefined
   ) {
-    const response = await instance.put("/shipments", {
-      manifest,
-      customer,
-      deliveryMethod,
-      trackingNumber,
-      cost,
-      carrier,
-      deliverySpeed,
-      customerAccount,
-      customerHandoffName,
-    });
+    try {
+      const response = await instance.put("/shipments", {
+        manifest,
+        customer,
+        deliveryMethod,
+        trackingNumber,
+        cost,
+        carrier,
+        deliverySpeed,
+        customerAccount,
+        customerHandoffName,
+      });
 
-    return response.data;
+      return response.data;
+    } catch (error) {
+      console.error("createShipment", error);
+      throw new Error(
+        error?.response?.data ?? "An error occurred creating shipment"
+      );
+    }
   },
 
   async patchPackingSlip(id, updatedItems) {
-    const response = await instance.patch(`/packingSlips/${id}`, updatedItems);
+    try {
+      const response = await instance.patch(
+        `/packingSlips/${id}`,
+        updatedItems
+      );
 
-    return response.data;
+      return response.data;
+    } catch (error) {
+      console.error("patchPackingSlip", error);
+      throw new Error(
+        error?.response?.data ?? "An error occurred patching packing slip"
+      );
+    }
   },
 };
