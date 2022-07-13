@@ -52,6 +52,13 @@ const columns = [
     flex: 2,
   },
   {
+    field: "destination",
+    renderHeader: () => {
+      return <Typography sx={{ fontWeight: 900 }}>Destination</Typography>;
+    },
+    flex: 1,
+  },
+  {
     field: "dateCreated",
     renderHeader: () => {
       return <Typography sx={{ fontWeight: 900 }}>Date Created</Typography>;
