@@ -77,14 +77,11 @@ const ShippingQueueTable = ({
   const isDisabled = useCallback(
     (params) => {
       return (
-        (selectedCustomerId !== null &&
-          selectedCustomerId !== params.row.customer?._id) ||
-        (tableData.find((e) => e.id === selectedOrderIds[0])?.destination !==
-          params.row.destination &&
-          selectedOrderIds.length > 0)
+        selectedCustomerId !== null &&
+        selectedCustomerId !== params.row.customer?._id
       );
     },
-    [selectedCustomerId, selectedOrderIds, tableData]
+    [selectedCustomerId]
   );
 
   useEffect(() => {
@@ -153,22 +150,15 @@ const ShippingQueueTable = ({
         newSelection.push(selection);
 
         // if the new selection contains all possible selected order numbers
-        // and destinations
         // then select all is on
-        const selected = tableData?.find((e) => e.id === selection);
-        const selectedCustId = selected?.customer._id;
-        const selectedDestination = selected?.destination;
-
-        const idsWithSelectedCustIdAndDest = tableData
-          ?.filter(
-            (e) =>
-              e.customer._id === selectedCustId &&
-              e.destination === selectedDestination
-          )
+        const selectedCustId = tableData?.find((e) => e.id === selection)
+          ?.customer._id;
+        const idsWithSelectedCustId = tableData
+          ?.filter((e) => e.customer._id === selectedCustId)
           .map((e) => e.id);
 
         setIsSelectAll(
-          idsWithSelectedCustIdAndDest.sort().toString() ===
+          idsWithSelectedCustId.sort().toString() ===
             newSelection.sort().toString()
         );
       }
@@ -201,13 +191,7 @@ const ShippingQueueTable = ({
           // that matach selectedOrderNumber
           setSelectedOrderIds(
             tableData
-              .filter(
-                (e) =>
-                  e.customer?._id === selectedCustomerId &&
-                  e.destination ===
-                    tableData.find((e) => e.id === selectedOrderIds[0])
-                      ?.destination
-              )
+              .filter((e) => e.customer?._id === selectedCustomerId)
               .map((e) => e.id)
           );
         } else if (selectedOrderIds.length === 0) {
@@ -216,11 +200,7 @@ const ShippingQueueTable = ({
 
           setSelectedOrderIds(
             tableData
-              .filter(
-                (e) =>
-                  e.customer?._id === tableData[0]?.customer?._id &&
-                  e.destination === tableData[0]?.destination
-              )
+              .filter((e) => e.customer?._id === tableData[0]?.customer?._id)
               .map((e) => e.id)
           );
           setSelectedCustomerId(
