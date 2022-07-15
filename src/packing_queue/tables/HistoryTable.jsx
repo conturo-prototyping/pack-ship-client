@@ -52,6 +52,13 @@ const columns = [
     flex: 2,
   },
   {
+    field: "destination",
+    renderHeader: () => {
+      return <Typography sx={{ fontWeight: 900 }}>Destination</Typography>;
+    },
+    flex: 1,
+  },
+  {
     field: "dateCreated",
     renderHeader: () => {
       return <Typography sx={{ fontWeight: 900 }}>Date Created</Typography>;
@@ -230,6 +237,16 @@ const HistoryTable = ({
     [selectedRow]
   );
 
+  const onDestinationChange = useCallback(
+    (newDest) => {
+      setSelectedRow({
+        ...selectedRow,
+        destination: newDest,
+      });
+    },
+    [selectedRow]
+  );
+
   function onItemDelete() {
     if (itemToDelete) {
       const itemsWithoutItem = selectedRow.items
@@ -288,6 +305,7 @@ const HistoryTable = ({
             qty: e.qty || e.item.packQty,
           };
         }),
+        destination: selectedRow?.destination,
       })
         .then(() => {
           setIsEditPackingSlipOpen({ open: false, viewOnly: false });
@@ -394,6 +412,7 @@ const HistoryTable = ({
         viewOnly={isEditPackingSlipOpen.viewOnly}
         onClose={onPackingSlipClose}
         onSubmit={onPackingSlipSubmit}
+        onDestinationChange={onDestinationChange}
         packingSlipData={selectedRow}
         onAdd={onHistoryPackingSlipAdd}
         onNewPartRowChange={onNewPartRowChange}

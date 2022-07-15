@@ -66,7 +66,7 @@ const PackingQueue = () => {
   const [filteredPackingQueue, setFilteredPackingQueue] = useState([]);
   const [filteredHist, setFilteredHist] = useState([]);
   const [packingSlipOpen, setPackingSlipOpen] = useState(false);
-  const [destination, onDesinationChange] = useState("customer");
+  const [destination, setDestination] = useState("CUSTOMER");
   const [sortPackQueueModel, setSortPackQueueModel] = useLocalStorage(
     "sortPackQueueModel",
     [
@@ -126,11 +126,16 @@ const PackingQueue = () => {
   }
 
   const onPackingSlipSubmit = useCallback(
-    (filledForm, orderNum) => {
+    (filledForm, orderNum, destination) => {
       const items = filledForm.map((e) => {
         return { item: e.id, qty: e.packQty };
       });
-      API.createPackingSlip(items, filledForm[0].customer, orderNum)
+      API.createPackingSlip(
+        items,
+        filledForm[0].customer,
+        orderNum,
+        destination
+      )
         .then(() => {
           // update the fullfilled Qty
           const updatedFulfilled = filledForm.map((e) => {
@@ -361,8 +366,8 @@ const PackingQueue = () => {
                   e.fulfilledQty > e.batchQty ? 0 : e.batchQty - e.fulfilledQty,
               };
             })}
-          onDestinationChange={(e, newValue) => {
-            onDesinationChange(newValue);
+          onDestinationChange={(newValue) => {
+            setDestination(newValue);
           }}
           destination={destination}
         />

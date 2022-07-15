@@ -1,12 +1,7 @@
 import React, { useState, useEffect } from "react";
 import PackingSlipTable from "./components/PackingSlipTable";
+import DestinationToggle from "./components/DestinationToggle";
 import PackingDialog from "../components/PackingDialog";
-import {
-  ToggleButtonGroup,
-  ToggleButton,
-  Typography,
-  Grid,
-} from "@mui/material";
 
 const PackingSlipDialog = ({
   onSubmit,
@@ -16,7 +11,7 @@ const PackingSlipDialog = ({
   parts,
   title,
   onDestinationChange,
-  destination = "customer",
+  destination = "CUSTOMER",
   actions = undefined,
   viewOnly = false,
 }) => {
@@ -36,32 +31,14 @@ const PackingSlipDialog = ({
       titleText={title}
       onClose={onClose}
       onBackdropClick={onClose}
-      onSubmit={() => onSubmit(filledForm, orderNum)}
+      onSubmit={() => onSubmit(filledForm, orderNum, destination)}
       submitDisabled={!isSubmittable()}
       actions={actions}
     >
-      <Grid container justifyContent="flex-start" spacing={1}>
-        <Grid item container alignItems="center" xs={"auto"}>
-          <Typography
-            style={{ display: "block" }}
-            fontWeight="bold"
-            fontSize={16}
-          >
-            Destination:
-          </Typography>
-        </Grid>
-        <Grid container item xs={"auto"}>
-          <ToggleButtonGroup
-            color="primary"
-            value={destination}
-            exclusive
-            onChange={onDestinationChange}
-          >
-            <ToggleButton value="vendor">Vendor</ToggleButton>
-            <ToggleButton value="customer">Customer</ToggleButton>
-          </ToggleButtonGroup>
-        </Grid>
-      </Grid>
+      <DestinationToggle
+        destination={destination}
+        onDestinationChange={onDestinationChange}
+      ></DestinationToggle>
 
       <PackingSlipTable
         rowData={parts}
