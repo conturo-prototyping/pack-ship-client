@@ -108,6 +108,7 @@ const ShippingQueueTable = ({
                 packingSlipId: e.packingSlipId,
                 customer: e.customer,
                 items: e.items,
+                destination: e.destination,
               });
             });
 
@@ -240,6 +241,13 @@ const ShippingQueueTable = ({
         flex: 2,
         renderHeader: (params) => {
           return <Typography sx={{ fontWeight: 900 }}>Packing Slip</Typography>;
+        },
+      },
+      {
+        field: "destination",
+        flex: 1,
+        renderHeader: (params) => {
+          return <Typography sx={{ fontWeight: 900 }}>Destination</Typography>;
         },
       },
     ],
