@@ -21,6 +21,7 @@ const EditShipmentTableDialog = ({
   onDeliverySpeedChange,
   onCustomerAccountChange,
   onCustomerNameChange,
+  onShippingAddressChange,
   onTrackingChange,
   onCostChange,
   onNewRowChange,
@@ -92,6 +93,7 @@ const EditShipmentTableDialog = ({
           onDeliverySpeedChange={onDeliverySpeedChange}
           onCustomerAccountChange={onCustomerAccountChange}
           onCustomerNameChange={onCustomerNameChange}
+          onShippingAddressChange={onShippingAddressChange}
           onTrackingChange={onTrackingChange}
           onCostChange={onCostChange}
           viewOnly={viewOnly}
