@@ -160,10 +160,10 @@ export const API = {
 
   async patchShipment(id, updatedShipment) {
     try {
-      const response = await instance.patch(
-        `/shipments/${id}`,
-        updatedShipment
-      );
+      const response = await instance.patch(`/shipments/${id}`, {
+        ...updatedShipment,
+        shippingAddress: updatedShipment.specialShippingAddress,
+      });
       return response.data;
     } catch (error) {
       console.error("patchShipment", error);

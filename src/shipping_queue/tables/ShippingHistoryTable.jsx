@@ -453,7 +453,7 @@ const ShippingHistoryTable = ({
         onShippingAddressChange={(value) => {
           setClickedHistShipment({
             ...clickedHistShipment,
-            shippingAddress: value,
+            specialShippingAddress: value,
           });
         }}
         onTrackingChange={(value) => {

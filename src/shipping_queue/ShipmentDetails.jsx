@@ -24,7 +24,7 @@ const ShipmentDetails = ({
           <Grid item container xs={3} direction="column">
             <TitleTextInput
               title="Shipping Address:"
-              value={shipment?.shippingAddress}
+              value={shipment?.specialShippingAddress}
               viewOnly={viewOnly}
               onChange={onShippingAddressChange}
               direction="column"
