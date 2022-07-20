@@ -10,6 +10,8 @@ import { API } from "../services/server";
 import { useEffect } from "react";
 import { isShippingInfoValid } from "../utils/Validators";
 import { usePackShipSnackbar, snackbarVariants } from "../common/Snackbar";
+import ShippingAddressForm from "./components/ShippingAddressForm";
+import { DestinationTypes } from "../utils/Constants";
 
 const CreateShipmentDialog = ({
   customer,
@@ -20,6 +22,7 @@ const CreateShipmentDialog = ({
   setCurrentState,
   parts,
   reloadData,
+  destination,
 }) => {
   const [customerName, setCustomerName] = useState("");
   const [shippingInfo, setShippingInfo] = useState({
@@ -56,18 +59,39 @@ const CreateShipmentDialog = ({
   }, [open, customer?._id, packingSlipIds]);
 
   const onPickupClick = () => {
-    setCurrentState(ShippingDialogStates.PickupDropOffPage);
+    if (destination !== DestinationTypes.CUSTOMER)
+      setCurrentState(ShippingDialogStates.ShippingAddressPage);
+    else setCurrentState(ShippingDialogStates.PickupDropOffPage);
     setShippingInfo({ ...shippingInfo, deliveryMethod: "PICKUP" });
   };
 
   const onDropOffClick = () => {
-    setCurrentState(ShippingDialogStates.PickupDropOffPage);
+    if (destination !== DestinationTypes.CUSTOMER)
+      setCurrentState(ShippingDialogStates.ShippingAddressPage);
+    else setCurrentState(ShippingDialogStates.PickupDropOffPage);
     setShippingInfo({ ...shippingInfo, deliveryMethod: "DROPOFF" });
   };
 
   const onCarrierClick = () => {
-    setCurrentState(ShippingDialogStates.CarrierPage);
+    if (destination !== DestinationTypes.CUSTOMER)
+      setCurrentState(ShippingDialogStates.ShippingAddressPage);
+    else setCurrentState(ShippingDialogStates.CarrierPage);
     setShippingInfo({ ...shippingInfo, deliveryMethod: "CARRIER" });
+  };
+
+  const onShippingAddressChange = (shippingAddress) => {
+    setShippingInfo({
+      ...shippingInfo,
+      specialShippingAddress: shippingAddress,
+    });
+  };
+
+  const onShippingAddressNextClick = () => {
+    setCurrentState(
+      shippingInfo.deliveryMethod === "CARRIER"
+        ? ShippingDialogStates.CarrierPage
+        : ShippingDialogStates.PickupDropOffPage
+    );
   };
 
   const onNextClick = () => {
@@ -97,7 +121,8 @@ const CreateShipmentDialog = ({
         shippingInfo.carrier,
         shippingInfo.deliverySpeed,
         shippingInfo.checkedCustomer ? shippingInfo.customerAccount : false,
-        customerName
+        customerName,
+        shippingInfo.specialShippingAddress
       )
         .then(() => {
           setCustomerName("");
@@ -132,6 +157,7 @@ const CreateShipmentDialog = ({
             canErrorCheck={canErrorCheck}
             reset={reset}
             setReset={setReset}
+            destination={destination}
           />
         );
       case ShippingDialogStates.PickupDropOffPage:
@@ -139,6 +165,13 @@ const CreateShipmentDialog = ({
           <PickupDropOffForm
             customerName={customerName}
             setCustomerName={setCustomerName}
+          />
+        );
+      case ShippingDialogStates.ShippingAddressPage:
+        return (
+          <ShippingAddressForm
+            shippingAddress={shippingInfo.specialShippingAddress ?? ""}
+            setShippingAddress={onShippingAddressChange}
           />
         );
       case ShippingDialogStates.CreateShipmentTable:
@@ -214,6 +247,17 @@ const CreateShipmentDialog = ({
             />
           </DialogActions>
         );
+      case ShippingDialogStates.ShippingAddressPage:
+        return (
+          <DialogActions>
+            <CommonButton onClick={onClose} label="Cancel" color="secondary" />
+            <CommonButton
+              autoFocus
+              onClick={onShippingAddressNextClick}
+              label={"Next"}
+            />
+          </DialogActions>
+        );
       case ShippingDialogStates.CreateShipmentTable:
       default:
         return (
@@ -231,8 +275,7 @@ const CreateShipmentDialog = ({
       titleText={`Create Shipment / ${customer?.tag}`}
       open={open}
       onClose={onClose}
-      actions={renderDialogActions()}
-    >
+      actions={renderDialogActions()}>
       {renderContents()}
     </PackingDialog>
   );
