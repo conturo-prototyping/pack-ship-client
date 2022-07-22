@@ -77,16 +77,11 @@ const ShippingQueueTable = ({
   const isDisabled = useCallback(
     (params) => {
       return (
-        (
-          selectedCustomerId !== null &&
-          selectedCustomerId !== params.row.customer?._id
-        ) || 
-        (
-          tableData.find((e) =>
-            e.id === selectedOrderIds[0]
-          )?.destination !== params.row.destination &&
-          selectedOrderIds.length > 0
-        )
+        (selectedCustomerId !== null &&
+          selectedCustomerId !== params.row.customer?._id) ||
+        (tableData.find((e) => e.id === selectedOrderIds[0])?.destination !==
+          params.row.destination &&
+          selectedOrderIds.length > 0)
       );
     },
     [selectedCustomerId, selectedOrderIds, tableData]
@@ -165,9 +160,10 @@ const ShippingQueueTable = ({
         const selectedDestination = selected?.destination;
 
         const idsWithSelectedCustIdAndDest = tableData
-          ?.filter((e) =>
-            e.customer._id === selectedCustId &&
-            e.destination === selectedDestination
+          ?.filter(
+            (e) =>
+              e.customer._id === selectedCustId &&
+              e.destination === selectedDestination
           )
           .map((e) => e.id);
 
@@ -205,11 +201,12 @@ const ShippingQueueTable = ({
           // that matach selectedOrderNumber
           setSelectedOrderIds(
             tableData
-              .filter((e) =>
-                e.customer?._id === selectedCustomerId &&
-                e.destination === 
-                  tableData.find((f) => f.id === selectedOrderIds[0])
-                    ?.destination
+              .filter(
+                (e) =>
+                  e.customer?._id === selectedCustomerId &&
+                  e.destination ===
+                    tableData.find((f) => f.id === selectedOrderIds[0])
+                      ?.destination
               )
               .map((e) => e.id)
           );
@@ -219,9 +216,10 @@ const ShippingQueueTable = ({
 
           setSelectedOrderIds(
             tableData
-              .filter((e) =>
-                e.customer?._id === tableData[0]?.customer?._id &&
-                e.destination === tableData[0]?.destination
+              .filter(
+                (e) =>
+                  e.customer?._id === tableData[0]?.customer?._id &&
+                  e.destination === tableData[0]?.destination
               )
               .map((e) => e.id)
           );
@@ -422,6 +420,10 @@ const ShippingQueueTable = ({
         customer={
           shippingQueue.filter((e) => selectedOrderIds.includes(e.id))[0]
             ?.customer
+        }
+        destination={
+          shippingQueue.find((e) => selectedOrderIds.includes(e.id))
+            ?.destination
         }
         packingSlipIds={packingSlipIds}
         open={createShipmentOpen}
