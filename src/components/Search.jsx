@@ -2,7 +2,7 @@ import React from "react";
 import { InputAdornment, TextField } from "@mui/material";
 import SearchIcon from "@mui/icons-material/Search";
 
-const Search = ({ onSearch }) => {
+const Search = ({ onSearch, autoFocus }) => {
   return (
     <TextField
       id="packing-queue-search"
@@ -18,6 +18,7 @@ const Search = ({ onSearch }) => {
         ),
       }}
       variant="outlined"
+      autoFocus={autoFocus}
     />
   );
 };
