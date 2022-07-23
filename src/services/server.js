@@ -46,12 +46,13 @@ export const API = {
     }
   },
 
-  async createPackingSlip(items, customer, orderNumber) {
+  async createPackingSlip(items, customer, orderNumber, destination) {
     try {
       const response = await instance.put("/packingSlips", {
         items,
         customer,
         orderNumber,
+        destination,
       });
 
       return response.data;
@@ -234,7 +235,8 @@ export const API = {
     carrier = undefined,
     deliverySpeed = undefined,
     customerAccount = undefined,
-    customerHandoffName = undefined
+    customerHandoffName = undefined,
+    shippingAddress = undefined
   ) {
     try {
       const response = await instance.put("/shipments", {
@@ -247,6 +249,7 @@ export const API = {
         deliverySpeed,
         customerAccount,
         customerHandoffName,
+        shippingAddress,
       });
 
       return response.data;

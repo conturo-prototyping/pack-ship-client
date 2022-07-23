@@ -1,12 +1,14 @@
 import PackingDialog from "../components/PackingDialog";
 import EditPackingSlipTable from "./components/EditPackingSlipTable";
 import { DialogActions } from "@mui/material";
+import DestinationToggle from "../packing_slip/components/DestinationToggle";
 
 const EditPackingSlipDialog = ({
   packingSlipData,
   isOpen,
   onClose,
   onSubmit,
+  onDestinationChange,
   onAdd,
   onDelete,
   onNewPartRowChange,
@@ -23,8 +25,13 @@ const EditPackingSlipDialog = ({
       onClose={onClose}
       onSubmit={onSubmit}
       submitDisabled={cellEditing}
-      actions={viewOnly ? <DialogActions/> : undefined}
+      actions={viewOnly ? <DialogActions /> : undefined}
     >
+      <DestinationToggle
+        onDestinationChange={onDestinationChange}
+        destination={packingSlipData.destination}
+        disabled={viewOnly}
+      ></DestinationToggle>
       <EditPackingSlipTable
         rowData={packingSlipData}
         onAdd={onAdd}

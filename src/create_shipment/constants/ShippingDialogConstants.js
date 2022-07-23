@@ -3,4 +3,5 @@ export default class ShippingDialogStates {
   static SelectMethodPage = 1;
   static CarrierPage = 2;
   static PickupDropOffPage = 3;
+  static ShippingAddressPage = 4;
 }
