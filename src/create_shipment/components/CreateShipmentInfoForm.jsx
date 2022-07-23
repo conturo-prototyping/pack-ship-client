@@ -48,7 +48,7 @@ const CreateCarrierShipmentInfoForm = ({
   }, [reset, setReset, defaultInfo, setShippingInfo]);
 
   return (
-    <Box component="form">
+    <Box component="form" sx={{ minWidth: "30rem" }}>
       <Grid container item alignItems="center" spacing={2}>
         <Grid container item xs={5} justifyContent="flex-end">
           <Typography align="right" sx={{ fontWeight: 700 }}>
@@ -110,7 +110,7 @@ const CreateCarrierShipmentInfoForm = ({
         </Grid>
       </Grid>
       {destination !== DestinationTypes.CUSTOMER ? (
-        <></>
+        <div />
       ) : (
         <Grid container item alignItems="center" spacing={2}>
           <Grid container item xs={5} justifyContent="flex-end">

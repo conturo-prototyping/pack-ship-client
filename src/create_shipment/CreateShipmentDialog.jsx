@@ -104,6 +104,14 @@ const CreateShipmentDialog = ({
   };
 
   const onBackClick = () => {
+    if (destination !== DestinationTypes.CUSTOMER)
+      setCurrentState(ShippingDialogStates.ShippingAddressPage);
+    else setCurrentState(ShippingDialogStates.SelectMethodPage);
+    setCustomerName("");
+    onResetClick();
+  };
+
+  const onBackShippingAddress = () => {
     setCurrentState(ShippingDialogStates.SelectMethodPage);
     setCustomerName("");
     onResetClick();
@@ -214,8 +222,8 @@ const CreateShipmentDialog = ({
               <Grid container item xs justifyContent="flex-end" spacing={1}>
                 <Grid item>
                   <CommonButton
-                    onClick={onClose}
-                    label="Cancel"
+                    onClick={onBackClick}
+                    label="Back"
                     color="secondary"
                   />
                 </Grid>
@@ -250,7 +258,11 @@ const CreateShipmentDialog = ({
       case ShippingDialogStates.ShippingAddressPage:
         return (
           <DialogActions>
-            <CommonButton onClick={onClose} label="Cancel" color="secondary" />
+            <CommonButton
+              onClick={onBackShippingAddress}
+              label="Back"
+              color="secondary"
+            />
             <CommonButton
               autoFocus
               onClick={onShippingAddressNextClick}
