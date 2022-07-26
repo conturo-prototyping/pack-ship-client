@@ -440,10 +440,6 @@ const ShippingQueueTable = ({
             );
           }, [])}
         reloadData={reloadData}
-        destination={
-          shippingQueue.filter((e) => selectedOrderIds.includes(e.id))[0]
-            ?.destination
-        }
       />
     </div>
   );
