@@ -205,7 +205,7 @@ const ShippingQueueTable = ({
                 (e) =>
                   e.customer?._id === selectedCustomerId &&
                   e.destination ===
-                    tableData.find((e) => e.id === selectedOrderIds[0])
+                    tableData.find((f) => f.id === selectedOrderIds[0])
                       ?.destination
               )
               .map((e) => e.id)
@@ -420,6 +420,10 @@ const ShippingQueueTable = ({
         customer={
           shippingQueue.filter((e) => selectedOrderIds.includes(e.id))[0]
             ?.customer
+        }
+        destination={
+          shippingQueue.find((e) => selectedOrderIds.includes(e.id))
+            ?.destination
         }
         packingSlipIds={packingSlipIds}
         open={createShipmentOpen}

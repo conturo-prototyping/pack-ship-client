@@ -15,6 +15,7 @@ import { DestinationTypes } from "../utils/Constants";
 
 const CreateShipmentDialog = ({
   customer,
+  destination,
   packingSlipIds,
   onClose,
   open,
@@ -281,10 +282,18 @@ const CreateShipmentDialog = ({
     }
   };
 
+  const getDisplayDestination = () => {
+    return destination
+      ? destination[0]?.toUpperCase() + destination.slice(1)?.toLowerCase()
+      : "Unknown";
+  };
+
   return (
     <PackingDialog
       fullWidth={currentState === ShippingDialogStates.CreateShipmentTable}
-      titleText={`Create Shipment / ${customer?.tag}`}
+      titleText={`Create ${getDisplayDestination()} Shipment / ${
+        customer?.tag
+      }`}
       open={open}
       onClose={onClose}
       actions={renderDialogActions()}>
