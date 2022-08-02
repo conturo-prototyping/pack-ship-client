@@ -11,6 +11,7 @@ const TextInput = ({
   onKeyDown = null,
   variant = null,
   multiline = 1,
+  autoFocus = false,
 }) => {
   return (
     <TextField
@@ -29,6 +30,7 @@ const TextInput = ({
       helperText={
         canErrorCheck && error ? "Value must not be blank" : undefined
       }
+      autoFocus={autoFocus}
     />
   );
 };

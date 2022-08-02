@@ -14,84 +14,86 @@ const useStyle = makeStyles((theme) => ({
   },
 }));
 
-export const OrderPartNumberSearch = ({
-  partNumber,
-  orderNumber,
-  onClearClick,
-  onSearchClick,
-  setOrderNumber,
-  setPartNumber,
-}) => {
-  const classes = useStyle();
+export const OrderPartNumberSearch = React.memo(
+  ({
+    partNumber,
+    orderNumber,
+    onClearClick,
+    onSearchClick,
+    setOrderNumber,
+    setPartNumber,
+  }) => {
+    const classes = useStyle();
 
-  return (
-    <Grid
-      className={classes.topBarGrid}
-      container
-      item
-      justifyContent="flex-start"
-      spacing={1}
-    >
-      <Grid container item xs={"auto"}>
-        <CommonButton
-          label="Clear"
-          onClick={onClearClick}
-          disabled={!orderNumber && !partNumber}
-          color="error"
-        />
+    return (
+      <Grid
+        className={classes.topBarGrid}
+        container
+        item
+        justifyContent="flex-start"
+        spacing={1}>
+        <Grid container item xs={"auto"}>
+          <CommonButton
+            label="Clear"
+            onClick={onClearClick}
+            disabled={!orderNumber && !partNumber}
+            color="error"
+          />
+        </Grid>
+        <Grid container item xs={2} md={1}>
+          <TextInput
+            onKeyDown={(e) => {
+              if (e.key === "Enter") {
+                onSearchClick();
+              }
+            }}
+            onChange={(e) => {
+              if (
+                (e === "" || e === undefined || e === null) &&
+                (partNumber === "" ||
+                  partNumber === undefined ||
+                  partNumber === null)
+              ) {
+                onClearClick();
+              }
+              setOrderNumber(e);
+            }}
+            placeholder="Order"
+            value={orderNumber}
+            autoFocus
+          />
+        </Grid>
+        <Grid container item xs={2} md={1}>
+          <TextInput
+            onKeyDown={(e) => {
+              if (e.key === "Enter") {
+                onSearchClick();
+              }
+            }}
+            onChange={(e) => {
+              if (
+                (e === "" || e === undefined || e === null) &&
+                (orderNumber === "" ||
+                  orderNumber === undefined ||
+                  orderNumber === null)
+              ) {
+                onClearClick();
+              }
+              setPartNumber(e);
+            }}
+            placeholder="Part"
+            value={partNumber}
+          />
+        </Grid>
+        <Grid container item xs={"auto"}>
+          <CommonButton
+            label="Search"
+            onClick={onSearchClick}
+            disabled={!orderNumber && !partNumber}
+            sx={{ marginLeft: "2rem" }}
+          />
+        </Grid>
       </Grid>
-      <Grid container item xs={2} md={1}>
-        <TextInput
-          onKeyDown={(e) => {
-            if (e.key === "Enter") {
-              onSearchClick();
-            }
-          }}
-          onChange={(e) => {
-            if (
-              (e === "" || e === undefined || e === null) &&
-              (partNumber === "" ||
-                partNumber === undefined ||
-                partNumber === null)
-            ) {
-              onClearClick();
-            }
-            setOrderNumber(e);
-          }}
-          placeholder="Order"
-          value={orderNumber}
-        />
-      </Grid>
-      <Grid container item xs={2} md={1}>
-        <TextInput
-          onKeyDown={(e) => {
-            if (e.key === "Enter") {
-              onSearchClick();
-            }
-          }}
-          onChange={(e) => {
-            if (
-              (e === "" || e === undefined || e === null) &&
-              (orderNumber === "" ||
-                orderNumber === undefined ||
-                orderNumber === null)
-            ) {
-              onClearClick();
-            }
-            setPartNumber(e);
-          }}
-          placeholder="Part"
-          value={partNumber}
-        />
-      </Grid>
-      <Grid container item xs={"auto"}>
-        <CommonButton
-          label="Search"
-          onClick={onSearchClick}
-          disabled={!orderNumber && !partNumber}
-          sx={{ marginLeft: "2rem" }}
-        />
-      </Grid>
-    </Grid>
-  );
-};
+    );
+  }
+);
