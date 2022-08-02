@@ -171,10 +171,10 @@ const PackingQueue = () => {
             // Replace the list with the updated version
             setFilteredPackingQueue(updatedFilteredPackingQueue);
             setPackingQueue(updatedPackingQueue);
-
-            onPackingSlipClose();
-            enqueueSnackbar("Packing slip created!", snackbarVariants.success);
           }
+
+          onPackingSlipClose();
+          enqueueSnackbar("Packing slip created!", snackbarVariants.success);
         })
         .catch((e) => {
           enqueueSnackbar(e.message, snackbarVariants.error);
