@@ -14,7 +14,7 @@ const TextInput = ({
 }) => {
   return (
     <TextField
-      multiline={multiline != 1}
+      multiline={multiline !== 1}
       rows={multiline}
       onKeyDown={onKeyDown}
       variant={variant ?? (readOnly ? "standard" : "outlined")}

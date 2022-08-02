@@ -10,6 +10,8 @@ import { API } from "../services/server";
 import { useEffect } from "react";
 import { isShippingInfoValid } from "../utils/Validators";
 import { usePackShipSnackbar, snackbarVariants } from "../common/Snackbar";
+import ShippingAddressForm from "./components/ShippingAddressForm";
+import { DestinationTypes } from "../utils/Constants";
 
 const CreateShipmentDialog = ({
   customer,
@@ -57,18 +59,39 @@ const CreateShipmentDialog = ({
   }, [open, customer?._id, packingSlipIds]);
 
   const onPickupClick = () => {
-    setCurrentState(ShippingDialogStates.PickupDropOffPage);
+    if (destination !== DestinationTypes.CUSTOMER)
+      setCurrentState(ShippingDialogStates.ShippingAddressPage);
+    else setCurrentState(ShippingDialogStates.PickupDropOffPage);
     setShippingInfo({ ...shippingInfo, deliveryMethod: "PICKUP" });
   };
 
   const onDropOffClick = () => {
-    setCurrentState(ShippingDialogStates.PickupDropOffPage);
+    if (destination !== DestinationTypes.CUSTOMER)
+      setCurrentState(ShippingDialogStates.ShippingAddressPage);
+    else setCurrentState(ShippingDialogStates.PickupDropOffPage);
     setShippingInfo({ ...shippingInfo, deliveryMethod: "DROPOFF" });
   };
 
   const onCarrierClick = () => {
-    setCurrentState(ShippingDialogStates.CarrierPage);
+    if (destination !== DestinationTypes.CUSTOMER)
+      setCurrentState(ShippingDialogStates.ShippingAddressPage);
+    else setCurrentState(ShippingDialogStates.CarrierPage);
     setShippingInfo({ ...shippingInfo, deliveryMethod: "CARRIER" });
+  };
+
+  const onShippingAddressChange = (shippingAddress) => {
+    setShippingInfo({
+      ...shippingInfo,
+      specialShippingAddress: shippingAddress,
+    });
+  };
+
+  const onShippingAddressNextClick = () => {
+    setCurrentState(
+      shippingInfo.deliveryMethod === "CARRIER"
+        ? ShippingDialogStates.CarrierPage
+        : ShippingDialogStates.PickupDropOffPage
+    );
   };
 
   const onNextClick = () => {
@@ -80,7 +103,15 @@ const CreateShipmentDialog = ({
     setCanErrorCheck(false);
   };
 
-  const onBackClick = () => {
+  const onBackClick = (reset = true) => {
+    if (destination !== DestinationTypes.CUSTOMER)
+      setCurrentState(ShippingDialogStates.ShippingAddressPage);
+    else setCurrentState(ShippingDialogStates.SelectMethodPage);
+    setCustomerName("");
+    if (reset) onResetClick();
+  };
+
+  const onBackShippingAddress = () => {
     setCurrentState(ShippingDialogStates.SelectMethodPage);
     setCustomerName("");
     onResetClick();
@@ -98,7 +129,8 @@ const CreateShipmentDialog = ({
         shippingInfo.carrier,
         shippingInfo.deliverySpeed,
         shippingInfo.checkedCustomer ? shippingInfo.customerAccount : false,
-        customerName
+        customerName,
+        shippingInfo.specialShippingAddress
       )
         .then(() => {
           setCustomerName("");
@@ -133,6 +165,7 @@ const CreateShipmentDialog = ({
             canErrorCheck={canErrorCheck}
             reset={reset}
             setReset={setReset}
+            destination={destination}
           />
         );
       case ShippingDialogStates.PickupDropOffPage:
@@ -140,6 +173,13 @@ const CreateShipmentDialog = ({
           <PickupDropOffForm
             customerName={customerName}
             setCustomerName={setCustomerName}
+          />
+        );
+      case ShippingDialogStates.ShippingAddressPage:
+        return (
+          <ShippingAddressForm
+            shippingAddress={shippingInfo.specialShippingAddress ?? ""}
+            setShippingAddress={onShippingAddressChange}
           />
         );
       case ShippingDialogStates.CreateShipmentTable:
@@ -182,8 +222,10 @@ const CreateShipmentDialog = ({
               <Grid container item xs justifyContent="flex-end" spacing={1}>
                 <Grid item>
                   <CommonButton
-                    onClick={onClose}
-                    label="Cancel"
+                    onClick={() => {
+                      onBackClick(destination !== DestinationTypes.VENDOR);
+                    }}
+                    label="Back"
                     color="secondary"
                   />
                 </Grid>
@@ -203,7 +245,9 @@ const CreateShipmentDialog = ({
         return (
           <DialogActions>
             <CommonButton
-              onClick={onBackClick}
+              onClick={() => {
+                onBackClick(destination !== DestinationTypes.VENDOR);
+              }}
               label="Back"
               color="secondary"
             />
@@ -212,6 +256,21 @@ const CreateShipmentDialog = ({
               onClick={onSubmit}
               label={"Ok"}
               type="button"
+            />
+          </DialogActions>
+        );
+      case ShippingDialogStates.ShippingAddressPage:
+        return (
+          <DialogActions>
+            <CommonButton
+              onClick={onBackShippingAddress}
+              label="Back"
+              color="secondary"
+            />
+            <CommonButton
+              autoFocus
+              onClick={onShippingAddressNextClick}
+              label={"Next"}
             />
           </DialogActions>
         );
@@ -240,8 +299,7 @@ const CreateShipmentDialog = ({
       }`}
       open={open}
       onClose={onClose}
-      actions={renderDialogActions()}
-    >
+      actions={renderDialogActions()}>
       {renderContents()}
     </PackingDialog>
   );

@@ -432,15 +432,13 @@ const ShippingQueueTable = ({
         setCurrentState={setCurrentDialogState}
         parts={shippingQueue
           .filter((e) => selectedOrderIds.includes(e.id))
-          .reduce(
-            (result, current) =>
-              result.concat(
-                current.items.map((e) => {
-                  return { ...e, id: e._id };
-                })
-              ),
-            []
-          )}
+          .reduce((result, current) => {
+            return result.concat(
+              current.items.map((e) => {
+                return { ...e, id: e._id };
+              })
+            );
+          }, [])}
         reloadData={reloadData}
       />
     </div>
