@@ -115,6 +115,7 @@ const PackingQueue = () => {
 
   useEffect(() => {
     setIsMounted(true);
+    return () => setIsMounted(false);
   }, []);
 
   function onPackingSlipClick() {

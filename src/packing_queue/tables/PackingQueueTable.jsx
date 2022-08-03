@@ -275,7 +275,7 @@ const PackingQueueTable = ({
       selectionOrderIds,
       setIsSelectAll
     );
-
+    return () => setIsMounted(false);
     // eslint-disable-next-line
   }, []);
 

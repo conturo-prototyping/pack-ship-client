@@ -89,6 +89,8 @@ const ShippingQueueTable = ({
 
   useEffect(() => {
     setIsMounted(true);
+
+    return () => setIsMounted(false);
   }, []);
 
   const reloadData = useCallback(async () => {
