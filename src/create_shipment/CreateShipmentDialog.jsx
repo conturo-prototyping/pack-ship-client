@@ -114,6 +114,10 @@ const CreateShipmentDialog = ({
   const onBackShippingAddress = () => {
     setCurrentState(ShippingDialogStates.SelectMethodPage);
     setCustomerName("");
+    setShippingInfo({
+      ...shippingInfo,
+      specialShippingAddress: undefined,
+    });
     onResetClick();
   };
 
