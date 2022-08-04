@@ -77,11 +77,14 @@ const ShippingQueueTable = ({
   const isDisabled = useCallback(
     (params) => {
       return (
-        selectedCustomerId !== null &&
-        selectedCustomerId !== params.row.customer?._id
+        (selectedCustomerId !== null &&
+          selectedCustomerId !== params.row.customer?._id) ||
+        (tableData.find((e) => e.id === selectedOrderIds[0])?.destination !==
+          params.row.destination &&
+          selectedOrderIds.length > 0)
       );
     },
-    [selectedCustomerId]
+    [selectedCustomerId, selectedOrderIds, tableData]
   );
 
   useEffect(() => {
@@ -108,6 +111,7 @@ const ShippingQueueTable = ({
                 packingSlipId: e.packingSlipId,
                 customer: e.customer,
                 items: e.items,
+                destination: e.destination,
               });
             });
 
@@ -149,15 +153,22 @@ const ShippingQueueTable = ({
         newSelection.push(selection);
 
         // if the new selection contains all possible selected order numbers
+        // and destinations
         // then select all is on
-        const selectedCustId = tableData?.find((e) => e.id === selection)
-          ?.customer._id;
-        const idsWithSelectedCustId = tableData
-          ?.filter((e) => e.customer._id === selectedCustId)
+        const selected = tableData?.find((e) => e.id === selection);
+        const selectedCustId = selected?.customer._id;
+        const selectedDestination = selected?.destination;
+
+        const idsWithSelectedCustIdAndDest = tableData
+          ?.filter(
+            (e) =>
+              e.customer._id === selectedCustId &&
+              e.destination === selectedDestination
+          )
           .map((e) => e.id);
 
         setIsSelectAll(
-          idsWithSelectedCustId.sort().toString() ===
+          idsWithSelectedCustIdAndDest.sort().toString() ===
             newSelection.sort().toString()
         );
       }
@@ -190,7 +201,13 @@ const ShippingQueueTable = ({
           // that matach selectedOrderNumber
           setSelectedOrderIds(
             tableData
-              .filter((e) => e.customer?._id === selectedCustomerId)
+              .filter(
+                (e) =>
+                  e.customer?._id === selectedCustomerId &&
+                  e.destination ===
+                    tableData.find((f) => f.id === selectedOrderIds[0])
+                      ?.destination
+              )
               .map((e) => e.id)
           );
         } else if (selectedOrderIds.length === 0) {
@@ -199,7 +216,11 @@ const ShippingQueueTable = ({
 
           setSelectedOrderIds(
             tableData
-              .filter((e) => e.customer?._id === tableData[0]?.customer?._id)
+              .filter(
+                (e) =>
+                  e.customer?._id === tableData[0]?.customer?._id &&
+                  e.destination === tableData[0]?.destination
+              )
               .map((e) => e.id)
           );
           setSelectedCustomerId(
@@ -240,6 +261,13 @@ const ShippingQueueTable = ({
         flex: 2,
         renderHeader: (params) => {
           return <Typography sx={{ fontWeight: 900 }}>Packing Slip</Typography>;
+        },
+      },
+      {
+        field: "destination",
+        flex: 1,
+        renderHeader: (params) => {
+          return <Typography sx={{ fontWeight: 900 }}>Destination</Typography>;
         },
       },
     ],
@@ -393,6 +421,10 @@ const ShippingQueueTable = ({
           shippingQueue.filter((e) => selectedOrderIds.includes(e.id))[0]
             ?.customer
         }
+        destination={
+          shippingQueue.find((e) => selectedOrderIds.includes(e.id))
+            ?.destination
+        }
         packingSlipIds={packingSlipIds}
         open={createShipmentOpen}
         onClose={onCreateShipmentClose}
@@ -400,15 +432,13 @@ const ShippingQueueTable = ({
         setCurrentState={setCurrentDialogState}
         parts={shippingQueue
           .filter((e) => selectedOrderIds.includes(e.id))
-          .reduce(
-            (result, current) =>
-              result.concat(
-                current.items.map((e) => {
-                  return { ...e, id: e._id };
-                })
-              ),
-            []
-          )}
+          .reduce((result, current) => {
+            return result.concat(
+              current.items.map((e) => {
+                return { ...e, id: e._id };
+              })
+            );
+          }, [])}
         reloadData={reloadData}
       />
     </div>

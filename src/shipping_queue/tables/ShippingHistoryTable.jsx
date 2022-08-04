@@ -309,10 +309,18 @@ const ShippingHistoryTable = ({
     },
     {
       field: "trackingNumber",
-      flex: 2,
+      flex: 1,
       sortable: false,
       renderHeader: (params) => {
         return <Typography sx={{ fontWeight: 900 }}>Tracking #</Typography>;
+      },
+    },
+    {
+      field: "destination",
+      flex: 1,
+      sortable: false,
+      renderHeader: (params) => {
+        return <Typography sx={{ fontWeight: 900 }}>Destination</Typography>;
       },
     },
     {
@@ -440,6 +448,12 @@ const ShippingHistoryTable = ({
           setClickedHistShipment({
             ...clickedHistShipment,
             customerHandoffName: value,
+          });
+        }}
+        onShippingAddressChange={(value) => {
+          setClickedHistShipment({
+            ...clickedHistShipment,
+            specialShippingAddress: value,
           });
         }}
         onTrackingChange={(value) => {

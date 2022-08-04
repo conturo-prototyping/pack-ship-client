@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from "react";
 import PackingSlipTable from "./components/PackingSlipTable";
+import DestinationToggle from "./components/DestinationToggle";
 import PackingDialog from "../components/PackingDialog";
 
 const PackingSlipDialog = ({
@@ -9,6 +10,8 @@ const PackingSlipDialog = ({
   orderNum,
   parts,
   title,
+  onDestinationChange,
+  destination = "CUSTOMER",
   actions = undefined,
   viewOnly = false,
 }) => {
@@ -28,10 +31,15 @@ const PackingSlipDialog = ({
       titleText={title}
       onClose={onClose}
       onBackdropClick={onClose}
-      onSubmit={() => onSubmit(filledForm, orderNum)}
+      onSubmit={() => onSubmit(filledForm, orderNum, destination)}
       submitDisabled={!isSubmittable()}
       actions={actions}
     >
+      <DestinationToggle
+        destination={destination}
+        onDestinationChange={onDestinationChange}
+      ></DestinationToggle>
+
       <PackingSlipTable
         rowData={parts}
         filledForm={filledForm}

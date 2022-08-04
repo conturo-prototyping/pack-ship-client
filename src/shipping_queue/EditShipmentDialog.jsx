@@ -21,6 +21,7 @@ const EditShipmentTableDialog = ({
   onDeliverySpeedChange,
   onCustomerAccountChange,
   onCustomerNameChange,
+  onShippingAddressChange,
   onTrackingChange,
   onCostChange,
   onNewRowChange,
@@ -67,9 +68,9 @@ const EditShipmentTableDialog = ({
     <div className={classes.root}>
       <PopupDialog
         open={isOpen}
-        titleText={`${viewOnly ? "" : "Edit Shipment / "}${
-          shipment?.shipmentId
-        }`}
+        titleText={
+          `${viewOnly ? "" : "Edit Shipment / "}${shipment?.shipmentId} (${ shipment?.manifest?.[0]?.destination })`
+        }
         onClose={onClose}
         onSubmit={onSubmit}
         actions={
@@ -92,6 +93,7 @@ const EditShipmentTableDialog = ({
           onDeliverySpeedChange={onDeliverySpeedChange}
           onCustomerAccountChange={onCustomerAccountChange}
           onCustomerNameChange={onCustomerNameChange}
+          onShippingAddressChange={onShippingAddressChange}
           onTrackingChange={onTrackingChange}
           onCostChange={onCostChange}
           viewOnly={viewOnly}
