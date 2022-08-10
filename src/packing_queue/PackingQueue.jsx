@@ -223,7 +223,8 @@ const PackingQueue = () => {
         className={classes.topBarGrid}
         container
         justifyContent="start"
-        spacing={2}>
+        spacing={2}
+      >
         <Grid container item xs={12} spacing={2}>
           {tabValue === 1 && (
             <OrderPartNumberSearch
@@ -242,7 +243,8 @@ const PackingQueue = () => {
               item
               xs={12}
               spacing={2}
-              sx={{ marginBottom: "1rem!important" }}>
+              sx={{ marginBottom: "1rem!important" }}
+            >
               <Grid container item xs={"auto"}>
                 <CommonButton
                   label="Make Packing Slip"
@@ -374,22 +376,6 @@ const PackingQueue = () => {
           }}
           destination={destination}
         />
-
-        <Grid
-          className={classes.bottomBarGrid}
-          container
-          item
-          xs
-          justifyContent="flex-end">
-          <Button
-            component={Link}
-            to={ROUTE_SHIPMENTS}
-            variant="contained"
-            color="secondary"
-            sx={{ marginRight: "0px" }}>
-            Go to Shipping
-          </Button>
-        </Grid>
       </Grid>
     </Box>
   );
