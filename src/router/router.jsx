@@ -14,6 +14,8 @@ import GoogleButton from "react-google-button";
 import axios from "axios";
 import { LoginSuccess } from "../components/LoginSuccess";
 import { PackShipProgress } from "../common/CircularProgress";
+import { AppBar, Button, Toolbar, Typography } from "@mui/material";
+import { Box, Container } from "@mui/system";
 
 export const ROUTE_PACKING_SLIP = "/packing-slips";
 export const ROUTE_SHIPMENTS = "/shipments";
@@ -102,39 +104,55 @@ const Router = () => {
   return loading ? (
     <PackShipProgress />
   ) : (
-    <Routes>
-      <Route path="" element={<Navigate to="/login" />} />
-      <Route
-        exact
-        path="/login"
-        element={<GoogleButton onClick={redirectToGoogleSSO} />}
-      />
-      <Route exact path="/loginError">
-        Error logging in. Please try again later.
-      </Route>
+    <>
+      <Box sx={{ display: "flex" }}>
+        <AppBar component="nav">
+          <Toolbar>
+            <Box sx={{ display: { xs: "none", sm: "block" } }}>
+              {["Packing", "Shipping", "Receiving"].map((item) => (
+                <Button key={item} sx={{ color: "black" }}>
+                  {item}
+                </Button>
+              ))}
+            </Box>
+          </Toolbar>
+        </AppBar>
+      </Box>
 
-      <Route exact path="/loginSuccess" element={<LoginSuccess />} />
+      <Routes>
+        <Route path="" element={<Navigate to="/login" />} />
+        <Route
+          exact
+          path="/login"
+          element={<GoogleButton onClick={redirectToGoogleSSO} />}
+        />
+        <Route exact path="/loginError">
+          Error logging in. Please try again later.
+        </Route>
 
-      <Route
-        exact
-        path={ROUTE_PACKING_SLIP}
-        element={
-          <PrivateRoute>
-            <PackingQueue />
-          </PrivateRoute>
-        }
-      />
+        <Route exact path="/loginSuccess" element={<LoginSuccess />} />
 
-      <Route
-        exact
-        path={ROUTE_SHIPMENTS}
-        element={
-          <PrivateRoute>
-            <ShippingQueue />
-          </PrivateRoute>
-        }
-      />
-    </Routes>
+        <Route
+          exact
+          path={ROUTE_PACKING_SLIP}
+          element={
+            <PrivateRoute>
+              <PackingQueue />
+            </PrivateRoute>
+          }
+        />
+
+        <Route
+          exact
+          path={ROUTE_SHIPMENTS}
+          element={
+            <PrivateRoute>
+              <ShippingQueue />
+            </PrivateRoute>
+          }
+        />
+      </Routes>
+    </>
   );
 };
 
