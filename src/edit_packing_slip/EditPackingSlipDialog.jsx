@@ -2,7 +2,6 @@ import PackingDialog from "../components/PackingDialog";
 import EditPackingSlipTable from "./components/EditPackingSlipTable";
 import { DialogActions, Grid, Typography } from "@mui/material";
 import DestinationToggle from "../packing_slip/components/DestinationToggle";
-import { fontWeight } from "@mui/system";
 
 const EditPackingSlipDialog = ({
   packingSlipData,
