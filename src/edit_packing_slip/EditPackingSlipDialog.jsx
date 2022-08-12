@@ -1,7 +1,8 @@
 import PackingDialog from "../components/PackingDialog";
 import EditPackingSlipTable from "./components/EditPackingSlipTable";
-import { DialogActions } from "@mui/material";
+import { DialogActions, Grid, Typography } from "@mui/material";
 import DestinationToggle from "../packing_slip/components/DestinationToggle";
+import { fontWeight } from "@mui/system";
 
 const EditPackingSlipDialog = ({
   packingSlipData,
@@ -40,6 +41,13 @@ const EditPackingSlipDialog = ({
         onPackQtyChange={onPackQtyChange}
         viewOnly={viewOnly}
       />
+      <Grid container justifyContent="end">
+        {packingSlipData.shipment ? (
+          <Typography fontWeight="bold">SHIPPED</Typography>
+        ) : (
+          <Typography fontWeight="bold">STAGED</Typography>
+        )}
+      </Grid>
     </PackingDialog>
   );
 };
