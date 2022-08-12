@@ -22,6 +22,23 @@ export const API = {
     }
   },
 
+  async downloadShipmentPDF(shipmentInfo) {
+    try {
+      const response = await instance.post("/shipments/pdf", shipmentInfo);
+      console.log(response)
+      return (response.data);
+      console.log('******')
+      console.log(response.data)
+      return response.data;
+    } 
+    catch (error) {
+      console.error('downloading shipping PDF', error);
+      throw new Error(
+        error?.response?.data ?? "An error occurred downloading PDF"
+      );
+    }
+  },
+
   async getPackingQueue() {
     try {
       const response = await instance.get("/workOrders/packingQueue");
