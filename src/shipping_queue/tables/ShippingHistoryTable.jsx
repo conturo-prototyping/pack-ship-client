@@ -11,6 +11,7 @@ import { API } from "../../services/server";
 import { getSortFromModel } from "../utils/sortModelFunctions";
 import { PackShipProgress } from "../../common/CircularProgress";
 import { snackbarVariants, usePackShipSnackbar } from "../../common/Snackbar";
+import pdfMake from "pdfmake/build/pdfmake";
 import {
   PACKING_SLIP_TOP_MARGIN,
   PACKING_SLIP_BOTTOM_MARGIN,
@@ -100,6 +101,8 @@ const ShippingHistoryTable = ({
 
   const onHistoryRowClick = useCallback((params, event, __) => {
     API.getShipment(params.id).then((data) => {
+      console.log('-----data-----');
+      console.log(data)
       if (data) {
         setClickedHistShipment(data.shipment);
       }
@@ -298,6 +301,36 @@ const ShippingHistoryTable = ({
     [fetchSearch, sortModel, orderNumber, partNumber]
   );
 
+  const createShipmentPdfDoc = useCallback( async () => {
+    // const value = clickedHistShipment;
+    // console.log(clickedHistShipment)
+    // console.log('line 306')
+    // console.log(value)
+    // let value = '2343';
+    // console.log(value)
+    // return clickedHistShipment;
+
+    await API.downloadShipmentPDF(clickedHistShipment)
+      .then( (data) => {
+        console.log('-----res is -----')
+        console.log(data)
+        pdfMake.createPdf(data.docDefinition).open();
+        // setMenuPosition(null);
+        enqueueSnackbar("Packing slip downloaded", snackbarVariants.error);
+        // return data;
+      })
+      .catch( e => {
+        console.log(e);
+        console.log('-------')
+        enqueueSnackbar(e.message, snackbarVariants.error);
+      })
+
+
+  },[clickedHistShipment, enqueueSnackbar]);
+
+
+
+
   const columns = [
     {
       field: "shipmentId",
@@ -344,6 +377,26 @@ const ShippingHistoryTable = ({
       View
     </MenuItem>,
     // <MenuItem key="download-menu-item">Download</MenuItem>,
+    <MenuItem key={"Download"} 
+    // onClick={ async () => {
+    //   console.log('download button clicked');
+    //   console.log(clickedHistShipment);
+    //   const stuff = await createShipmentPdfDoc(clickedHistShipment);
+    //   console.log('=======')
+    //   console.log(stuff)
+    //   // build shipment PDF
+    //   // create a function
+
+
+
+
+    //   // console.log(selectedRow)
+    //   // await API.getShippingHistory
+    //   }}
+    onClick={createShipmentPdfDoc}
+    >
+      Download
+    </MenuItem>,
     <MenuItem
       key="edit-menu-item"
       onClick={() => {
