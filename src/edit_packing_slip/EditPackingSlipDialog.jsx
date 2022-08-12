@@ -17,7 +17,6 @@ const EditPackingSlipDialog = ({
   cellEditing = false,
   viewOnly = true,
 }) => {
-  console.log(packingSlipData);
   return (
     <PackingDialog
       open={isOpen}
