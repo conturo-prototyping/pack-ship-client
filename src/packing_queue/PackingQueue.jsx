@@ -223,7 +223,8 @@ const PackingQueue = () => {
         className={classes.topBarGrid}
         container
         justifyContent="start"
-        spacing={2}>
+        spacing={2}
+      >
         <Grid container item xs={12} spacing={2}>
           {tabValue === 1 && (
             <OrderPartNumberSearch
@@ -242,7 +243,8 @@ const PackingQueue = () => {
               item
               xs={12}
               spacing={2}
-              sx={{ marginBottom: "1rem!important" }}>
+              sx={{ marginBottom: "1rem!important" }}
+            >
               <Grid container item xs={"auto"}>
                 <CommonButton
                   label="Make Packing Slip"
@@ -286,22 +288,7 @@ const PackingQueue = () => {
                             partDescription: e.partDescription,
                           });
                         });
-
-                        if (isFulfilledBatchesOn) {
-                          const tmpPackQueue = finalData.filter(
-                            (e) => e.fulfilledQty < e.batchQty
-                          );
-                          const orderIds = tmpPackQueue
-                            .filter((e) => selectedOrderIds.includes(e.id))
-                            .map((e) => e.id);
-                          setSelectedOrderIds(orderIds);
-                          setSelectedOrderNumber(
-                            orderIds.length === 0 ? null : selectedOrderNumber
-                          );
-                          setFilteredPackingQueue(tmpPackQueue);
-                        } else {
-                          setFilteredPackingQueue(finalData);
-                        }
+                        setFilteredPackingQueue(finalData);
                       }
                     });
 
@@ -380,13 +367,15 @@ const PackingQueue = () => {
           container
           item
           xs
-          justifyContent="flex-end">
+          justifyContent="flex-end"
+        >
           <Button
             component={Link}
             to={ROUTE_SHIPMENTS}
             variant="contained"
             color="secondary"
-            sx={{ marginRight: "0px" }}>
+            sx={{ marginRight: "0px" }}
+          >
             Go to Shipping
           </Button>
         </Grid>

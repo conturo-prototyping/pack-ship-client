@@ -62,14 +62,35 @@ const applySearch = (
   sortDataByModel,
   sortModel,
   staticCols,
-  setFilteredPackingQueue
+  setFilteredPackingQueue,
+  isFulfilledBatchesOn
 ) => {
-  let filteredQueue = packingQueue.filter(
+  let filteredQueue = [];
+
+  // first filter fullfilled if the user unchecks "show fulfilled batches"
+  if (!isFulfilledBatchesOn) {
+    filteredQueue = packingQueue.filter((order) => {
+      return order.fulfilledQty < order.batchQty;
+    });
+  } else {
+    filteredQueue = packingQueue;
+  }
+
+  // then filter on search string
+  filteredQueue = filteredQueue.filter(
     (order) =>
       order.orderNumber.toLowerCase().includes(searchString.toLowerCase()) ||
-      order.part.toLowerCase().includes(searchString.toLowerCase()) ||
-      selectionOrderIds.includes(order.id) // Ensure selected rows are included
+      order.part.toLowerCase().includes(searchString.toLowerCase())
   );
+
+  // then add the selected slips regardless of filters above
+  let selected = packingQueue.filter(
+    (order) =>
+      selectionOrderIds.includes(order.id) && // Ensure selected rows are included as long as not in the filteredQueue already
+      !filteredQueue.map((e) => e.id).includes(order.id)
+  );
+
+  filteredQueue = filteredQueue.concat(selected);
 
   filteredQueue = sortDataByModel(
     sortModel,
@@ -143,20 +164,6 @@ const PackingQueueTable = ({
       return newSelection;
     },
     [selectionOrderIds]
-  );
-
-  const onQueueRowClick = useCallback(
-    (selectionModel, tableData) => {
-      const newselectionOrderIds = handleSelection(selectionModel, tableData);
-      setSelectedOrderIds([...newselectionOrderIds]);
-
-      setSelectedOrderNumber(
-        tableData?.find(
-          (e) => newselectionOrderIds.length > 0 && e.id === selectionModel
-        )?.orderNumber ?? null
-      );
-    },
-    [handleSelection, setSelectedOrderNumber, setSelectedOrderIds]
   );
 
   const onSelectAllClick = useCallback(
@@ -245,17 +252,16 @@ const PackingQueueTable = ({
 
   useEffect(() => {
     // When we toggle on, we need to make sure to apply the search and sorting again.
-    if (isFulfilledBatchesOn) {
-      applySearch(
-        packingQueue,
-        searchString,
-        selectionOrderIds,
-        sortDataByModel,
-        sortModel,
-        staticCols,
-        setFilteredPackingQueue
-      );
-    }
+    applySearch(
+      packingQueue,
+      searchString,
+      selectionOrderIds,
+      sortDataByModel,
+      sortModel,
+      staticCols,
+      setFilteredPackingQueue,
+      isFulfilledBatchesOn
+    );
 
     recheckIfNeeded(
       selectedOrderNumber,
@@ -330,6 +336,64 @@ const PackingQueueTable = ({
     [classes.fulfilledQtyHeader]
   );
 
+  const sortDataByModel = useCallback(
+    (model, data, columns, selectionOrderIds, ignoreSelected = false) => {
+      if (model.length !== 0) {
+        // find the filter handler based on the column clicked
+        const clickedColumnField = createColumnFilters(columns, data).find(
+          (e) => e.field === model[0]?.field
+        );
+        // execute the handler
+
+        return clickedColumnField?.handler(
+          model[0]?.sort,
+          selectionOrderIds,
+          data,
+          ignoreSelected
+        );
+      } else {
+        return data;
+      }
+    },
+    []
+  );
+
+  const onQueueRowClick = useCallback(
+    (selectionModel, tableData) => {
+      const newselectionOrderIds = handleSelection(selectionModel, tableData);
+      setSelectedOrderIds([...newselectionOrderIds]);
+
+      setSelectedOrderNumber(
+        tableData?.find(
+          (e) => newselectionOrderIds.length > 0 && e.id === selectionModel
+        )?.orderNumber ?? null
+      );
+
+      applySearch(
+        packingQueue,
+        searchString,
+        newselectionOrderIds,
+        sortDataByModel,
+        sortModel,
+        staticCols,
+        setFilteredPackingQueue,
+        isFulfilledBatchesOn
+      );
+    },
+    [
+      handleSelection,
+      setSelectedOrderNumber,
+      setSelectedOrderIds,
+      isFulfilledBatchesOn,
+      packingQueue,
+      searchString,
+      setFilteredPackingQueue,
+      sortDataByModel,
+      sortModel,
+      staticCols,
+    ]
+  );
+
   const columns = useMemo(
     () => [
       getCheckboxColumn(
@@ -353,28 +417,6 @@ const PackingQueueTable = ({
     ]
   );
 
-  const sortDataByModel = useCallback(
-    (model, data, columns, selectionOrderIds, ignoreSelected = false) => {
-      if (model.length !== 0) {
-        // find the filter handler based on the column clicked
-        const clickedColumnField = createColumnFilters(columns, data).find(
-          (e) => e.field === model[0]?.field
-        );
-        // execute the handler
-
-        return clickedColumnField?.handler(
-          model[0]?.sort,
-          selectionOrderIds,
-          data,
-          ignoreSelected
-        );
-      } else {
-        return data;
-      }
-    },
-    []
-  );
-
   useEffect(() => {
     if (searchString) {
       applySearch(
@@ -384,7 +426,8 @@ const PackingQueueTable = ({
         sortDataByModel,
         sortModel,
         staticCols,
-        setFilteredPackingQueue
+        setFilteredPackingQueue,
+        isFulfilledBatchesOn
       );
     } else {
       setFilteredPackingQueue(
