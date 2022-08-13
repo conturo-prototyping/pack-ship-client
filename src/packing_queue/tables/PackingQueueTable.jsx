@@ -256,8 +256,6 @@ const PackingQueueTable = ({
     // eslint-disable-next-line
   }, []);
 
-  // const storedTableData = useMemo(() => tableData, [tableData]);
-
   const staticCols = useMemo(
     () => [
       {
