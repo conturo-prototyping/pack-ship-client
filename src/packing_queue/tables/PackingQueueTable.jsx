@@ -89,60 +89,6 @@ const ensureSelectionAdded = (packingQueue, allPackingQueue, selectedIds) => {
   return packingQueue;
 };
 
-// const applySearchFilterOrder = (
-//   packingQueue,
-//   searchString,
-//   selectionOrderIds,
-//   sortDataByModel,
-//   sortModel,
-//   staticCols,
-//   setFilteredPackingQueue,
-//   isFulfilledBatchesOn,
-//   rowClicked = false
-// ) => {
-//   let filteredQueue = [];
-
-//   // first filter fullfilled if the user unchecks "show fulfilled batches"
-//   if (!isFulfilledBatchesOn) {
-//     filteredQueue = packingQueue.filter((order) => {
-//       return order.fulfilledQty < order.batchQty;
-//     });
-//   } else {
-//     filteredQueue = packingQueue;
-//   }
-
-//   // then filter on search string
-//   filteredQueue = filteredQueue.filter(
-//     (order) =>
-//       order.orderNumber.toLowerCase().includes(searchString.toLowerCase()) ||
-//       order.part.toLowerCase().includes(searchString.toLowerCase())
-//   );
-
-//   if (selectionOrderIds.length > 0) {
-//     for (let selectedId in selectionOrderIds) {
-//       if (
-//         !filteredQueue.map((e) => e.id).includes(selectionOrderIds[selectedId])
-//       ) {
-//         const selected = packingQueue.find(
-//           (e) => e.id == selectionOrderIds[selectedId]
-//         );
-//         filteredQueue = [selected].concat(filteredQueue);
-//       }
-//     }
-//   }
-
-//   if (!rowClicked) {
-//     filteredQueue = sortDataByModel(
-//       sortModel,
-//       filteredQueue,
-//       staticCols,
-//       selectionOrderIds
-//     );
-//   }
-
-//   setFilteredPackingQueue(filteredQueue);
-// };
-
 const PackingQueueTable = ({
   tableData,
   packingQueue,
