@@ -130,6 +130,7 @@ const ShippingQueue = () => {
 
   useEffect(() => {
     setIsMounted(true);
+    return () => setIsMounted(false);
   }, []);
 
   useEffect(() => {
