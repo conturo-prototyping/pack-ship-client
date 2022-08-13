@@ -402,6 +402,7 @@ const PackingQueueTable = ({
 
   useEffect(() => {
     let queue = applySearch(packingQueue, searchString);
+    queue = applyFulfilledBatchFilter(queue, isFulfilledBatchesOn);
     queue = ensureSelectionAdded(queue, packingQueue, selectionOrderIds);
     queue = sortDataByModel(sortModel, queue, columns, selectionOrderIds);
     setFilteredPackingQueue(queue);
