@@ -302,19 +302,14 @@ const ShippingHistoryTable = ({
   const createShipmentPdfDoc = useCallback( async () => {
     await API.downloadShipmentPDF(clickedHistShipment)
       .then( (data) => {
-        console.log('-----res is -----')
         pdfMake.createPdf(data.docDefinition).open();
-        // setMenuPosition(null);
-        enqueueSnackbar("Packing slip downloaded", snackbarVariants.error);
+        enqueueSnackbar("Shipment paperwork downloaded", snackbarVariants.error);
         return data;
       })
       .catch( e => {
-        console.log(e);
-        console.log('-------')
+        console.error(e);
         enqueueSnackbar(e.message, snackbarVariants.error);
       })
-
-
   },[clickedHistShipment, enqueueSnackbar]);
 
 
@@ -366,16 +361,13 @@ const ShippingHistoryTable = ({
       View
     </MenuItem>,
     // <MenuItem key="download-menu-item">Download</MenuItem>,
-    <MenuItem key={"Download"} 
-    onClick={ async () => {
-      console.log('download button clicked');
-      // console.log(clickedHistShipment);
-      const stuff = await createShipmentPdfDoc();
-      console.log('=======')
-      console.log(stuff)
-
+    <MenuItem 
+      key={"Download"} 
+      onClick={ async () => {
+        console.log('download button clicked');
+        await createShipmentPdfDoc();
+        setHistoryMenuPosition(null);
       }}
-    // onClick={createShipmentPdfDoc}
     >
       Download
     </MenuItem>,
