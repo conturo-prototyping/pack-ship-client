@@ -364,7 +364,6 @@ const ShippingHistoryTable = ({
     <MenuItem 
       key={"Download"} 
       onClick={ async () => {
-        console.log('download button clicked');
         await createShipmentPdfDoc();
         setHistoryMenuPosition(null);
       }}
