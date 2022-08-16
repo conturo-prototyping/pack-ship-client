@@ -6,24 +6,6 @@ const instance = axios.create({
 });
 
 export const API = {
-  //No longer used mm 081522
-  // async downloadPDF(packingSlipId, orderNumber, dateCreated) {
-  //   try {
-  //     const response = await instance.post("/packingSlips/pdf", {
-  //       packingSlipId, // this is the item._id not the item.packingSlipId the user interacts with (dumb name....)
-  //       orderNumber,
-  //       dateCreated,
-  //     });
-  //     console.log('pdf downloaded')
-  //     return response.data;
-  //   } catch (error) {
-  //     console.error("downloadPDF", error);
-  //     throw new Error(
-  //       error?.response?.data ?? "An error occurred downloading PDF"
-  //     );
-  //   }
-  // },
-
   async downloadShipmentPDF(shipmentInfo) {
     try {
       const res = await instance.post("/shipments/pdf", shipmentInfo);
