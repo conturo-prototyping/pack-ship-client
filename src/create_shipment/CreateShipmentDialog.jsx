@@ -199,6 +199,7 @@ const CreateShipmentDialog = ({
                   description: e.partDescription,
                 },
                 qty: e.qty,
+                batchNumber: e.item.batch,
               };
             })}
           />
@@ -303,7 +304,8 @@ const CreateShipmentDialog = ({
       }`}
       open={open}
       onClose={onClose}
-      actions={renderDialogActions()}>
+      actions={renderDialogActions()}
+    >
       {renderContents()}
     </PackingDialog>
   );
