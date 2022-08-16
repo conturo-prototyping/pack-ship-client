@@ -1,4 +1,4 @@
-import React, { useContext, useEffect, useState } from "react";
+import React, { useContext, useEffect, useState, useCallback } from "react";
 import {
   Navigate,
   Routes,
@@ -27,6 +27,7 @@ const Router = () => {
   const [isUserAuthenticated, setIsUserAuthenticated] = useState(false);
   const [, setAuthUser] = useState(null);
   const [loading, setLoading] = useState(true);
+  const [tabValue, setTabValue] = useState(0);
 
   const fetchAuthUser = async () => {
     await axios
@@ -100,11 +101,15 @@ const Router = () => {
     }
   };
 
+  const onTabChange = useCallback((event, newValue) => {
+    setTabValue(newValue);
+  }, []);
+
   return loading ? (
     <PackShipProgress />
   ) : isUserAuthenticated ? (
     <>
-      <NavigationBar />
+      <NavigationBar value={tabValue} onChange={onTabChange} />
       <Routes>
         <Route exact path="/loginSuccess" element={<LoginSuccess />} />
         <Route
