@@ -232,7 +232,24 @@ const PackingQueueTable = ({
               selectionOrderIds
             );
             setPackingQueue(tableData);
-            setFilteredPackingQueue(tableData);
+
+            let queue = applyFulfilledBatchFilter(
+              tableData,
+              isFulfilledBatchesOn
+            );
+            queue = applySearch(queue, searchString);
+            queue = ensureSelectionAdded(
+              queue,
+              packingQueue,
+              selectionOrderIds
+            );
+            queue = sortDataByModel(
+              sortModel,
+              queue,
+              columns,
+              selectionOrderIds
+            );
+            setFilteredPackingQueue(queue);
           }
         })
         .finally(() => {
