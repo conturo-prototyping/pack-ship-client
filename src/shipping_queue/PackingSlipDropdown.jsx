@@ -31,6 +31,7 @@ const PackingSlipDrowdown = ({ params, packingSlipId, manifest }) => {
                   part: e.item,
                   batchQty: e.item.quantity,
                   shipQty: e.qty,
+                  batchNumber: e.item.batch,
                 };
               })}
             columns={[
@@ -44,11 +45,22 @@ const PackingSlipDrowdown = ({ params, packingSlipId, manifest }) => {
                   const item = params.row.part;
                   return (
                     <div>
-                      <Typography>{`${item.partNumber} - Rev ${item.partRev} (Batch ${item.batch})`}</Typography>
+                      <Typography>{`${item.partNumber} - Rev ${item.partRev}`}</Typography>
                       <Typography color="textSecondary">
                         {item.partDescription}
                       </Typography>
                     </div>
+                  );
+                },
+              },
+              {
+                field: "batchNumber",
+                flex: 2,
+                renderHeader: (params) => {
+                  return (
+                    <Typography sx={{ fontWeight: 900 }}>
+                      Batch Number
+                    </Typography>
                   );
                 },
               },

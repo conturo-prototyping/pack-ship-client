@@ -23,6 +23,13 @@ const CreateShipmentTable = ({ rowData }) => {
       flex: 2,
     },
     {
+      field: "batchNumber",
+      flex: 2,
+      renderHeader: (params) => {
+        return <Typography sx={{ fontWeight: 900 }}>Batch Number</Typography>;
+      },
+    },
+    {
       field: "quantity",
       type: "number",
       flex: 1,
