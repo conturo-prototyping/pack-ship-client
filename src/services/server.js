@@ -6,16 +6,13 @@ const instance = axios.create({
 });
 
 export const API = {
-  async downloadPDF(packingSlipId, orderNumber, dateCreated) {
+  async downloadShipmentPDF(shipmentInfo) {
     try {
-      const response = await instance.post("/packingSlips/pdf", {
-        packingSlipId, // this is the item._id not the item.packingSlipId the user interacts with (dumb name....)
-        orderNumber,
-        dateCreated,
-      });
-      return response.data;
-    } catch (error) {
-      console.error("downloadPDF", error);
+      const res = await instance.post("/shipments/pdf", shipmentInfo);
+      return res.data;
+    } 
+    catch (error) {
+      console.error('downloadShipmentPDF', error);
       throw new Error(
         error?.response?.data ?? "An error occurred downloading PDF"
       );
