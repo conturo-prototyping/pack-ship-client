@@ -303,7 +303,7 @@ const ShippingHistoryTable = ({
     await API.downloadShipmentPDF(clickedHistShipment)
       .then( (data) => {
         pdfMake.createPdf(data.docDefinition).open();
-        enqueueSnackbar("Shipment paperwork downloaded", snackbarVariants.error);
+        enqueueSnackbar("Shipment paperwork downloaded", snackbarVariants.success);
         return data;
       })
       .catch( e => {
