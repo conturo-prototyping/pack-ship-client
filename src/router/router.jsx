@@ -1,4 +1,4 @@
-import React, { useContext, useEffect, useState } from "react";
+import React, { useContext, useEffect, useState, useCallback } from "react";
 import {
   Navigate,
   Routes,
@@ -14,6 +14,7 @@ import GoogleButton from "react-google-button";
 import axios from "axios";
 import { LoginSuccess } from "../components/LoginSuccess";
 import { PackShipProgress } from "../common/CircularProgress";
+import NavigationBar from "./NavigationBar";
 
 export const ROUTE_PACKING_SLIP = "/packing-slips";
 export const ROUTE_SHIPMENTS = "/shipments";
@@ -26,6 +27,7 @@ const Router = () => {
   const [isUserAuthenticated, setIsUserAuthenticated] = useState(false);
   const [, setAuthUser] = useState(null);
   const [loading, setLoading] = useState(true);
+  const [tabValue, setTabValue] = useState(0);
 
   const fetchAuthUser = async () => {
     await axios
@@ -99,8 +101,37 @@ const Router = () => {
     }
   };
 
+  const onTabChange = useCallback((event, newValue) => {
+    setTabValue(newValue);
+  }, []);
+
   return loading ? (
     <PackShipProgress />
+  ) : isUserAuthenticated ? (
+    <>
+      <NavigationBar value={tabValue} onChange={onTabChange} />
+      <Routes>
+        <Route exact path="/loginSuccess" element={<LoginSuccess />} />
+        <Route
+          exact
+          path={ROUTE_PACKING_SLIP}
+          element={
+            <PrivateRoute>
+              <PackingQueue />
+            </PrivateRoute>
+          }
+        />
+        <Route
+          exact
+          path={ROUTE_SHIPMENTS}
+          element={
+            <PrivateRoute>
+              <ShippingQueue />
+            </PrivateRoute>
+          }
+        />
+      </Routes>
+    </>
   ) : (
     <Routes>
       <Route path="" element={<Navigate to="/login" />} />
@@ -114,26 +145,6 @@ const Router = () => {
       </Route>
 
       <Route exact path="/loginSuccess" element={<LoginSuccess />} />
-
-      <Route
-        exact
-        path={ROUTE_PACKING_SLIP}
-        element={
-          <PrivateRoute>
-            <PackingQueue />
-          </PrivateRoute>
-        }
-      />
-
-      <Route
-        exact
-        path={ROUTE_SHIPMENTS}
-        element={
-          <PrivateRoute>
-            <ShippingQueue />
-          </PrivateRoute>
-        }
-      />
     </Routes>
   );
 };

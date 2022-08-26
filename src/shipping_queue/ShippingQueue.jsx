@@ -2,10 +2,8 @@ import React, { useCallback, useEffect, useState } from "react";
 import Search from "../components/Search";
 import PackShipTabs from "../components/Tabs";
 import { API } from "../services/server";
-import { Box, Button, Grid } from "@mui/material";
+import { Box, Grid } from "@mui/material";
 import makeStyles from "@mui/styles/makeStyles";
-import { Link } from "react-router-dom";
-import { ROUTE_PACKING_SLIP } from "../router/router";
 import CommonButton from "../common/Button";
 import ShippingQueueTable from "./tables/ShippingQueueTable";
 import ShippingDialogStates from "../create_shipment/constants/ShippingDialogConstants";
@@ -130,6 +128,7 @@ const ShippingQueue = () => {
 
   useEffect(() => {
     setIsMounted(true);
+    return () => setIsMounted(false);
   }, []);
 
   useEffect(() => {
@@ -177,7 +176,8 @@ const ShippingQueue = () => {
         className={classes.topBarGrid}
         container
         justifyContent="start"
-        spacing={2}>
+        spacing={2}
+      >
         <Grid container item xs={12} spacing={2}>
           {currentTab === TabNames.Queue ? (
             <Grid
@@ -185,7 +185,8 @@ const ShippingQueue = () => {
               item
               xs={12}
               spacing={2}
-              sx={{ marginBottom: "1rem!important" }}>
+              sx={{ marginBottom: "1rem!important" }}
+            >
               <Grid container item xs={"auto"}>
                 <CommonButton
                   label="Create Shipment"
@@ -245,22 +246,6 @@ const ShippingQueue = () => {
               />
             }
           />
-        </Grid>
-
-        <Grid
-          className={classes.bottomBarGrid}
-          container
-          item
-          xs
-          justifyContent="flex-end">
-          <Button
-            component={Link}
-            to={ROUTE_PACKING_SLIP}
-            variant="contained"
-            color="secondary"
-            sx={{ marginRight: "0px" }}>
-            Go to Packing
-          </Button>
         </Grid>
       </Grid>
     </Box>
