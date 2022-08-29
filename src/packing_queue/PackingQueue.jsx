@@ -305,6 +305,9 @@ const PackingQueue = () => {
           <PackShipTabs
             onTabChange={(_, v) => {
               setTabValue(v);
+              setSearchString("");
+              setIsFulfilledBatchesOn(true);
+              setSelectedOrderIds([]);
             }}
             queueTotal={packingQueue?.length}
             queueTab={
