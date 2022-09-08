@@ -6,7 +6,9 @@ export const getCheckboxColumn = (
   isSelectAllOn,
   queueData,
   onSelectAll,
-  onRowClick
+  onRowClick,
+  isFulfilledBatchesOn,
+  searchString
 ) => {
   return {
     field: "completed",
@@ -26,7 +28,9 @@ export const getCheckboxColumn = (
           checked={selectionOrderIds.includes(params.id) || false}
           disableRipple
           disableFocusRipple
-          onClick={() => onRowClick(params.id, queueData)}
+          onClick={() =>
+            onRowClick(params.id, queueData, isFulfilledBatchesOn, searchString)
+          }
         />
       );
     },
@@ -35,7 +39,14 @@ export const getCheckboxColumn = (
         checked={isSelectAllOn}
         disableRipple
         disableFocusRipple
-        onChange={(e) => onSelectAll(e.target.checked, queueData)}
+        onChange={(e) =>
+          onSelectAll(
+            e.target.checked,
+            queueData,
+            isFulfilledBatchesOn,
+            searchString
+          )
+        }
         style={{ paddingLeft: "0px" }}
       />
     ),
