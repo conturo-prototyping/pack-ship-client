@@ -220,7 +220,8 @@ const PackingQueueTable = ({
             let tableData = [];
             data?.forEach((e) => {
               tableData.push({
-                id: e._id,
+                id: `${e._id}--${e.destinationCode}`,
+                _id: e._id,
                 part: `${e.partNumber} - ${e.partRev} (Batch ${e.batch})`,
                 batchQty: e.batchQty,
                 customer: e.customer,
@@ -228,6 +229,7 @@ const PackingQueueTable = ({
                 fulfilledQty: e.packedQty,
                 partDescription: e.partDescription,
                 destination: e.destination,
+                destinationCode: e.destinationCode
               });
             });
 

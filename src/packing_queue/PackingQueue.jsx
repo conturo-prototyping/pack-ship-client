@@ -130,13 +130,20 @@ const PackingQueue = () => {
   const onPackingSlipSubmit = useCallback(
     (filledForm, orderNum, destination) => {
       const items = filledForm.map((e) => {
-        return { item: e.id, qty: e.packQty };
+        return {
+          item:             e._id,
+          qty:              e.packQty,
+          destinationCode:  e.destinationCode
+        };
       });
+
+      console.log(items);
       API.createPackingSlip(
         items,
         filledForm[0].customer,
         orderNum,
-        destination
+        destination,
+        items?.[0]?.destinationCode
       )
         .then(() => {
           if (destination !== DestinationTypes.VENDOR) {
@@ -286,6 +293,7 @@ const PackingQueue = () => {
                       if (isMounted) {
                         data?.forEach((e) => {
                           finalData.push({
+                            id: `${e._id}--${e.destinationCode}`,
                             id: e._id,
                             part: `${e.partNumber} - ${e.partRev} (Batch ${e.batch})`,
                             batchQty: e.batchQty,
@@ -293,6 +301,8 @@ const PackingQueue = () => {
                             orderNumber: e.orderNumber,
                             fulfilledQty: e.packedQty,
                             partDescription: e.partDescription,
+                            destination: e.destination,
+                            destinationCode: e.destinationCode
                           });
                         });
 
