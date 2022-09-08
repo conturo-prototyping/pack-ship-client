@@ -106,9 +106,13 @@ const PackingQueueTable = ({
 
   const isDisabled = useCallback(
     (params) => {
+      const selectedRows = tableData.filter((o) =>
+        selectionOrderIds.includes(o.id)
+      );
       return (
         selectedOrderNumber !== null &&
-        selectedOrderNumber !== params.row.orderNumber
+        selectedOrderNumber !== params.row.orderNumber &&
+        params.row.destination !== selectedRows[0].destination
       );
     },
     [selectedOrderNumber]
@@ -223,6 +227,7 @@ const PackingQueueTable = ({
                 orderNumber: e.orderNumber,
                 fulfilledQty: e.packedQty,
                 partDescription: e.partDescription,
+                destination: e.destination,
               });
             });
 
@@ -304,6 +309,13 @@ const PackingQueueTable = ({
         flex: 1,
         renderHeader: (params) => {
           return <Typography sx={{ fontWeight: 900 }}>Part</Typography>;
+        },
+      },
+      {
+        field: "destination",
+        flex: 1,
+        renderHeader: (params) => {
+          return <Typography sx={{ fontWeight: 900 }}>Destination</Typography>;
         },
       },
       {

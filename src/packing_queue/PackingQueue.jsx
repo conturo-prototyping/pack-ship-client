@@ -218,6 +218,14 @@ const PackingQueue = () => {
     [fetchSearch, sortPackHistoryModel, orderNumber, partNumber]
   );
 
+  useEffect(() => {
+    if (filteredPackingQueue)
+      setDestination(
+        filteredPackingQueue.filter((e) => selectedOrderIds.includes(e.id))[0]
+          ?.destination || DestinationTypes.CUSTOMER
+      );
+  }, [filteredPackingQueue]);
+
   return (
     <Box className={classes.box}>
       <Grid
