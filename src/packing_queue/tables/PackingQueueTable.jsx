@@ -55,29 +55,38 @@ const recheckIfNeeded = (
   );
 };
 
-const applySearch = (
-  packingQueue,
-  searchString,
-  selectionOrderIds,
-  sortDataByModel,
-  sortModel,
-  staticCols,
-  setFilteredPackingQueue
-) => {
-  let filteredQueue = packingQueue.filter(
+const applySearch = (packingQueue, searchString) => {
+  return packingQueue.filter(
     (order) =>
       order.orderNumber.toLowerCase().includes(searchString.toLowerCase()) ||
-      order.part.toLowerCase().includes(searchString.toLowerCase()) ||
-      selectionOrderIds.includes(order.id) // Ensure selected rows are included
+      order.part.toLowerCase().includes(searchString.toLowerCase())
   );
+};
 
-  filteredQueue = sortDataByModel(
-    sortModel,
-    filteredQueue,
-    staticCols,
-    selectionOrderIds
-  );
-  setFilteredPackingQueue(filteredQueue);
+const applyFulfilledBatchFilter = (packingQueue, checked) => {
+  let filteredQueue = [];
+  if (!checked) {
+    filteredQueue = packingQueue.filter((order) => {
+      return order.fulfilledQty < order.batchQty;
+    });
+  } else {
+    filteredQueue = packingQueue;
+  }
+  return filteredQueue;
+};
+
+const ensureSelectionAdded = (packingQueue, allPackingQueue, selectedIds) => {
+  if (selectedIds.length > 0) {
+    for (let selectedId in selectedIds) {
+      if (!packingQueue.map((e) => e.id).includes(selectedIds[selectedId])) {
+        const selected = allPackingQueue.find(
+          (e) => e.id === selectedIds[selectedId]
+        );
+        packingQueue = [selected].concat(packingQueue);
+      }
+    }
+  }
+  return packingQueue;
 };
 
 const PackingQueueTable = ({
@@ -145,42 +154,25 @@ const PackingQueueTable = ({
     [selectionOrderIds]
   );
 
-  const onQueueRowClick = useCallback(
-    (selectionModel, tableData) => {
-      const newselectionOrderIds = handleSelection(selectionModel, tableData);
-      setSelectedOrderIds([...newselectionOrderIds]);
-
-      setSelectedOrderNumber(
-        tableData?.find(
-          (e) => newselectionOrderIds.length > 0 && e.id === selectionModel
-        )?.orderNumber ?? null
-      );
-    },
-    [handleSelection, setSelectedOrderNumber, setSelectedOrderIds]
-  );
-
   const onSelectAllClick = useCallback(
-    (value, tableData) => {
+    (value, tableData, isFulfilledBatchesOn, searchString) => {
       setIsSelectAll(value);
-
+      let selectedOrderIds = [];
       if (value) {
         if (selectionOrderIds.length > 0) {
           // Something is selected, so we need to select the remaining
           // that matach selectedOrderNumber
-          setSelectedOrderIds(
-            tableData
-              .filter((e) => e.orderNumber === selectedOrderNumber)
-              .map((e) => e.id)
-          );
+          selectedOrderIds = tableData
+            .filter((e) => e.orderNumber === selectedOrderNumber)
+            .map((e) => e.id);
+          setSelectedOrderIds(selectedOrderIds);
         } else if (selectionOrderIds.length === 0) {
           // Nothing selected yet, so select the first row and all that match
           // the first row order number
-
-          setSelectedOrderIds(
-            tableData
-              .filter((e) => e.orderNumber === tableData[0]?.orderNumber)
-              .map((e) => e.id)
-          );
+          selectedOrderIds = tableData
+            .filter((e) => e.orderNumber === tableData[0]?.orderNumber)
+            .map((e) => e.id);
+          setSelectedOrderIds(selectedOrderIds);
           setSelectedOrderNumber(
             tableData?.find((e) => e.id === tableData[0].id)?.orderNumber ??
               null
@@ -190,12 +182,19 @@ const PackingQueueTable = ({
         setSelectedOrderIds([]);
         setSelectedOrderNumber(null);
       }
+
+      // ensure deselected rows are remove from searches, filters
+      let queue = applyFulfilledBatchFilter(tableData, isFulfilledBatchesOn);
+      queue = applySearch(queue, searchString);
+      queue = ensureSelectionAdded(queue, tableData, selectedOrderIds);
+      setFilteredPackingQueue(queue);
     },
     [
       selectionOrderIds,
       selectedOrderNumber,
       setSelectedOrderIds,
       setSelectedOrderNumber,
+      setFilteredPackingQueue,
     ]
   );
 
@@ -233,7 +232,24 @@ const PackingQueueTable = ({
               selectionOrderIds
             );
             setPackingQueue(tableData);
-            setFilteredPackingQueue(tableData);
+
+            let queue = applyFulfilledBatchFilter(
+              tableData,
+              isFulfilledBatchesOn
+            );
+            queue = applySearch(queue, searchString);
+            queue = ensureSelectionAdded(
+              queue,
+              packingQueue,
+              selectionOrderIds
+            );
+            queue = sortDataByModel(
+              sortModel,
+              queue,
+              columns,
+              selectionOrderIds
+            );
+            setFilteredPackingQueue(queue);
           }
         })
         .finally(() => {
@@ -242,29 +258,6 @@ const PackingQueueTable = ({
     }
     // eslint-disable-next-line
   }, [isMounted]);
-
-  useEffect(() => {
-    // When we toggle on, we need to make sure to apply the search and sorting again.
-    if (isFulfilledBatchesOn) {
-      applySearch(
-        packingQueue,
-        searchString,
-        selectionOrderIds,
-        sortDataByModel,
-        sortModel,
-        staticCols,
-        setFilteredPackingQueue
-      );
-    }
-
-    recheckIfNeeded(
-      selectedOrderNumber,
-      tableData,
-      selectionOrderIds,
-      setIsSelectAll
-    );
-    // eslint-disable-next-line
-  }, [isFulfilledBatchesOn]);
 
   useEffect(() => {
     setIsMounted(true);
@@ -279,8 +272,6 @@ const PackingQueueTable = ({
     return () => setIsMounted(false);
     // eslint-disable-next-line
   }, []);
-
-  const storedTableData = useMemo(() => tableData, [tableData]);
 
   const staticCols = useMemo(
     () => [
@@ -331,29 +322,6 @@ const PackingQueueTable = ({
     [classes.fulfilledQtyHeader]
   );
 
-  const columns = useMemo(
-    () => [
-      getCheckboxColumn(
-        isDisabled,
-        selectionOrderIds,
-        isSelectAllOn,
-        storedTableData,
-        onSelectAllClick,
-        onQueueRowClick
-      ),
-      ...staticCols,
-    ],
-    [
-      staticCols,
-      storedTableData,
-      isDisabled,
-      selectionOrderIds,
-      isSelectAllOn,
-      onQueueRowClick,
-      onSelectAllClick,
-    ]
-  );
-
   const sortDataByModel = useCallback(
     (model, data, columns, selectionOrderIds, ignoreSelected = false) => {
       if (model.length !== 0) {
@@ -376,30 +344,88 @@ const PackingQueueTable = ({
     []
   );
 
-  useEffect(() => {
-    if (searchString) {
-      applySearch(
-        packingQueue,
-        searchString,
+  const onQueueRowClick = useCallback(
+    (selectionModel, tableData, isFulfilledBatchesOn, searchString) => {
+      const newselectionOrderIds = handleSelection(selectionModel, tableData);
+      setSelectedOrderIds([...newselectionOrderIds]);
+
+      setSelectedOrderNumber(
+        tableData?.find(
+          (e) => newselectionOrderIds.length > 0 && e.id === selectionModel
+        )?.orderNumber ?? null
+      );
+
+      // ensure deselected rows are remove from searches, filters
+      let queue = applyFulfilledBatchFilter(tableData, isFulfilledBatchesOn);
+      queue = applySearch(queue, searchString);
+      queue = ensureSelectionAdded(queue, packingQueue, newselectionOrderIds);
+      setFilteredPackingQueue(queue);
+    },
+    [
+      handleSelection,
+      setSelectedOrderNumber,
+      setSelectedOrderIds,
+      packingQueue,
+      setFilteredPackingQueue,
+    ]
+  );
+
+  const columns = useMemo(
+    () => [
+      getCheckboxColumn(
+        isDisabled,
         selectionOrderIds,
-        sortDataByModel,
-        sortModel,
-        staticCols,
-        setFilteredPackingQueue
-      );
-    } else {
-      setFilteredPackingQueue(
-        sortDataByModel(sortModel, packingQueue, staticCols, selectionOrderIds)
-      );
-    }
-    // eslint-disable-next-line
-  }, [sortDataByModel, staticCols, searchString, setFilteredPackingQueue]);
+        isSelectAllOn,
+        queueData,
+        onSelectAllClick,
+        onQueueRowClick,
+        isFulfilledBatchesOn,
+        searchString
+      ),
+      ...staticCols,
+    ],
+    [
+      staticCols,
+      queueData,
+      isDisabled,
+      selectionOrderIds,
+      isSelectAllOn,
+      onSelectAllClick,
+      onQueueRowClick,
+      isFulfilledBatchesOn,
+      searchString,
+    ]
+  );
 
   useEffect(() => {
-    setQueueData(
-      sortDataByModel(sortModel, tableData, staticCols, selectionOrderIds, true)
+    // When we toggle on, we need to make sure to apply the search and sorting again.
+
+    let queue = applyFulfilledBatchFilter(packingQueue, isFulfilledBatchesOn);
+    queue = applySearch(queue, searchString);
+    queue = ensureSelectionAdded(queue, packingQueue, selectionOrderIds);
+    queue = sortDataByModel(sortModel, queue, columns, selectionOrderIds);
+    setFilteredPackingQueue(queue);
+
+    recheckIfNeeded(
+      selectedOrderNumber,
+      tableData,
+      selectionOrderIds,
+      setIsSelectAll
     );
     // eslint-disable-next-line
+  }, [isFulfilledBatchesOn]);
+
+  useEffect(() => {
+    let queue = applySearch(packingQueue, searchString);
+    queue = applyFulfilledBatchFilter(queue, isFulfilledBatchesOn);
+    queue = ensureSelectionAdded(queue, packingQueue, selectionOrderIds);
+    queue = sortDataByModel(sortModel, queue, columns, selectionOrderIds);
+    setFilteredPackingQueue(queue);
+    // eslint-disable-next-line
+  }, [searchString]);
+
+  useEffect(() => {
+    setQueueData(tableData);
   }, [tableData]);
 
   const [page, setPage] = useState(0);
