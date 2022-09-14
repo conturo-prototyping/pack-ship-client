@@ -117,6 +117,8 @@ const PackingQueue = () => {
   useEffect(() => {
     setIsMounted(true);
     return () => setIsMounted(false);
+
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   function onPackingSlipClick() {
@@ -137,7 +139,6 @@ const PackingQueue = () => {
         };
       });
 
-      console.log(items);
       API.createPackingSlip(
         items,
         filledForm[0].customer,
@@ -231,6 +232,7 @@ const PackingQueue = () => {
         filteredPackingQueue.filter((e) => selectedOrderIds.includes(e.id))[0]
           ?.destination || DestinationTypes.CUSTOMER
       );
+      // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [filteredPackingQueue]);
 
   return (
@@ -293,8 +295,8 @@ const PackingQueue = () => {
                       if (isMounted) {
                         data?.forEach((e) => {
                           finalData.push({
+                            _id: e._id,
                             id: `${e._id}--${e.destinationCode}`,
-                            id: e._id,
                             part: `${e.partNumber} - ${e.partRev} (Batch ${e.batch})`,
                             batchQty: e.batchQty,
                             customer: e.customer,
