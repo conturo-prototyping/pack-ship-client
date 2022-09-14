@@ -109,12 +109,17 @@ const PackingQueueTable = ({
       const selectedRows = tableData.filter((o) =>
         selectionOrderIds.includes(o.id)
       );
+
       return (
         selectedOrderNumber !== null &&
-        selectedOrderNumber !== params.row.orderNumber &&
-        params.row.destination !== selectedRows[0].destination
+        (
+          selectedOrderNumber !== params.row.orderNumber ||
+          selectedRows[0].destination !== params.row.destination
+        )
       );
     },
+
+    // eslint-disable-next-line react-hooks/exhaustive-deps
     [selectedOrderNumber]
   );
 
