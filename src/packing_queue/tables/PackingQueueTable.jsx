@@ -115,11 +115,20 @@ const PackingQueueTable = ({
 
   const isDisabled = useCallback(
     (params) => {
+      const selectedRows = tableData.filter((o) =>
+        selectionOrderIds.includes(o.id)
+      );
+
       return (
         selectedOrderNumber !== null &&
-        selectedOrderNumber !== params.row.orderNumber
+        (
+          selectedOrderNumber !== params.row.orderNumber ||
+          selectedRows[0].destination !== params.row.destination
+        )
       );
     },
+
+    // eslint-disable-next-line react-hooks/exhaustive-deps
     [selectedOrderNumber]
   );
 
@@ -215,13 +224,16 @@ const PackingQueueTable = ({
             let tableData = [];
             data?.forEach((e) => {
               tableData.push({
-                id: e._id,
+                id: `${e._id}--${e.destinationCode}`,
+                _id: e._id,
                 part: `${e.partNumber} - ${e.partRev} (Batch ${e.batch})`,
                 batchQty: e.batchQty,
                 customer: e.customer,
                 orderNumber: e.orderNumber,
                 fulfilledQty: e.packedQty,
                 partDescription: e.partDescription,
+                destination: e.destination,
+                destinationCode: e.destinationCode
               });
             });
 
@@ -295,6 +307,13 @@ const PackingQueueTable = ({
         flex: 1,
         renderHeader: (params) => {
           return <Typography sx={{ fontWeight: 900 }}>Part</Typography>;
+        },
+      },
+      {
+        field: "destination",
+        flex: 1,
+        renderHeader: (params) => {
+          return <Typography sx={{ fontWeight: 900 }}>Destination</Typography>;
         },
       },
       {

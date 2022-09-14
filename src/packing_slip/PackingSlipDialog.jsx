@@ -2,6 +2,7 @@ import React, { useState, useEffect } from "react";
 import PackingSlipTable from "./components/PackingSlipTable";
 import DestinationToggle from "./components/DestinationToggle";
 import PackingDialog from "../components/PackingDialog";
+import { DestinationTypes } from "../utils/Constants";
 
 const PackingSlipDialog = ({
   onSubmit,
@@ -11,7 +12,7 @@ const PackingSlipDialog = ({
   parts,
   title,
   onDestinationChange,
-  destination = "CUSTOMER",
+  destination,
   actions = undefined,
   viewOnly = false,
 }) => {
@@ -36,7 +37,8 @@ const PackingSlipDialog = ({
       actions={actions}
     >
       <DestinationToggle
-        destination={destination}
+        disabled={!!destination}
+        destination={destination || DestinationTypes.CUSTOMER}
         onDestinationChange={onDestinationChange}
       ></DestinationToggle>
 
