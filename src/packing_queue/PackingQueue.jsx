@@ -147,40 +147,38 @@ const PackingQueue = () => {
         items?.[0]?.destinationCode
       )
         .then(() => {
-          if (destination !== DestinationTypes.VENDOR) {
-            // update the fullfilled Qty
-            const updatedFulfilled = filledForm.map((e) => {
-              let tmp = {
-                ...e,
-                fulfilledQty: e.fulfilledQty + parseInt(e.packQty),
-              };
-              delete tmp.packQty;
-              return tmp;
-            });
+          // update the fullfilled Qty
+          const updatedFulfilled = filledForm.map((e) => {
+            let tmp = {
+              ...e,
+              fulfilledQty: e.fulfilledQty + parseInt(e.packQty),
+            };
+            delete tmp.packQty;
+            return tmp;
+          });
 
-            // Find updated ids
-            const updatedIds = updatedFulfilled.map((e) => e.id);
+          // Find updated ids
+          const updatedIds = updatedFulfilled.map((e) => e.id);
 
-            // Replace the items with the updated ones based on id
-            const updatedFilteredPackingQueue = filteredPackingQueue.map(
-              (e) => {
-                if (updatedIds.includes(e.id)) {
-                  return updatedFulfilled.find((a) => e.id === a.id);
-                }
-                return e;
-              }
-            );
-            const updatedPackingQueue = packingQueue.map((e) => {
+          // Replace the items with the updated ones based on id
+          const updatedFilteredPackingQueue = filteredPackingQueue.map(
+            (e) => {
               if (updatedIds.includes(e.id)) {
                 return updatedFulfilled.find((a) => e.id === a.id);
               }
               return e;
-            });
+            }
+          );
+          const updatedPackingQueue = packingQueue.map((e) => {
+            if (updatedIds.includes(e.id)) {
+              return updatedFulfilled.find((a) => e.id === a.id);
+            }
+            return e;
+          });
 
-            // Replace the list with the updated version
-            setFilteredPackingQueue(updatedFilteredPackingQueue);
-            setPackingQueue(updatedPackingQueue);
-          }
+          // Replace the list with the updated version
+          setFilteredPackingQueue(updatedFilteredPackingQueue);
+          setPackingQueue(updatedPackingQueue);
 
           onPackingSlipClose();
           enqueueSnackbar("Packing slip created!", snackbarVariants.success);
