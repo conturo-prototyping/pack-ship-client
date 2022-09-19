@@ -60,13 +60,14 @@ export const API = {
     }
   },
 
-  async createPackingSlip(items, customer, orderNumber, destination) {
+  async createPackingSlip(items, customer, orderNumber, destination, destinationCode) {
     try {
       const response = await instance.put("/packingSlips", {
         items,
         customer,
         orderNumber,
         destination,
+        destinationCode
       });
 
       return response.data;
