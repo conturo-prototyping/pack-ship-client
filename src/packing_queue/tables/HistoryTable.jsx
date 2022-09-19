@@ -326,7 +326,6 @@ const HistoryTable = ({
   };
 
   const onDownloadPDFClick = useCallback(async () => {
-    console.log(selectedRow._id)
     await API.downloadPDF(
       selectedRow._id,
       selectedRow.orderNumber,
