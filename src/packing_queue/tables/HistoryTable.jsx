@@ -325,10 +325,30 @@ const HistoryTable = ({
     }, 0);
   };
 
+  const onDownloadPDFClick = useCallback(async () => {
+    console.log(selectedRow._id)
+    await API.downloadPDF(
+      selectedRow._id,
+      selectedRow.orderNumber,
+      selectedRow.dateCreatedValue
+    )
+      .then((data) => {
+        pdfMake.createPdf(data.docDefinition).open();
+        setMenuPosition(null);
+        enqueueSnackbar("Packing slip downloaded", snackbarVariants.success);
+      })
+      .catch((e) => {
+        enqueueSnackbar(e.message, snackbarVariants.error);
+      });
+  }, [selectedRow, enqueueSnackbar]);
+
   const historyRowMenuOptions = useMemo(
     () => [
       <MenuItem key={"View"} onClick={openViewPackingSlip}>
         View
+      </MenuItem>,
+      <MenuItem key={"Download"} onClick={onDownloadPDFClick}>
+        Download
       </MenuItem>,
       <MenuItem key={"Edit"} onClick={openEditPackingSlip}>
         Edit
@@ -337,7 +357,7 @@ const HistoryTable = ({
         Delete
       </MenuItem>,
     ],
-    []
+    [onDownloadPDFClick]
   );
 
   return (
