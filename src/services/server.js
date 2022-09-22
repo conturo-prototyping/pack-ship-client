@@ -276,4 +276,16 @@ export const API = {
       );
     }
   },
+
+  async getReceivingQueue() {
+    try {
+      const response = await instance.get("/incomingDeliveries/queue");
+      return response.data;
+    } catch (error) {
+      console.error("getShippingQueue", error);
+      throw new Error(
+        error?.response?.data ?? "An error occurred getting shipping queue"
+      );
+    }
+  },
 };

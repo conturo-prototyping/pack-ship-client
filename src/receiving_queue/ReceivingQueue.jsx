@@ -2,6 +2,7 @@ import React, { useEffect, useState } from "react";
 import PackShipTabs from "../components/Tabs";
 import { Box, Grid } from "@mui/material";
 import makeStyles from "@mui/styles/makeStyles";
+import Search from "../components/Search";
 import {
   PACKING_SLIP_TOP_MARGIN,
   PACKING_SLIP_BOTTOM_MARGIN,
@@ -10,6 +11,8 @@ import {
 } from "../utils/Constants";
 import ReceivingQueueTable from "./tables/ReceivingQueueTable";
 import { useLocalStorage } from "../utils/localStorage";
+import CommonButton from "../common/Button";
+import { OrderPartNumberSearch } from "../components/OrderAndPartSearchBar";
 
 const useStyle = makeStyles((theme) => ({
   box: {
@@ -69,8 +72,34 @@ const ReceivingQueue = () => {
         justifyContent="start"
         spacing={2}>
         <Grid container item xs={12} spacing={2}>
-          {/* Replace later with actual headers */}
-          <div />
+          {currentTab === TabNames.Queue ? (
+            <Grid
+              container
+              item
+              xs={12}
+              spacing={2}
+              sx={{ marginBottom: "1rem!important" }}>
+              <Grid container item xs={"auto"}>
+                <CommonButton
+                  label="Receive Shipment"
+                  disabled={true}
+                  onClick={undefined}
+                />
+              </Grid>
+              <Grid container item justifyContent="start" xs={6}>
+                <Search onSearch={() => {}} autoFocus />
+              </Grid>
+            </Grid>
+          ) : (
+            <OrderPartNumberSearch
+              partNumber={""}
+              orderNumber={""}
+              onClearClick={() => {}}
+              onSearchClick={() => {}}
+              setOrderNumber={() => {}}
+              setPartNumber={() => {}}
+            />
+          )}
         </Grid>
 
         <Grid item xs={12}>

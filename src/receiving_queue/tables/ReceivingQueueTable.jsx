@@ -8,6 +8,7 @@ import {
   PACKING_SLIP_TOP_MARGIN,
   PACKING_SLIP_BOTTOM_MARGIN,
 } from "../../utils/Constants";
+import { API } from "../../services/server";
 
 const useStyle = makeStyles((theme) => ({
   root: {
@@ -62,9 +63,44 @@ const ReceivingQueueTable = ({
   }, []);
 
   const reloadData = useCallback(async () => {
-    // TODO: Load in data
+    async function fetchData() {
+      const data = await Promise.all([API.getReceivingQueue()]);
+      return { queue: data[0] };
+    }
+
+    if (isMounted) {
+      setIsLoading(true);
+      fetchData()
+        .then((data) => {
+          if (isMounted) {
+            // Gather the queue data for the table
+            let queueTableData = [];
+            data?.queue?.incomingDeliveries.forEach((e) => {
+              queueTableData.push({
+                id: e._id,
+                label: e.label,
+                manifest: e.manifest,
+                source: e.source,
+              });
+            });
+
+            // The set state order is important
+            queueTableData = sortDataByModel(sortModel, queueTableData);
+            setReceivingQueue(queueTableData);
+            setFilteredReceivingQueue(queueTableData);
+          }
+        })
+        .finally(() => {
+          setIsLoading(false);
+        });
+    }
     // eslint-disable-next-line
-  }, []);
+  }, [
+    setFilteredReceivingQueue,
+    setSelectedOrderIds,
+    setReceivingQueue,
+    isMounted,
+  ]);
 
   useEffect(() => {
     if (isMounted) reloadData();
