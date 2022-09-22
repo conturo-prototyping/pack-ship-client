@@ -9,6 +9,7 @@ import {
   PACKING_SLIP_BOTTOM_MARGIN,
 } from "../../utils/Constants";
 import { API } from "../../services/server";
+import ReceivingQueueDropdown from "../ReceivingQueueDropdown";
 
 const useStyle = makeStyles((theme) => ({
   root: {
@@ -109,47 +110,64 @@ const ReceivingQueueTable = ({
   const columns = useMemo(
     () => [
       {
-        field: "orderNumber",
+        field: "shipmentId",
         flex: 1,
         renderHeader: (params) => {
-          return <Typography sx={{ fontWeight: 900 }}>Order</Typography>;
+          return <Typography sx={{ fontWeight: 900 }}>Shipment ID</Typography>;
+        },
+        renderCell: (params) => {
+          return <ReceivingQueueDropdown params={params} />;
         },
       },
+      // {
+      //   field: "orderNumber",
+      //   flex: 1,
+      //   renderHeader: (params) => {
+      //     return <Typography sx={{ fontWeight: 900 }}>Order</Typography>;
+      //   },
+      // },
+      // {
+      //   field: "part",
+      //   renderCell: (params) => (
+      //     <div>
+      //       <Typography>{params.row.part}</Typography>
+      //       <Typography color="textSecondary">
+      //         {params.row.partDescription}
+      //       </Typography>
+      //     </div>
+      //   ),
+      //   flex: 1,
+      //   renderHeader: (params) => {
+      //     return <Typography sx={{ fontWeight: 900 }}>Part</Typography>;
+      //   },
+      // },
+      // {
+      //   field: "batchQty",
+      //   type: "number",
+      //   flex: 0.75,
+      //   renderHeader: (params) => {
+      //     return <Typography sx={{ fontWeight: 900 }}>Batch Qty</Typography>;
+      //   },
+      // },
+      // {
+      //   field: "fulfilledQty",
+      //   type: "number",
+      //   renderHeader: (params) => {
+      //     return (
+      //       <div className={classes.fulfilledQtyHeader}>
+      //         <Typography sx={{ fontWeight: 900 }}>Fulfilled Qty</Typography>
+      //         <HelpTooltip tooltipText="This includes number of items that have been packed as well as number of items that have shipped." />
+      //       </div>
+      //     );
+      //   },
+      //   flex: 0.75,
+      // },
       {
-        field: "part",
-        renderCell: (params) => (
-          <div>
-            <Typography>{params.row.part}</Typography>
-            <Typography color="textSecondary">
-              {params.row.partDescription}
-            </Typography>
-          </div>
-        ),
+        field: "source",
         flex: 1,
         renderHeader: (params) => {
-          return <Typography sx={{ fontWeight: 900 }}>Part</Typography>;
+          return <Typography sx={{ fontWeight: 900 }}>Source</Typography>;
         },
-      },
-      {
-        field: "batchQty",
-        type: "number",
-        flex: 0.75,
-        renderHeader: (params) => {
-          return <Typography sx={{ fontWeight: 900 }}>Batch Qty</Typography>;
-        },
-      },
-      {
-        field: "fulfilledQty",
-        type: "number",
-        renderHeader: (params) => {
-          return (
-            <div className={classes.fulfilledQtyHeader}>
-              <Typography sx={{ fontWeight: 900 }}>Fulfilled Qty</Typography>
-              <HelpTooltip tooltipText="This includes number of items that have been packed as well as number of items that have shipped." />
-            </div>
-          );
-        },
-        flex: 0.75,
       },
     ],
     [classes.fulfilledQtyHeader]
