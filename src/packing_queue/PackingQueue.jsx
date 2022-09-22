@@ -34,12 +34,6 @@ const useStyle = makeStyles((theme) => ({
     paddingTop: PACKING_SLIP_TOP_MARGIN,
     marginBottom: "1rem!important",
   },
-  bottomBarGrid: {
-    boxSizing: "border-box",
-    marginTop: "1rem!important",
-    marginBottom: PACKING_SLIP_BOTTOM_MARGIN,
-    height: "3rem",
-  },
 }));
 
 const PackingQueue = () => {
@@ -222,8 +216,7 @@ const PackingQueue = () => {
         className={classes.topBarGrid}
         container
         justifyContent="start"
-        spacing={2}
-      >
+        spacing={2}>
         <Grid container item xs={12} spacing={2}>
           {tabValue === 1 && (
             <OrderPartNumberSearch
@@ -242,8 +235,7 @@ const PackingQueue = () => {
               item
               xs={12}
               spacing={2}
-              sx={{ marginBottom: "1rem!important" }}
-            >
+              sx={{ marginBottom: "1rem!important" }}>
               <Grid container item xs={"auto"}>
                 <CommonButton
                   label="Make Packing Slip"

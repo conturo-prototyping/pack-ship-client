@@ -15,9 +15,11 @@ import axios from "axios";
 import { LoginSuccess } from "../components/LoginSuccess";
 import { PackShipProgress } from "../common/CircularProgress";
 import NavigationBar from "./NavigationBar";
+import ReceivingQueue from "../receiving_queue/ReceivingQueue";
 
 export const ROUTE_PACKING_SLIP = "/packing-slips";
 export const ROUTE_SHIPMENTS = "/shipments";
+export const ROUTE_RECEIVING = "/receiving";
 
 const Router = () => {
   const location = useLocation();
@@ -63,6 +65,10 @@ const Router = () => {
     switch (location.pathname) {
       case ROUTE_SHIPMENTS:
         setTheme(themes.SHIPMENT);
+        break;
+
+      case ROUTE_RECEIVING:
+        setTheme(themes.RECEIVING);
         break;
 
       case ROUTE_PACKING_SLIP:
@@ -127,6 +133,15 @@ const Router = () => {
           element={
             <PrivateRoute>
               <ShippingQueue />
+            </PrivateRoute>
+          }
+        />
+        <Route
+          exact
+          path={ROUTE_RECEIVING}
+          element={
+            <PrivateRoute>
+              <ReceivingQueue />
             </PrivateRoute>
           }
         />
