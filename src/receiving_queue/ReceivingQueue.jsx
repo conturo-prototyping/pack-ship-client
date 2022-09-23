@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useCallback, useState } from "react";
 import PackShipTabs from "../components/Tabs";
 import { Box, Grid } from "@mui/material";
 import makeStyles from "@mui/styles/makeStyles";
@@ -13,6 +13,8 @@ import ReceivingQueueTable from "./tables/ReceivingQueueTable";
 import { useLocalStorage } from "../utils/localStorage";
 import CommonButton from "../common/Button";
 import { OrderPartNumberSearch } from "../components/OrderAndPartSearchBar";
+import ReceivingHistoryTable from "./tables/ReceivingHistoryTable";
+import { getSortFromModel } from "./utils/sortModelFunctions";
 
 const useStyle = makeStyles((theme) => ({
   box: {
@@ -51,9 +53,25 @@ const ReceivingQueue = () => {
     ]
   );
 
+  const [sortRecHistoryModel, setSortRecHistoryModel] = useLocalStorage(
+    "sortPackHistoryModel",
+    [
+      { field: "shipmentId", sort: "asc" },
+      { field: "dateCreated", sort: "asc" },
+    ]
+  );
+
   // Common tab states
   // eslint-disable-next-line
   const [currentTab, setCurrentTab] = useState(TabNames.Queue);
+
+  const [filteredHist, setFilteredHist] = useState([]);
+  const [orderNumber, setOrderNumber] = useState("");
+  const [partNumber, setPartNumber] = useState("");
+  const [historyLoading, setHistoryLoading] = useState(false);
+  const [histTotalCount, setHistTotalCount] = useState(0);
+  const [histPageNum, setHistPageNum] = useState(0);
+  const histResultsPerPage = 10;
 
   function onTabChange(event, newValue) {
     setCurrentTab(Object.keys(TabNames)[newValue]);
@@ -64,13 +82,74 @@ const ReceivingQueue = () => {
     return () => setIsMounted(false);
   }, []);
 
+  const fetchSearch = useCallback(
+    async (sort, pageNumber, oNum, pNum) => {
+      if (isMounted && currentTab === 1) setHistoryLoading(true);
+      //TODO call search for receiving hist
+      //   await API.searchPackingSlipsHistory(
+      //     sort.sortBy,
+      //     sort.sortOrder,
+      //     oNum,
+      //     pNum,
+      //     histResultsPerPage,
+      //     pageNumber
+      //   )
+      //     .then((data) => {
+      //       if (data) {
+      //         if (isMounted) {
+      //           let tableData = extractHistoryDetails(data?.packingSlips);
+      //           setFilteredHist(tableData);
+      //           setHistTotalCount(data?.totalCount);
+      //         }
+      //       }
+      //     })
+      //     .finally(() => {
+      //       setHistoryLoading(false);
+      //     });
+    },
+    // eslint-disable-next-line
+    [histResultsPerPage, isMounted, currentTab]
+  );
+
+  async function onHistorySearchClick() {
+    setHistPageNum(0);
+    await fetchSearch(
+      getSortFromModel(sortRecHistoryModel),
+      0,
+      orderNumber,
+      partNumber
+    );
+  }
+
+  async function onHistoryClearClick() {
+    setOrderNumber("");
+    setPartNumber("");
+    setHistPageNum(0);
+    await fetchSearch(getSortFromModel(sortRecHistoryModel), 0, "", "");
+  }
+
+  const onHistPageChange = useCallback(
+    async (pageNumber) => {
+      setHistPageNum(pageNumber);
+      //TODO fetch search
+      // await fetchSearch(
+      //   getSortFromModel(sortPackHistoryModel),
+      //   pageNumber,
+      //   orderNumber,
+      //   partNumber
+      // );
+    },
+    [fetchSearch, sortRecHistoryModel, orderNumber, partNumber]
+  );
+
   return (
     <Box className={classes.box}>
       <Grid
         className={classes.topBarGrid}
         container
         justifyContent="start"
-        spacing={2}>
+        spacing={2}
+      >
         <Grid container item xs={12} spacing={2}>
           {currentTab === TabNames.Queue ? (
             <Grid
@@ -78,7 +157,8 @@ const ReceivingQueue = () => {
               item
               xs={12}
               spacing={2}
-              sx={{ marginBottom: "1rem!important" }}>
+              sx={{ marginBottom: "1rem!important" }}
+            >
               <Grid container item xs={"auto"}>
                 <CommonButton
                   label="Receive Shipment"
@@ -92,12 +172,12 @@ const ReceivingQueue = () => {
             </Grid>
           ) : (
             <OrderPartNumberSearch
-              partNumber={""}
-              orderNumber={""}
-              onClearClick={() => {}}
-              onSearchClick={() => {}}
-              setOrderNumber={() => {}}
-              setPartNumber={() => {}}
+              partNumber={partNumber}
+              orderNumber={orderNumber}
+              onClearClick={onHistoryClearClick}
+              onSearchClick={onHistorySearchClick}
+              setOrderNumber={setOrderNumber}
+              setPartNumber={setPartNumber}
             />
           )}
         </Grid>
@@ -119,7 +199,21 @@ const ReceivingQueue = () => {
                 searchText={""}
               />
             }
-            historyTab={<div />}
+            historyTab={
+              <ReceivingHistoryTable
+                sortModel={sortRecHistoryModel}
+                setSortModel={setSortRecHistoryModel}
+                fetchSearch={fetchSearch}
+                histTotalCount={histTotalCount}
+                historyLoading={historyLoading}
+                filteredHist={filteredHist}
+                histResultsPerPage={histResultsPerPage}
+                orderNumber={orderNumber}
+                partNumber={partNumber}
+                pageNumber={histPageNum}
+                onPageChange={onHistPageChange}
+              />
+            }
           />
         </Grid>
       </Grid>
