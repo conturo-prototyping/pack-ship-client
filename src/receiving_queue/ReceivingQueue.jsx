@@ -41,6 +41,10 @@ const ReceivingQueue = () => {
   // eslint-disable-next-line
   const [isMounted, setIsMounted] = useState(false);
 
+  // Queue Table Data
+  const [receivingQueue, setReceivingQueue] = useState([]);
+  const [filteredReceivingQueue, setFilteredReceivingQueue] = useState([]);
+
   const [sortRecQueueModel, setSortRecQueueModel] = useLocalStorage(
     "sortPackQueueModel",
     [
@@ -108,14 +112,14 @@ const ReceivingQueue = () => {
             queueTotal={0}
             queueTab={
               <ReceivingQueueTable
-                receivingQueue={[]}
-                tableData={[]}
+                receivingQueue={receivingQueue}
+                tableData={filteredReceivingQueue}
                 sortModel={sortRecQueueModel}
                 setSortModel={setSortRecQueueModel}
-                selectedOrderIds={[]}
-                setSelectedOrderIds={() => {}}
-                setReceivingQueue={() => {}}
-                setFilteredReceivingQueue={() => {}}
+                selectedOrderIds={receivingQueue}
+                setSelectedOrderIds={setReceivingQueue}
+                setReceivingQueue={setReceivingQueue}
+                setFilteredReceivingQueue={setFilteredReceivingQueue}
                 searchText={""}
               />
             }

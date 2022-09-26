@@ -63,7 +63,7 @@ const ReceivingQueueTable = ({
     return () => setIsMounted(false);
   }, []);
 
-  const reloadData = useCallback(async () => {
+  useEffect(async () => {
     async function fetchData() {
       const data = await Promise.all([API.getReceivingQueue()]);
       return { queue: data[0] };
@@ -76,10 +76,10 @@ const ReceivingQueueTable = ({
           if (isMounted) {
             // Gather the queue data for the table
             let queueTableData = [];
-            data?.queue?.incomingDeliveries.forEach((e) => {
+            // console.log(data);
+            data?.queue?.ret.forEach((e) => {
               queueTableData.push({
                 id: e._id,
-                label: e.label,
                 manifest: e.manifest,
                 source: e.source,
               });
@@ -87,6 +87,7 @@ const ReceivingQueueTable = ({
 
             // The set state order is important
             queueTableData = sortDataByModel(sortModel, queueTableData);
+            console.log(queueTableData);
             setReceivingQueue(queueTableData);
             setFilteredReceivingQueue(queueTableData);
           }
@@ -103,15 +104,11 @@ const ReceivingQueueTable = ({
     isMounted,
   ]);
 
-  useEffect(() => {
-    if (isMounted) reloadData();
-  }, [reloadData, isMounted]);
-
   const columns = useMemo(
     () => [
       {
         field: "shipmentId",
-        flex: 1,
+        flex: 2,
         renderHeader: (params) => {
           return <Typography sx={{ fontWeight: 900 }}>Shipment ID</Typography>;
         },
@@ -209,13 +206,20 @@ const ReceivingQueueTable = ({
   }, [searchText, setFilteredReceivingQueue]);
 
   useEffect(() => {
-    setQueueData(tableData);
-  }, [tableData]);
+    setQueueData(receivingQueue);
+  }, [receivingQueue]);
 
   //TODO: Set later for when data is coming in.
   // eslint-disable-next-line
   const [page, setPage] = useState(0);
 
+  console.log(
+    "THING",
+    queueData.slice(
+      page * numRowsPerPage,
+      page * numRowsPerPage + numRowsPerPage
+    )
+  );
   return (
     <div className={classes.root}>
       <DataGrid
