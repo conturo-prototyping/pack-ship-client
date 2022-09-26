@@ -133,9 +133,9 @@ const PackingQueue = () => {
     (filledForm, orderNum, destination) => {
       const items = filledForm.map((e) => {
         return {
-          item:             e._id,
-          qty:              e.packQty,
-          destinationCode:  e.destinationCode
+          item: e._id,
+          qty: e.packQty,
+          destinationCode: e.destinationCode,
         };
       });
 
@@ -143,8 +143,7 @@ const PackingQueue = () => {
         items,
         filledForm[0].customer,
         orderNum,
-        destination,
-        items?.[0]?.destinationCode
+        destination
       )
         .then(() => {
           // update the fullfilled Qty
@@ -161,14 +160,12 @@ const PackingQueue = () => {
           const updatedIds = updatedFulfilled.map((e) => e.id);
 
           // Replace the items with the updated ones based on id
-          const updatedFilteredPackingQueue = filteredPackingQueue.map(
-            (e) => {
-              if (updatedIds.includes(e.id)) {
-                return updatedFulfilled.find((a) => e.id === a.id);
-              }
-              return e;
+          const updatedFilteredPackingQueue = filteredPackingQueue.map((e) => {
+            if (updatedIds.includes(e.id)) {
+              return updatedFulfilled.find((a) => e.id === a.id);
             }
-          );
+            return e;
+          });
           const updatedPackingQueue = packingQueue.map((e) => {
             if (updatedIds.includes(e.id)) {
               return updatedFulfilled.find((a) => e.id === a.id);
@@ -230,7 +227,7 @@ const PackingQueue = () => {
         filteredPackingQueue.filter((e) => selectedOrderIds.includes(e.id))[0]
           ?.destination || DestinationTypes.CUSTOMER
       );
-      // eslint-disable-next-line react-hooks/exhaustive-deps
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [filteredPackingQueue]);
 
   return (
@@ -239,8 +236,7 @@ const PackingQueue = () => {
         className={classes.topBarGrid}
         container
         justifyContent="start"
-        spacing={2}
-      >
+        spacing={2}>
         <Grid container item xs={12} spacing={2}>
           {tabValue === 1 && (
             <OrderPartNumberSearch
@@ -259,8 +255,7 @@ const PackingQueue = () => {
               item
               xs={12}
               spacing={2}
-              sx={{ marginBottom: "1rem!important" }}
-            >
+              sx={{ marginBottom: "1rem!important" }}>
               <Grid container item xs={"auto"}>
                 <CommonButton
                   label="Make Packing Slip"
@@ -304,7 +299,7 @@ const PackingQueue = () => {
                             fulfilledQty: e.packedQty,
                             partDescription: e.partDescription,
                             destination: e.destination,
-                            destinationCode: e.destinationCode
+                            destinationCode: e.destinationCode,
                           });
                         });
                         setFilteredPackingQueue(finalData);
@@ -389,15 +384,13 @@ const PackingQueue = () => {
           container
           item
           xs
-          justifyContent="flex-end"
-        >
+          justifyContent="flex-end">
           <Button
             component={Link}
             to={ROUTE_SHIPMENTS}
             variant="contained"
             color="secondary"
-            sx={{ marginRight: "0px" }}
-          >
+            sx={{ marginRight: "0px" }}>
             Go to Shipping
           </Button>
         </Grid>

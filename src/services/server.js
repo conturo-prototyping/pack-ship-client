@@ -13,7 +13,7 @@ export const API = {
         orderNumber,
         dateCreated,
       });
-      console.log('pdf downloaded')
+      console.log("pdf downloaded");
       return response.data;
     } catch (error) {
       console.error("downloadPDF", error);
@@ -27,9 +27,8 @@ export const API = {
     try {
       const res = await instance.post("/shipments/pdf", shipmentInfo);
       return res.data;
-    } 
-    catch (error) {
-      console.error('downloadShipmentPDF', error);
+    } catch (error) {
+      console.error("downloadShipmentPDF", error);
       throw new Error(
         error?.response?.data ?? "An error occurred downloading PDF"
       );
@@ -60,14 +59,13 @@ export const API = {
     }
   },
 
-  async createPackingSlip(items, customer, orderNumber, destination, destinationCode) {
+  async createPackingSlip(items, customer, orderNumber, destination) {
     try {
       const response = await instance.put("/packingSlips", {
         items,
         customer,
         orderNumber,
         destination,
-        destinationCode
       });
 
       return response.data;
