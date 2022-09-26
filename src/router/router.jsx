@@ -64,15 +64,18 @@ const Router = () => {
   useEffect(() => {
     switch (location.pathname) {
       case ROUTE_SHIPMENTS:
+        setTabValue(1);
         setTheme(themes.SHIPMENT);
         break;
 
       case ROUTE_RECEIVING:
+        setTabValue(2);
         setTheme(themes.RECEIVING);
         break;
 
       case ROUTE_PACKING_SLIP:
       default:
+        setTabValue(0);
         setTheme(themes.PACKING);
     }
   }, [location, setTheme]);

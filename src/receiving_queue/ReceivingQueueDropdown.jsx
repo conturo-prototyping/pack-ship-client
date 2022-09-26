@@ -8,18 +8,19 @@ const ReceivingQueueDropdown = ({ params }) => {
   const [isOpen, setIsOpen] = useState(false);
 
   const tableData = useMemo(() => {
-    return params.row.manifest
-      .find((e) => e._id === params.id)
-      ?.items.map((e) => {
-        return {
-          id: e.item._id,
-          part: e.item,
-          batchQty: e.item.quantity,
-          shipQty: e.qty,
-          batchNumber: e.item.batch,
-        };
-      });
+    return params.row.manifest?.map((e) => {
+      return {
+        id: e.item.orderBumber + e.item.partNumber,
+        item: e.item,
+        order: e.item.orderNuber,
+        part: e.item.partNumber,
+        batch: e.item.batch,
+        qty: e.qty,
+      };
+    });
   }, [params.row.manifest]);
+
+  console.log("DROPDOWN", params, tableData);
 
   return (
     <div style={{ width: "100%" }}>
