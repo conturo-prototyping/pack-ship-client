@@ -11,6 +11,7 @@ import {
 import { API } from "../../services/server";
 import ReceivingQueueDropdown from "../ReceivingQueueDropdown";
 import { styled } from "@mui/system";
+import { getCheckboxColumn } from "../../components/CheckboxColumn";
 
 const useStyle = makeStyles((theme) => ({
   root: {
@@ -123,8 +124,37 @@ const ReceivingQueueTable = ({
     isMounted,
   ]);
 
+  const onQueueRowClick = useCallback(
+    (selectionModel, tableData) => {
+      const newselectionOrderIds = handleSelection(selectionModel, tableData);
+      setSelectedOrderIds([...newselectionOrderIds]);
+
+      setSelectedOrderNumber(
+        tableData?.find(
+          (e) => newselectionOrderIds.length > 0 && e.id === selectionModel
+        )?.orderNumber ?? null
+      );
+    },
+    [handleSelection, setSelectedOrderNumber, setSelectedOrderIds]
+  );
+
+  const onSelectAllClick = useCallback(
+    (value, tableData) => {
+      setIsSelectAll(value);
+    },
+    [setSelectedOrderIds]
+  );
+
   const columns = useMemo(
     () => [
+      getCheckboxColumn(
+        false, // No params to disable on for now.
+        selectedOrderIds,
+        isSelectAllOn,
+        tableData,
+        onSelectAllClick,
+        onQueueRowClick
+      ),
       {
         field: "shipmentId",
         flex: 2,
@@ -135,49 +165,6 @@ const ReceivingQueueTable = ({
           return <ReceivingQueueDropdown params={params} />;
         },
       },
-      // {
-      //   field: "orderNumber",
-      //   flex: 1,
-      //   renderHeader: (params) => {
-      //     return <Typography sx={{ fontWeight: 900 }}>Order</Typography>;
-      //   },
-      // },
-      // {
-      //   field: "part",
-      //   renderCell: (params) => (
-      //     <div>
-      //       <Typography>{params.row.part}</Typography>
-      //       <Typography color="textSecondary">
-      //         {params.row.partDescription}
-      //       </Typography>
-      //     </div>
-      //   ),
-      //   flex: 1,
-      //   renderHeader: (params) => {
-      //     return <Typography sx={{ fontWeight: 900 }}>Part</Typography>;
-      //   },
-      // },
-      // {
-      //   field: "batchQty",
-      //   type: "number",
-      //   flex: 0.75,
-      //   renderHeader: (params) => {
-      //     return <Typography sx={{ fontWeight: 900 }}>Batch Qty</Typography>;
-      //   },
-      // },
-      // {
-      //   field: "fulfilledQty",
-      //   type: "number",
-      //   renderHeader: (params) => {
-      //     return (
-      //       <div className={classes.fulfilledQtyHeader}>
-      //         <Typography sx={{ fontWeight: 900 }}>Fulfilled Qty</Typography>
-      //         <HelpTooltip tooltipText="This includes number of items that have been packed as well as number of items that have shipped." />
-      //       </div>
-      //     );
-      //   },
-      //   flex: 0.75,
-      // },
       {
         field: "source",
         flex: 1,
