@@ -10,6 +10,7 @@ import {
 } from "../../utils/Constants";
 import { API } from "../../services/server";
 import ReceivingQueueDropdown from "../ReceivingQueueDropdown";
+import { styled } from "@mui/system";
 
 const useStyle = makeStyles((theme) => ({
   root: {
@@ -31,6 +32,26 @@ const useStyle = makeStyles((theme) => ({
     flexWrap: "wrap",
   },
 }));
+
+const ReceivingQueueDataGrid = styled(DataGrid)`
+  .MuiDataGrid-row {
+    max-height: fit-content !important;
+  }
+
+  .MuiDataGrid-renderingZone {
+    max-height: none !important;
+  }
+
+  .MuiDataGrid-cell {
+    max-height: fit-content !important;
+    overflow: auto;
+    height: auto;
+    line-height: none !important;
+    align-items: center;
+    padding-top: 0px !important;
+    padding-bottom: 0px !important;
+  }
+`;
 
 const ReceivingQueueTable = ({
   receivingQueue,
@@ -76,7 +97,6 @@ const ReceivingQueueTable = ({
           if (isMounted) {
             // Gather the queue data for the table
             let queueTableData = [];
-            // console.log(data);
             data?.queue?.ret.forEach((e) => {
               queueTableData.push({
                 id: e._id,
@@ -87,7 +107,6 @@ const ReceivingQueueTable = ({
 
             // The set state order is important
             queueTableData = sortDataByModel(sortModel, queueTableData);
-            console.log(queueTableData);
             setReceivingQueue(queueTableData);
             setFilteredReceivingQueue(queueTableData);
           }
@@ -213,16 +232,9 @@ const ReceivingQueueTable = ({
   // eslint-disable-next-line
   const [page, setPage] = useState(0);
 
-  console.log(
-    "THING",
-    queueData.slice(
-      page * numRowsPerPage,
-      page * numRowsPerPage + numRowsPerPage
-    )
-  );
   return (
     <div className={classes.root}>
-      <DataGrid
+      <ReceivingQueueDataGrid
         sx={{
           border: "none",
           height: `calc(100vh - ${PACKING_SLIP_BOTTOM_MARGIN} - ${PACKING_SLIP_TOP_MARGIN} - 15rem)`,

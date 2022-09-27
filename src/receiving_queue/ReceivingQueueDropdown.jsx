@@ -12,15 +12,13 @@ const ReceivingQueueDropdown = ({ params }) => {
       return {
         id: e.item.orderBumber + e.item.partNumber,
         item: e.item,
-        order: e.item.orderNuber,
-        part: e.item.partNumber,
+        order: e.item.orderNumber,
+        part: e.item,
         batch: e.item.batch,
         qty: e.qty,
       };
     });
   }, [params.row.manifest]);
-
-  console.log("DROPDOWN", params, tableData);
 
   return (
     <div style={{ width: "100%" }}>
