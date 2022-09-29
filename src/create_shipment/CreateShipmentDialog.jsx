@@ -5,7 +5,14 @@ import ShippingDialogStates from "./constants/ShippingDialogConstants";
 import CreateCarrierShipmentInfoForm from "./components/CreateShipmentInfoForm";
 import PickupDropOffForm from "./components/PickupDropOffForm";
 import CommonButton from "../common/Button";
-import { DialogActions, Grid } from "@mui/material";
+import {
+  Checkbox,
+  DialogActions,
+  FormControlLabel,
+  FormGroup,
+  Grid,
+  Typography,
+} from "@mui/material";
 import { API } from "../services/server";
 import { useEffect } from "react";
 import { isShippingInfoValid } from "../utils/Validators";
@@ -30,6 +37,7 @@ const CreateShipmentDialog = ({
     customer: "",
     deliveryMethod: "",
     checkedCustomer: false,
+    isDueBack: false,
   });
   const [canErrorCheck, setCanErrorCheck] = useState(false);
   const [reset, setReset] = useState(false);
@@ -121,7 +129,16 @@ const CreateShipmentDialog = ({
     onResetClick();
   };
 
+  const onIsDueBackClick = () => {
+    console.log(shippingInfo.isDueBack);
+    setShippingInfo({
+      ...shippingInfo,
+      isDueBack: !shippingInfo.isDueBack,
+    });
+  };
+
   const onSubmit = async () => {
+    console.log(shippingInfo.isDueBack);
     setCanErrorCheck(true);
     if (isShippingInfoValid(shippingInfo)) {
       API.createShipment(
@@ -283,8 +300,60 @@ const CreateShipmentDialog = ({
       default:
         return (
           <DialogActions>
-            <CommonButton onClick={onClose} label="Cancel" color="secondary" />
-            <CommonButton autoFocus onClick={onNextClick} label={"Next"} />
+            <Grid
+              style={{
+                paddingLeft: "20px",
+                paddingBottom: "20px",
+                paddingRight: "20px",
+              }}
+              container
+              item
+              direction="row"
+              spacing={1}
+              justifyContent="space-evenly"
+            >
+              <Grid xs={4} item>
+                <FormGroup>
+                  <FormControlLabel
+                    control={
+                      <Checkbox
+                        defaultChecked={false}
+                        defaultValue={false}
+                        onChange={onIsDueBackClick}
+                      />
+                    }
+                    label={
+                      <Typography style={{ fontWeight: "bold" }}>
+                        Is Due Back?
+                      </Typography>
+                    }
+                  />
+                </FormGroup>
+              </Grid>
+              <Grid
+                xs={8}
+                container
+                item
+                direction="row"
+                spacing={1}
+                justifyContent="right"
+              >
+                <Grid item>
+                  <CommonButton
+                    onClick={onClose}
+                    label="Cancel"
+                    color="secondary"
+                  />
+                </Grid>
+                <Grid item>
+                  <CommonButton
+                    autoFocus
+                    onClick={onNextClick}
+                    label={"Next"}
+                  />
+                </Grid>
+              </Grid>
+            </Grid>
           </DialogActions>
         );
     }
