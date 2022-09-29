@@ -109,7 +109,7 @@ const ReceivingQueue = () => {
         <Grid item xs={12}>
           <PackShipTabs
             onTabChange={onTabChange}
-            queueTotal={0}
+            queueTotal={receivingQueue?.length}
             queueTab={
               <ReceivingQueueTable
                 receivingQueue={receivingQueue}
