@@ -3,7 +3,6 @@ import makeStyles from "@mui/styles/makeStyles";
 import { DataGrid } from "@mui/x-data-grid";
 import { Typography } from "@mui/material";
 import { createColumnFilters } from "../../utils/TableFilters";
-import HelpTooltip from "../../components/HelpTooltip";
 import {
   PACKING_SLIP_TOP_MARGIN,
   PACKING_SLIP_BOTTOM_MARGIN,
@@ -84,7 +83,7 @@ const ReceivingQueueTable = ({
     return () => setIsMounted(false);
   }, []);
 
-  useEffect(async () => {
+  useEffect(() => {
     async function fetchData() {
       const data = await Promise.all([API.getReceivingQueue()]);
       return { queue: data[0] };
@@ -126,7 +125,7 @@ const ReceivingQueueTable = ({
   const columns = useMemo(
     () => [
       {
-        field: "shipmentId",
+        field: "label",
         flex: 2,
         renderHeader: (params) => {
           return <Typography sx={{ fontWeight: 900 }}>Shipment ID</Typography>;
@@ -186,7 +185,7 @@ const ReceivingQueueTable = ({
         },
       },
     ],
-    [classes.fulfilledQtyHeader]
+    []
   );
 
   const sortDataByModel = useCallback(
