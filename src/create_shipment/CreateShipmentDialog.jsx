@@ -12,6 +12,7 @@ import {
   FormGroup,
   Grid,
   Typography,
+  TextField,
 } from "@mui/material";
 import { API } from "../services/server";
 import { useEffect } from "react";
@@ -19,6 +20,9 @@ import { isShippingInfoValid } from "../utils/Validators";
 import { usePackShipSnackbar, snackbarVariants } from "../common/Snackbar";
 import ShippingAddressForm from "./components/ShippingAddressForm";
 import { DestinationTypes } from "../utils/Constants";
+import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
+import { DatePicker } from "@mui/x-date-pickers/DatePicker";
+import { LocalizationProvider } from "@mui/x-date-pickers/LocalizationProvider";
 
 const CreateShipmentDialog = ({
   customer,
@@ -41,6 +45,8 @@ const CreateShipmentDialog = ({
   });
   const [canErrorCheck, setCanErrorCheck] = useState(false);
   const [reset, setReset] = useState(false);
+  const [dateValue, setDate] = useState(null);
+
   const enqueueSnackbar = usePackShipSnackbar();
 
   useEffect(() => {
@@ -129,16 +135,18 @@ const CreateShipmentDialog = ({
     onResetClick();
   };
 
-  const onIsDueBackClick = () => {
+  const onIsDueBackClick = (checked) => {
     console.log(shippingInfo.isDueBack);
     setShippingInfo({
       ...shippingInfo,
-      isDueBack: !shippingInfo.isDueBack,
+      isDueBack: checked,
     });
+    if (!checked) {
+      setDate(null);
+    }
   };
 
   const onSubmit = async () => {
-    console.log(shippingInfo.isDueBack);
     setCanErrorCheck(true);
     if (isShippingInfoValid(shippingInfo)) {
       API.createShipment(
@@ -153,13 +161,22 @@ const CreateShipmentDialog = ({
         customerName,
         shippingInfo.specialShippingAddress
       )
-        .then(() => {
+        .then((respondeData) => {
+          API.createIncomingDelivery(
+            "", // TODO internalPurchaseOrderNumber,
+            dateValue,
+            respondeData.shipment._id
+          ).catch((e) => {
+            enqueueSnackbar(e.message, snackbarVariants.error);
+          });
+
           setCustomerName("");
           setShippingInfo({
             manifest: [],
             customer: "",
             deliveryMethod: "",
             checkedCustomer: false,
+            isDueBack: false,
           });
           reloadData();
           onClose();
@@ -312,24 +329,48 @@ const CreateShipmentDialog = ({
               spacing={1}
               justifyContent="space-evenly"
             >
-              <Grid xs={4} item>
-                <FormGroup>
-                  <FormControlLabel
-                    control={
-                      <Checkbox
-                        defaultChecked={false}
-                        defaultValue={false}
-                        onChange={onIsDueBackClick}
-                      />
-                    }
-                    label={
-                      <Typography style={{ fontWeight: "bold" }}>
-                        Is Due Back?
-                      </Typography>
-                    }
-                  />
-                </FormGroup>
+              <Grid
+                xs={4}
+                container
+                item
+                direction="row"
+                spacing={1}
+                justifyContent="left"
+              >
+                <Grid xs={6} item>
+                  <FormGroup>
+                    <FormControlLabel
+                      control={
+                        <Checkbox
+                          defaultChecked={false}
+                          defaultValue={false}
+                          onChange={(_, checked) => onIsDueBackClick(checked)}
+                        />
+                      }
+                      label={
+                        <Typography style={{ fontWeight: "bold" }}>
+                          Is Due Back?
+                        </Typography>
+                      }
+                    />
+                  </FormGroup>
+                </Grid>
+                <Grid item xs={6}>
+                  <LocalizationProvider dateAdapter={AdapterDayjs}>
+                    <DatePicker
+                      disabled={!shippingInfo.isDueBack}
+                      disablePast={true}
+                      label="Due Back Date"
+                      value={dateValue}
+                      onChange={(newValue) => {
+                        setDate(newValue);
+                      }}
+                      renderInput={(params) => <TextField {...params} />}
+                    />
+                  </LocalizationProvider>
+                </Grid>
               </Grid>
+
               <Grid
                 xs={8}
                 container

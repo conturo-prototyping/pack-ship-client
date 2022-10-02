@@ -226,6 +226,27 @@ export const API = {
     }
   },
 
+  async createIncomingDelivery(
+    internalPurchaseOrderNumber,
+    dueBackDate,
+    sourceShipmentId
+  ) {
+    try {
+      const response = await instance.put("/incomingDeliveries", {
+        internalPurchaseOrderNumber,
+        dueBackDate,
+        sourceShipmentId,
+      });
+
+      return response.data;
+    } catch (error) {
+      console.error("createIncomingDelivery", error);
+      throw new Error(
+        error?.response?.data ?? "An error occurred creating incoming delivery"
+      );
+    }
+  },
+
   async createShipment(
     manifest,
     customer,
