@@ -84,7 +84,7 @@ const HistoryTable = ({
 
   const [isMounted, setIsMounted] = useState(false);
 
-  const [menuPosition, setMenuPosition] = useState();
+  const [contextMenu, setContextMenu] = useState(null);
 
   const [selectedRow, setSelectedRow] = useState({});
 
@@ -266,7 +266,7 @@ const HistoryTable = ({
 
   const openDeleteDialog = (event) => {
     setDeleteDialog(true);
-    setMenuPosition(null);
+    setContextMenu(null);
   };
 
   const handleDeleteConfirm = () => {
@@ -287,7 +287,7 @@ const HistoryTable = ({
 
   const openViewPackingSlip = () => {
     setIsEditPackingSlipOpen({ open: true, viewOnly: true });
-    setMenuPosition(null);
+    setContextMenu(null);
   };
 
   const onPackingSlipClose = () => {
@@ -321,7 +321,7 @@ const HistoryTable = ({
   const openEditPackingSlip = () => {
     setTimeout(() => {
       setIsEditPackingSlipOpen({ open: true, viewOnly: false });
-      setMenuPosition(null);
+      setContextMenu(null);
     }, 0);
   };
 
@@ -333,7 +333,7 @@ const HistoryTable = ({
     )
       .then((data) => {
         pdfMake.createPdf(data.docDefinition).open();
-        setMenuPosition(null);
+        setContextMenu(null);
         enqueueSnackbar("Packing slip downloaded", snackbarVariants.error);
       })
       .catch((e) => {
@@ -359,6 +359,17 @@ const HistoryTable = ({
     [onDownloadPDFClick]
   );
 
+  const handleContextMenu = (event) => {
+    event.preventDefault();
+    const selectedRow = event.currentTarget.getAttribute("data-id");
+    setSelectedRow(filteredHist.find((e) => e._id === selectedRow));
+    setContextMenu(
+      contextMenu === null
+        ? { mouseX: event.clientX, mouseY: event.clientY }
+        : null
+    );
+  };
+
   return (
     <div className={classes.root}>
       <DataGrid
@@ -381,10 +392,6 @@ const HistoryTable = ({
         checkboxSelection={false}
         editMode="row"
         sortingMode="server"
-        onRowClick={(params, event, details) => {
-          setSelectedRow(params.row);
-          setMenuPosition({ left: event.pageX, top: event.pageY });
-        }}
         sortModel={sortModel}
         onSortModelChange={async (model) => {
           setSortModel(model);
@@ -399,12 +406,14 @@ const HistoryTable = ({
         components={{
           LoadingOverlay: () => <PackShipProgress />,
         }}
+        componentsProps={{
+          row: {
+            onContextMenu: handleContextMenu,
+          },
+        }}
       />
 
-      <ContextMenu
-        menuPosition={menuPosition}
-        setMenuPosition={setMenuPosition}
-      >
+      <ContextMenu contextMenu={contextMenu} setContextMenu={setContextMenu}>
         {historyRowMenuOptions}
       </ContextMenu>
       <EditPackingSlipDialog
@@ -422,14 +431,12 @@ const HistoryTable = ({
           setItemToDelete(params.row);
         }}
       />
-
       <ConfirmDialog
         title="Are You Sure You Want To Delete This?"
         open={confirmDeleteDialogOpen}
         setOpen={setConfirmDeleteDialogOpen}
         onConfirm={onItemDelete}
       />
-
       <ConfirmDialog
         title="Do You Want To Delete This?"
         open={deleteDialog}
