@@ -1,15 +1,9 @@
 export const getSortFromModel = (sortModel) => {
   if (sortModel.length === 0) {
     return { sortBy: "CUSTOMER", sortOrder: 1 };
-  } else if (
-    sortModel[0].field === "shipmentId" &&
-    sortModel[0].sort === "asc"
-  ) {
+  } else if (sortModel[0].field === "label" && sortModel[0].sort === "asc") {
     return { sortBy: "CUSTOMER", sortOrder: 1 };
-  } else if (
-    sortModel[0].field === "shipmentId" &&
-    sortModel[0].sort === "desc"
-  ) {
+  } else if (sortModel[0].field === "label" && sortModel[0].sort === "desc") {
     return { sortBy: "CUSTOMER", sortOrder: -1 };
   } else if (
     sortModel[0].field === "dateCreated" &&

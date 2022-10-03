@@ -78,7 +78,7 @@ const ShippingQueue = () => {
   const [sortShippingHistModel, setSortShippingHistModel] = useLocalStorage(
     "sortShippingHistModel",
     [
-      { field: "shipmentId", sort: "asc" },
+      { field: "label", sort: "asc" },
       { field: "trackingNumber", sort: "asc" },
       { field: "dateCreated", sort: "asc" },
     ]

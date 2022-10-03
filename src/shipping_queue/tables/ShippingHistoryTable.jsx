@@ -300,11 +300,11 @@ const ShippingHistoryTable = ({
 
   const columns = [
     {
-      field: "shipmentId",
+      field: "label",
       flex: 1,
       sortingOrder: ["desc", "asc"],
       renderHeader: (params) => {
-        return <Typography sx={{ fontWeight: 900 }}>Shipment ID</Typography>;
+        return <Typography sx={{ fontWeight: 900 }}>Shipment Label</Typography>;
       },
     },
     {
@@ -491,7 +491,7 @@ const ShippingHistoryTable = ({
         }}
       >
         <Typography sx={{ fontWeight: 900 }}>
-          {clickedHistShipment?.shipmentId}
+          {clickedHistShipment?.label}
         </Typography>
       </ConfirmDialog>
     </div>

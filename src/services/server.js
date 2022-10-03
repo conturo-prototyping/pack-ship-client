@@ -64,12 +64,12 @@ export const API = {
     }
   },
 
-  async searchPackingSlips(customerId, shipmentId) {
+  async searchPackingSlips(customerId, label) {
     try {
       const response = await instance.get("/packingSlips/search", {
         params: {
           customer: customerId,
-          shipment: shipmentId,
+          shipment: label,
         },
       });
       return response.data;
