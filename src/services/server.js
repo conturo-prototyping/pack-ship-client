@@ -13,9 +13,22 @@ export const API = {
         orderNumber,
         dateCreated,
       });
+      console.log("pdf downloaded");
       return response.data;
     } catch (error) {
       console.error("downloadPDF", error);
+      throw new Error(
+        error?.response?.data ?? "An error occurred downloading PDF"
+      );
+    }
+  },
+
+  async downloadShipmentPDF(shipmentInfo) {
+    try {
+      const res = await instance.post("/shipments/pdf", shipmentInfo);
+      return res.data;
+    } catch (error) {
+      console.error("downloadShipmentPDF", error);
       throw new Error(
         error?.response?.data ?? "An error occurred downloading PDF"
       );

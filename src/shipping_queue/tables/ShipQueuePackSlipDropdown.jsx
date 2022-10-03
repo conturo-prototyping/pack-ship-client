@@ -34,7 +34,7 @@ const ShipQueuePackSlipDrowdown = ({ params }) => {
                 id: e.item._id,
                 part: e.item,
                 batchQty: e.item.quantity,
-                shipQty: e.qty,
+                packQty: e.qty,
                 batchNumber: e.item.batch,
               };
             })}
@@ -74,6 +74,15 @@ const ShipQueuePackSlipDrowdown = ({ params }) => {
                 renderHeader: (params) => {
                   return (
                     <Typography sx={{ fontWeight: 900 }}>Batch Qty</Typography>
+                  );
+                },
+              },
+              {
+                field: "packQty",
+                flex: 2,
+                renderHeader: (params) => {
+                  return (
+                    <Typography sx={{ fontWeight: 900 }}>Packed Qty</Typography>
                   );
                 },
               },

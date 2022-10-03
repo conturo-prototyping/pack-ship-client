@@ -334,7 +334,7 @@ const HistoryTable = ({
       .then((data) => {
         pdfMake.createPdf(data.docDefinition).open();
         setMenuPosition(null);
-        enqueueSnackbar("Packing slip downloaded", snackbarVariants.error);
+        enqueueSnackbar("Packing slip downloaded", snackbarVariants.success);
       })
       .catch((e) => {
         enqueueSnackbar(e.message, snackbarVariants.error);
