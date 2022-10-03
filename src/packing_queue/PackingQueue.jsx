@@ -79,7 +79,7 @@ const PackingQueue = () => {
     "sortPackHistoryModel",
     [
       { field: "orderId", sort: "asc" },
-      { field: "packingSlipId", sort: "asc" },
+      { field: "label", sort: "asc" },
       { field: "dateCreated", sort: "asc" },
     ]
   );

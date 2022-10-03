@@ -65,7 +65,7 @@ const ShippingQueue = () => {
     "sortShippingQueueModel",
     [
       { field: "orderNumber", sort: "asc" },
-      { field: "packingSlipId", sort: "asc" },
+      { field: "label", sort: "asc" },
     ]
   );
   const [queueSearchText, setQueueSearchText] = useState("");

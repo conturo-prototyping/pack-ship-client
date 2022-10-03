@@ -20,7 +20,7 @@ const EditPackingSlipDialog = ({
     <PackingDialog
       open={isOpen}
       titleText={`${viewOnly ? "" : "Edit Packing Slip / "}${
-        packingSlipData?.packingSlipId
+        packingSlipData?.label
       }`}
       onClose={onClose}
       onSubmit={onSubmit}

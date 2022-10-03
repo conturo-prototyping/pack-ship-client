@@ -4,7 +4,7 @@ import ExpandLess from "@mui/icons-material/ExpandLess";
 import ExpandMore from "@mui/icons-material/ExpandMore";
 import { DataGrid } from "@mui/x-data-grid";
 
-const PackingSlipDrowdown = ({ params, packingSlipId, manifest }) => {
+const PackingSlipDrowdown = ({ params, label, manifest }) => {
   const [isOpen, setIsOpen] = useState(false);
 
   return (
@@ -16,7 +16,7 @@ const PackingSlipDrowdown = ({ params, packingSlipId, manifest }) => {
           }}
         >
           {isOpen ? <ExpandLess /> : <ExpandMore />}
-          <ListItemText primary={packingSlipId} />
+          <ListItemText primary={label} />
         </ListItemButton>
         {isOpen && (
           <DataGrid

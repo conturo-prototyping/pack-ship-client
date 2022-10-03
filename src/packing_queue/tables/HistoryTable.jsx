@@ -45,9 +45,11 @@ const columns = [
     flex: 1,
   },
   {
-    field: "packingSlipId",
+    field: "label",
     renderHeader: () => {
-      return <Typography sx={{ fontWeight: 900 }}>Packing Slip #</Typography>;
+      return (
+        <Typography sx={{ fontWeight: 900 }}>Packing Slip Label</Typography>
+      );
     },
     flex: 2,
   },
