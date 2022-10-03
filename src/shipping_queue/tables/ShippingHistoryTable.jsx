@@ -99,16 +99,6 @@ const ShippingHistoryTable = ({
     setIsMounted(true);
   }, []);
 
-  // const onHistoryRowClick = useCallback((params, event, __) => {
-  //   API.getShipment(params.id).then((data) => {
-  //     if (data) {
-  //       setClickedHistShipment(data.shipment);
-  //     }
-  //   });
-
-  //   setContextMenu({ left: event.pageX, top: event.pageY });
-  // }, []);
-
   const onEditShipmentClose = useCallback(() => {
     // close context menu
     setContextMenu(null);
