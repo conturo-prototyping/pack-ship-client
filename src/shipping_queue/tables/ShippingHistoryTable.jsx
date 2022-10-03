@@ -11,6 +11,7 @@ import { API } from "../../services/server";
 import { getSortFromModel } from "../utils/sortModelFunctions";
 import { PackShipProgress } from "../../common/CircularProgress";
 import { snackbarVariants, usePackShipSnackbar } from "../../common/Snackbar";
+import pdfMake from "pdfmake/build/pdfmake";
 import {
   PACKING_SLIP_TOP_MARGIN,
   PACKING_SLIP_BOTTOM_MARGIN,
@@ -289,6 +290,22 @@ const ShippingHistoryTable = ({
     [fetchSearch, sortModel, orderNumber, partNumber]
   );
 
+  const createShipmentPdfDoc = useCallback( async () => {
+    await API.downloadShipmentPDF(clickedHistShipment)
+      .then( (data) => {
+        pdfMake.createPdf(data.docDefinition).open();
+        enqueueSnackbar("Shipment paperwork downloaded", snackbarVariants.success);
+        return data;
+      })
+      .catch( e => {
+        console.error(e);
+        enqueueSnackbar(e.message, snackbarVariants.error);
+      })
+  },[clickedHistShipment, enqueueSnackbar]);
+
+
+
+
   const columns = [
     {
       field: "shipmentId",
@@ -335,6 +352,15 @@ const ShippingHistoryTable = ({
       View
     </MenuItem>,
     // <MenuItem key="download-menu-item">Download</MenuItem>,
+    <MenuItem 
+      key={"Download"} 
+      onClick={ async () => {
+        await createShipmentPdfDoc();
+        setHistoryMenuPosition(null);
+      }}
+    >
+      Download
+    </MenuItem>,
     <MenuItem
       key="edit-menu-item"
       onClick={() => {

@@ -115,6 +115,8 @@ const PackingQueue = () => {
   useEffect(() => {
     setIsMounted(true);
     return () => setIsMounted(false);
+
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   function onPackingSlipClick() {
@@ -128,8 +130,13 @@ const PackingQueue = () => {
   const onPackingSlipSubmit = useCallback(
     (filledForm, orderNum, destination) => {
       const items = filledForm.map((e) => {
-        return { item: e.id, qty: e.packQty };
+        return {
+          item: e._id,
+          qty: e.packQty,
+          destinationCode: e.destinationCode,
+        };
       });
+
       API.createPackingSlip(
         items,
         filledForm[0].customer,
@@ -137,40 +144,36 @@ const PackingQueue = () => {
         destination
       )
         .then(() => {
-          if (destination !== DestinationTypes.VENDOR) {
-            // update the fullfilled Qty
-            const updatedFulfilled = filledForm.map((e) => {
-              let tmp = {
-                ...e,
-                fulfilledQty: e.fulfilledQty + parseInt(e.packQty),
-              };
-              delete tmp.packQty;
-              return tmp;
-            });
+          // update the fullfilled Qty
+          const updatedFulfilled = filledForm.map((e) => {
+            let tmp = {
+              ...e,
+              fulfilledQty: e.fulfilledQty + parseInt(e.packQty),
+            };
+            delete tmp.packQty;
+            return tmp;
+          });
 
-            // Find updated ids
-            const updatedIds = updatedFulfilled.map((e) => e.id);
+          // Find updated ids
+          const updatedIds = updatedFulfilled.map((e) => e.id);
 
-            // Replace the items with the updated ones based on id
-            const updatedFilteredPackingQueue = filteredPackingQueue.map(
-              (e) => {
-                if (updatedIds.includes(e.id)) {
-                  return updatedFulfilled.find((a) => e.id === a.id);
-                }
-                return e;
-              }
-            );
-            const updatedPackingQueue = packingQueue.map((e) => {
-              if (updatedIds.includes(e.id)) {
-                return updatedFulfilled.find((a) => e.id === a.id);
-              }
-              return e;
-            });
+          // Replace the items with the updated ones based on id
+          const updatedFilteredPackingQueue = filteredPackingQueue.map((e) => {
+            if (updatedIds.includes(e.id)) {
+              return updatedFulfilled.find((a) => e.id === a.id);
+            }
+            return e;
+          });
+          const updatedPackingQueue = packingQueue.map((e) => {
+            if (updatedIds.includes(e.id)) {
+              return updatedFulfilled.find((a) => e.id === a.id);
+            }
+            return e;
+          });
 
-            // Replace the list with the updated version
-            setFilteredPackingQueue(updatedFilteredPackingQueue);
-            setPackingQueue(updatedPackingQueue);
-          }
+          // Replace the list with the updated version
+          setFilteredPackingQueue(updatedFilteredPackingQueue);
+          setPackingQueue(updatedPackingQueue);
 
           onPackingSlipClose();
           enqueueSnackbar("Packing slip created!", snackbarVariants.success);
@@ -215,6 +218,15 @@ const PackingQueue = () => {
     },
     [fetchSearch, sortPackHistoryModel, orderNumber, partNumber]
   );
+
+  useEffect(() => {
+    if (filteredPackingQueue)
+      setDestination(
+        filteredPackingQueue.filter((e) => selectedOrderIds.includes(e.id))[0]
+          ?.destination || DestinationTypes.CUSTOMER
+      );
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [filteredPackingQueue]);
 
   return (
     <Box className={classes.box}>
@@ -278,31 +290,19 @@ const PackingQueue = () => {
                       if (isMounted) {
                         data?.forEach((e) => {
                           finalData.push({
-                            id: e._id,
+                            _id: e._id,
+                            id: `${e._id}--${e.destinationCode}`,
                             part: `${e.partNumber} - ${e.partRev} (Batch ${e.batch})`,
                             batchQty: e.batchQty,
                             customer: e.customer,
                             orderNumber: e.orderNumber,
                             fulfilledQty: e.packedQty,
                             partDescription: e.partDescription,
+                            destination: e.destination,
+                            destinationCode: e.destinationCode,
                           });
                         });
-
-                        if (isFulfilledBatchesOn) {
-                          const tmpPackQueue = finalData.filter(
-                            (e) => e.fulfilledQty < e.batchQty
-                          );
-                          const orderIds = tmpPackQueue
-                            .filter((e) => selectedOrderIds.includes(e.id))
-                            .map((e) => e.id);
-                          setSelectedOrderIds(orderIds);
-                          setSelectedOrderNumber(
-                            orderIds.length === 0 ? null : selectedOrderNumber
-                          );
-                          setFilteredPackingQueue(tmpPackQueue);
-                        } else {
-                          setFilteredPackingQueue(finalData);
-                        }
+                        setFilteredPackingQueue(finalData);
                       }
                     });
 
@@ -318,6 +318,9 @@ const PackingQueue = () => {
           <PackShipTabs
             onTabChange={(_, v) => {
               setTabValue(v);
+              setSearchString("");
+              setIsFulfilledBatchesOn(true);
+              setSelectedOrderIds([]);
             }}
             queueTotal={packingQueue?.length}
             queueTab={
