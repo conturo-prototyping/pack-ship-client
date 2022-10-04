@@ -178,7 +178,7 @@ const CreateShipmentDialog = ({
         shippingInfo.isDueBack,
         shippingInfo.isDueBackOn
       )
-        .then((respondeData) => {
+        .then(() => {
           setCustomerName("");
           setDisplayDateHelper(false);
           setShippingInfo({
