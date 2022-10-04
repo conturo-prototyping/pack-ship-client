@@ -239,8 +239,6 @@ const ReceivingQueueTable = ({
     setPage(newPage);
   };
 
-  console.log(queueData);
-
   const generateTablePagination = useCallback(() => {
     return (
       <table>
