@@ -28,7 +28,7 @@ const ReceivingQueueDropdown = ({ params }) => {
             setIsOpen(!isOpen);
           }}>
           {isOpen ? <ExpandLess /> : <ExpandMore />}
-          <ListItemText primary={params.row.shipmentId} />
+          <ListItemText primary={params.row.label} />
         </ListItemButton>
         {isOpen && (
           <DataGrid
