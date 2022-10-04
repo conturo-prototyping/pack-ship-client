@@ -1,15 +1,16 @@
 import React, { useState, useEffect, useMemo, useCallback } from "react";
 import makeStyles from "@mui/styles/makeStyles";
 import { DataGrid } from "@mui/x-data-grid";
-import { Typography } from "@mui/material";
+import { Typography, TablePagination, Grid } from "@mui/material";
 import { createColumnFilters } from "../../utils/TableFilters";
-import HelpTooltip from "../../components/HelpTooltip";
 import {
   PACKING_SLIP_TOP_MARGIN,
   PACKING_SLIP_BOTTOM_MARGIN,
 } from "../../utils/Constants";
 import { API } from "../../services/server";
 import ReceivingQueueDropdown from "../ReceivingQueueDropdown";
+import { styled } from "@mui/system";
+import { PackShipProgress } from "../../common/CircularProgress";
 
 const useStyle = makeStyles((theme) => ({
   root: {
@@ -31,6 +32,26 @@ const useStyle = makeStyles((theme) => ({
     flexWrap: "wrap",
   },
 }));
+
+const ReceivingQueueDataGrid = styled(DataGrid)`
+  .MuiDataGrid-row {
+    max-height: fit-content !important;
+  }
+
+  .MuiDataGrid-renderingZone {
+    max-height: none !important;
+  }
+
+  .MuiDataGrid-cell {
+    max-height: fit-content !important;
+    overflow: auto;
+    height: auto;
+    line-height: none !important;
+    align-items: center;
+    padding-top: 0px !important;
+    padding-bottom: 0px !important;
+  }
+`;
 
 const ReceivingQueueTable = ({
   receivingQueue,
@@ -63,7 +84,7 @@ const ReceivingQueueTable = ({
     return () => setIsMounted(false);
   }, []);
 
-  useEffect(async () => {
+  useEffect(() => {
     async function fetchData() {
       const data = await Promise.all([API.getReceivingQueue()]);
       return { queue: data[0] };
@@ -76,18 +97,19 @@ const ReceivingQueueTable = ({
           if (isMounted) {
             // Gather the queue data for the table
             let queueTableData = [];
-            // console.log(data);
-            data?.queue?.ret.forEach((e) => {
+
+            data?.queue?.incomingDeliveries.forEach((e) => {
               queueTableData.push({
                 id: e._id,
                 manifest: e.manifest,
                 source: e.source,
+                label: e.label,
               });
             });
 
+            console.log(data, queueTableData);
             // The set state order is important
             queueTableData = sortDataByModel(sortModel, queueTableData);
-            console.log(queueTableData);
             setReceivingQueue(queueTableData);
             setFilteredReceivingQueue(queueTableData);
           }
@@ -107,7 +129,7 @@ const ReceivingQueueTable = ({
   const columns = useMemo(
     () => [
       {
-        field: "shipmentId",
+        field: "label",
         flex: 2,
         renderHeader: (params) => {
           return <Typography sx={{ fontWeight: 900 }}>Shipment ID</Typography>;
@@ -167,7 +189,7 @@ const ReceivingQueueTable = ({
         },
       },
     ],
-    [classes.fulfilledQtyHeader]
+    []
   );
 
   const sortDataByModel = useCallback(
@@ -213,16 +235,32 @@ const ReceivingQueueTable = ({
   // eslint-disable-next-line
   const [page, setPage] = useState(0);
 
-  console.log(
-    "THING",
-    queueData.slice(
-      page * numRowsPerPage,
-      page * numRowsPerPage + numRowsPerPage
-    )
-  );
+  const handlePageChange = (event, newPage) => {
+    setPage(newPage);
+  };
+
+  const generateTablePagination = useCallback(() => {
+    return (
+      <table>
+        <tbody>
+          <tr>
+            <TablePagination
+              count={queueData.length}
+              rowsPerPageOptions={[numRowsPerPage]}
+              rowsPerPage={numRowsPerPage}
+              onPageChange={handlePageChange}
+              page={page}
+              sx={{ border: "0px" }}
+            />
+          </tr>
+        </tbody>
+      </table>
+    );
+  }, [page, queueData.length]);
+
   return (
     <div className={classes.root}>
-      <DataGrid
+      <ReceivingQueueDataGrid
         sx={{
           border: "none",
           height: `calc(100vh - ${PACKING_SLIP_BOTTOM_MARGIN} - ${PACKING_SLIP_TOP_MARGIN} - 15rem)`,
@@ -254,6 +292,26 @@ const ReceivingQueueTable = ({
           setQueueData(
             sortDataByModel(model, tableData, columns, selectedOrderIds)
           );
+        }}
+        components={{
+          LoadingOverlay: () => <PackShipProgress />,
+          Footer: () =>
+            selectedOrderIds.length > 0 ? (
+              <Grid container item alignItems="center" spacing={2}>
+                <Grid container item xs={6} justifyContent="flex-start">
+                  <Typography sx={{ padding: "8px" }}>
+                    {selectedOrderIds.length} rows selected
+                  </Typography>
+                </Grid>
+                <Grid container item xs={6} justifyContent="flex-end">
+                  {generateTablePagination()}
+                </Grid>
+              </Grid>
+            ) : (
+              <Grid container item xs={12} justifyContent="flex-end">
+                {generateTablePagination()}
+              </Grid>
+            ),
         }}
       />
     </div>

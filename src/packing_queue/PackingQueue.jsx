@@ -16,7 +16,6 @@ import { getSortFromModel } from "./utils/sortModelFunctions";
 import { snackbarVariants, usePackShipSnackbar } from "../common/Snackbar";
 import {
   PACKING_SLIP_TOP_MARGIN,
-  PACKING_SLIP_BOTTOM_MARGIN,
   PACKING_SLIP_RIGHT_MARGIN,
   PACKING_SLIP_LEFT_MARGIN,
 } from "../utils/Constants";
