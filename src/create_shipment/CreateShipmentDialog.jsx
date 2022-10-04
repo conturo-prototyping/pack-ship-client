@@ -13,6 +13,7 @@ import {
   Grid,
   Typography,
   TextField,
+  FormHelperText,
 } from "@mui/material";
 import { API } from "../services/server";
 import { useEffect } from "react";
@@ -42,10 +43,11 @@ const CreateShipmentDialog = ({
     deliveryMethod: "",
     checkedCustomer: false,
     isDueBack: false,
+    isDueBackOn: null,
   });
   const [canErrorCheck, setCanErrorCheck] = useState(false);
   const [reset, setReset] = useState(false);
-  const [dateValue, setDate] = useState(null);
+  const [displayDateHelper, setDisplayDateHelper] = useState(false);
 
   const enqueueSnackbar = usePackShipSnackbar();
 
@@ -68,6 +70,8 @@ const CreateShipmentDialog = ({
       customer: customer?._id,
       deliveryMethod: "",
       checkedCustomer: false,
+      isDueBack: false,
+      isDueBackOn: null,
     });
     setCanErrorCheck(false);
   }, [open, customer?._id, packingSlipIds]);
@@ -109,7 +113,12 @@ const CreateShipmentDialog = ({
   };
 
   const onNextClick = () => {
-    setCurrentState(ShippingDialogStates.SelectMethodPage);
+    if (shippingInfo.isDueBack && !shippingInfo.isDueBackOn) {
+      setDisplayDateHelper(true);
+    } else {
+      setCurrentState(ShippingDialogStates.SelectMethodPage);
+      setDisplayDateHelper(false);
+    }
   };
 
   const onResetClick = () => {
@@ -122,6 +131,7 @@ const CreateShipmentDialog = ({
       setCurrentState(ShippingDialogStates.ShippingAddressPage);
     else setCurrentState(ShippingDialogStates.SelectMethodPage);
     setCustomerName("");
+    setDisplayDateHelper(false);
     if (reset) onResetClick();
   };
 
@@ -136,13 +146,16 @@ const CreateShipmentDialog = ({
   };
 
   const onIsDueBackClick = (checked) => {
-    console.log(shippingInfo.isDueBack);
     setShippingInfo({
       ...shippingInfo,
       isDueBack: checked,
     });
     if (!checked) {
-      setDate(null);
+      setShippingInfo({
+        ...shippingInfo,
+        isDueBackOn: null,
+      });
+      setDisplayDateHelper(false);
     }
   };
 
@@ -159,24 +172,20 @@ const CreateShipmentDialog = ({
         shippingInfo.deliverySpeed,
         shippingInfo.checkedCustomer ? shippingInfo.customerAccount : false,
         customerName,
-        shippingInfo.specialShippingAddress
+        shippingInfo.specialShippingAddress,
+        shippingInfo.isDueBack,
+        shippingInfo.isDueBackOn
       )
         .then((respondeData) => {
-          API.createIncomingDelivery(
-            "", // TODO internalPurchaseOrderNumber,
-            dateValue,
-            respondeData.shipment._id
-          ).catch((e) => {
-            enqueueSnackbar(e.message, snackbarVariants.error);
-          });
-
           setCustomerName("");
+          setDisplayDateHelper(false);
           setShippingInfo({
             manifest: [],
             customer: "",
             deliveryMethod: "",
             checkedCustomer: false,
             isDueBack: false,
+            isDueBackOn: null,
           });
           reloadData();
           onClose();
@@ -344,6 +353,7 @@ const CreateShipmentDialog = ({
                         <Checkbox
                           defaultChecked={false}
                           defaultValue={false}
+                          value={shippingInfo.isDueBack}
                           onChange={(_, checked) => onIsDueBackClick(checked)}
                         />
                       }
@@ -361,12 +371,21 @@ const CreateShipmentDialog = ({
                       disabled={!shippingInfo.isDueBack}
                       disablePast={true}
                       label="Due Back Date"
-                      value={dateValue}
+                      value={shippingInfo.isDueBackOn}
                       onChange={(newValue) => {
-                        setDate(newValue);
+                        setShippingInfo({
+                          ...shippingInfo,
+                          isDueBackOn: newValue,
+                        });
+                        setDisplayDateHelper(false);
                       }}
                       renderInput={(params) => <TextField {...params} />}
                     />
+                    {displayDateHelper && shippingInfo.isDueBack ? (
+                      <FormHelperText>Please Provide a Date</FormHelperText>
+                    ) : (
+                      <></>
+                    )}
                   </LocalizationProvider>
                 </Grid>
               </Grid>

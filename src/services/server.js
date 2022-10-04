@@ -257,7 +257,9 @@ export const API = {
     deliverySpeed = undefined,
     customerAccount = undefined,
     customerHandoffName = undefined,
-    shippingAddress = undefined
+    shippingAddress = undefined,
+    isDueBack = undefined,
+    isDueBackOn = undefined
   ) {
     try {
       const response = await instance.put("/shipments", {
@@ -271,6 +273,8 @@ export const API = {
         customerAccount,
         customerHandoffName,
         shippingAddress,
+        isDueBack,
+        isDueBackOn: isDueBackOn.$d.toLocaleDateString(),
       });
 
       return response.data;
