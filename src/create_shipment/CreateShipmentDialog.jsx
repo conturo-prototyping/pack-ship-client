@@ -146,13 +146,15 @@ const CreateShipmentDialog = ({
   };
 
   const onIsDueBackClick = (checked) => {
-    setShippingInfo({
-      ...shippingInfo,
-      isDueBack: checked,
-    });
-    if (!checked) {
+    if (checked) {
       setShippingInfo({
         ...shippingInfo,
+        isDueBack: checked,
+      });
+    } else {
+      setShippingInfo({
+        ...shippingInfo,
+        isDueBack: checked,
         isDueBackOn: null,
       });
       setDisplayDateHelper(false);
