@@ -13,8 +13,7 @@ const PackingSlipDrowdown = ({ params, packingSlipId, manifest }) => {
         <ListItemButton
           onClick={() => {
             setIsOpen(!isOpen);
-          }}
-        >
+          }}>
           {isOpen ? <ExpandLess /> : <ExpandMore />}
           <ListItemText primary={packingSlipId} />
         </ListItemButton>

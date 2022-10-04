@@ -116,8 +116,8 @@ const ReceivingQueue = () => {
                 tableData={filteredReceivingQueue}
                 sortModel={sortRecQueueModel}
                 setSortModel={setSortRecQueueModel}
-                selectedOrderIds={receivingQueue}
-                setSelectedOrderIds={setReceivingQueue}
+                selectedShipmentIds={receivingQueue}
+                setSelectedShipmentIds={setReceivingQueue}
                 setReceivingQueue={setReceivingQueue}
                 setFilteredReceivingQueue={setFilteredReceivingQueue}
                 searchText={""}

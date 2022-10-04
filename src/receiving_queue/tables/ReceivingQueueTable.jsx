@@ -58,8 +58,8 @@ const ReceivingQueueTable = ({
   tableData,
   sortModel,
   setSortModel,
-  selectedOrderIds,
-  setSelectedOrderIds,
+  selectedShipmentIds,
+  setSelectedShipmentIds,
   setReceivingQueue,
   setFilteredReceivingQueue,
   searchText,
@@ -118,37 +118,52 @@ const ReceivingQueueTable = ({
     // eslint-disable-next-line
   }, [
     setFilteredReceivingQueue,
-    setSelectedOrderIds,
+    setSelectedShipmentIds,
     setReceivingQueue,
     isMounted,
   ]);
 
+  const handleSelection = useCallback(
+    (selection, tableData) => {
+      let newSelection = selectedShipmentIds;
+      console.log(selectedShipmentIds, selection);
+      if (selectedShipmentIds.includes(selection)) {
+        // remove it
+        newSelection = selectedShipmentIds.filter((e) => e !== selection);
+        // if something is deselected then selectAll is false
+        setIsSelectAll(false);
+      } else {
+        // add it
+        newSelection.push(selection);
+
+        setSelectedShipmentIds(newSelection);
+        setIsSelectAll(newSelection.length === tableData.length);
+      }
+      return newSelection;
+    },
+    [selectedShipmentIds]
+  );
+
   const onQueueRowClick = useCallback(
     (selectionModel, tableData) => {
-      const newselectionOrderIds = handleSelection(selectionModel, tableData);
-      setSelectedOrderIds([...newselectionOrderIds]);
-
-      setSelectedOrderNumber(
-        tableData?.find(
-          (e) => newselectionOrderIds.length > 0 && e.id === selectionModel
-        )?.orderNumber ?? null
-      );
+      const newSelectedShipmentIds = handleSelection(selectionModel, tableData);
+      setSelectedShipmentIds([...newSelectedShipmentIds]);
     },
-    [handleSelection, setSelectedOrderNumber, setSelectedOrderIds]
+    [handleSelection, setSelectedShipmentIds]
   );
 
   const onSelectAllClick = useCallback(
     (value, tableData) => {
       setIsSelectAll(value);
     },
-    [setSelectedOrderIds]
+    [setSelectedShipmentIds]
   );
 
   const columns = useMemo(
     () => [
       getCheckboxColumn(
-        false, // No params to disable on for now.
-        selectedOrderIds,
+        () => false, // No params to disable on for now.
+        selectedShipmentIds,
         isSelectAllOn,
         tableData,
         onSelectAllClick,
@@ -186,7 +201,7 @@ const ReceivingQueueTable = ({
         // setQueueData(
         return clickedColumnField?.handler(
           model[0]?.sort,
-          selectedOrderIds,
+          selectedShipmentIds,
           data
         );
         // );
@@ -194,7 +209,7 @@ const ReceivingQueueTable = ({
         return data;
       }
     },
-    [columns, selectedOrderIds]
+    [columns, selectedShipmentIds]
   );
 
   useEffect(() => {
@@ -204,7 +219,7 @@ const ReceivingQueueTable = ({
         order?.items?.filter((e) =>
           e.item?.partNumber?.toLowerCase().includes(searchText?.toLowerCase())
         ).length > 0 ||
-        selectedOrderIds.includes(order?.id) // Ensure selected rows are included
+        selectedShipmentIds.includes(order?._id) // Ensure selected rows are included
     );
     setFilteredReceivingQueue(sortDataByModel(sortModel, filtered));
     // eslint-disable-next-line
@@ -250,7 +265,7 @@ const ReceivingQueueTable = ({
         onSortModelChange={(model) => {
           setSortModel(model);
           setQueueData(
-            sortDataByModel(model, tableData, columns, selectedOrderIds)
+            sortDataByModel(model, tableData, columns, selectedShipmentIds)
           );
         }}
       />
