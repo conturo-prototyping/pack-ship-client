@@ -1,5 +1,5 @@
 import React, { useEffect } from "react";
-import { Typography } from "@mui/material";
+import { Typography, Box } from "@mui/material";
 import HelpTooltip from "../../components/HelpTooltip";
 import { makeStyles } from "@mui/styles";
 import { hasValueError } from "../../utils/validators/number_validator";
@@ -14,39 +14,13 @@ const useStyle = makeStyles((theme) => ({
   },
 }));
 
-const PackingSlipTable = ({
+const ReceiveShipmentTable = ({
   rowData,
   filledForm,
   setFilledForm,
   viewOnly = false,
 }) => {
   const classes = useStyle();
-  const apiRef = useGridApiRef();
-
-  const handleCellClick = React.useCallback(
-    (params) => {
-      if (params.field === "packQty" && !viewOnly) {
-        apiRef.current.setCellMode(params.id, params.field, "edit");
-      }
-    },
-    [apiRef, viewOnly]
-  );
-
-  useEffect(() => {
-    if (!viewOnly) {
-      apiRef.current.setCellFocus(rowData[0].id, "packQty");
-      apiRef.current.setCellMode(rowData[0].id, "packQty", "edit");
-
-      return apiRef.current.subscribeEvent(
-        "cellModeChange",
-        (event) => {
-          event.defaultMuiPrevented = true;
-        },
-        { isFirst: true }
-      );
-    }
-    // eslint-disable-next-line
-  }, []);
 
   const columns = [
     {
@@ -109,4 +83,4 @@ const PackingSlipTable = ({
   );
 };
 
-export default PackingSlipTable;
+export default ReceiveShipmentTable;

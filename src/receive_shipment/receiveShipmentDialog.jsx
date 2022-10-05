@@ -1,9 +1,8 @@
 import React, { useState, useEffect } from "react";
-import PackingSlipTable from "./components/PackingSlipTable";
-import DestinationToggle from "./components/DestinationToggle";
 import PackingDialog from "../components/PackingDialog";
+import ReceiveShipmentTable from "./components/ReceiveShipmentTable";
 
-const PackingSlipDialog = ({
+const ReceiveShipmentDialog = ({
   onSubmit,
   open,
   onClose,
@@ -34,11 +33,7 @@ const PackingSlipDialog = ({
       onSubmit={() => onSubmit(filledForm, orderNum, destination)}
       submitDisabled={!isSubmittable()}
       actions={actions}>
-      <DestinationToggle
-        destination={destination}
-        onDestinationChange={onDestinationChange}></DestinationToggle>
-
-      <PackingSlipTable
+      <ReceiveShipmentTable
         rowData={parts}
         filledForm={filledForm}
         setFilledForm={setFilledForm}
@@ -48,4 +43,4 @@ const PackingSlipDialog = ({
   );
 };
 
-export default PackingSlipDialog;
+export default ReceiveShipmentDialog;

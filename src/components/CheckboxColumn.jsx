@@ -16,6 +16,7 @@ export const getCheckboxColumn = (
     hideSortIcons: true,
     headerClassName: "checkbox-column",
     renderCell: (params) => {
+      console.log("MEEP", selectionOrderIds, params);
       // If orders are selected, disable selecting of
       // other orders if the order number does not match
       // that if the selected order

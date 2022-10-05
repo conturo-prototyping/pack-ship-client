@@ -108,7 +108,6 @@ const ReceivingQueueTable = ({
               });
             });
 
-            console.log(data, queueTableData);
             // The set state order is important
             queueTableData = sortDataByModel(sortModel, queueTableData);
             setReceivingQueue(queueTableData);
@@ -130,7 +129,6 @@ const ReceivingQueueTable = ({
   const handleSelection = useCallback(
     (selection, tableData) => {
       let newSelection = selectedShipmentIds;
-      console.log(selectedShipmentIds, selection);
       if (selectedShipmentIds.includes(selection)) {
         // remove it
         newSelection = selectedShipmentIds.filter((e) => e !== selection);
@@ -151,6 +149,7 @@ const ReceivingQueueTable = ({
   const onQueueRowClick = useCallback(
     (selectionModel, tableData) => {
       const newSelectedShipmentIds = handleSelection(selectionModel, tableData);
+
       setSelectedShipmentIds([...newSelectedShipmentIds]);
     },
     [handleSelection, setSelectedShipmentIds]
@@ -191,7 +190,7 @@ const ReceivingQueueTable = ({
         },
       },
     ],
-    []
+    [selectedShipmentIds]
   );
 
   const sortDataByModel = useCallback(
@@ -218,12 +217,7 @@ const ReceivingQueueTable = ({
 
   useEffect(() => {
     const filtered = receivingQueue.filter(
-      (order) =>
-        order?.orderNumber?.toLowerCase().includes(searchText?.toLowerCase()) ||
-        order?.items?.filter((e) =>
-          e.item?.partNumber?.toLowerCase().includes(searchText?.toLowerCase())
-        ).length > 0 ||
-        selectedShipmentIds.includes(order?._id) // Ensure selected rows are included
+      (order) => selectedShipmentIds.includes(order?._id) // Ensure selected rows are included
     );
     setFilteredReceivingQueue(sortDataByModel(sortModel, filtered));
     // eslint-disable-next-line
@@ -298,11 +292,11 @@ const ReceivingQueueTable = ({
         components={{
           LoadingOverlay: () => <PackShipProgress />,
           Footer: () =>
-            selectedOrderIds.length > 0 ? (
+            selectedShipmentIds.length > 0 ? (
               <Grid container item alignItems="center" spacing={2}>
                 <Grid container item xs={6} justifyContent="flex-start">
                   <Typography sx={{ padding: "8px" }}>
-                    {selectedOrderIds.length} rows selected
+                    {selectedShipmentIds.length} rows selected
                   </Typography>
                 </Grid>
                 <Grid container item xs={6} justifyContent="flex-end">

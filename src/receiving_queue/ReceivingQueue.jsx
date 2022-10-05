@@ -13,6 +13,7 @@ import ReceivingQueueTable from "./tables/ReceivingQueueTable";
 import { useLocalStorage } from "../utils/localStorage";
 import CommonButton from "../common/Button";
 import { OrderPartNumberSearch } from "../components/OrderAndPartSearchBar";
+import ReceiveShipmentDialog from "../receive_shipment/ReceiveShipmentDialog";
 
 const useStyle = makeStyles((theme) => ({
   box: {
@@ -44,6 +45,11 @@ const ReceivingQueue = () => {
   // Queue Table Data
   const [receivingQueue, setReceivingQueue] = useState([]);
   const [filteredReceivingQueue, setFilteredReceivingQueue] = useState([]);
+  const [selectedShipmentIds, setSelectedShipmentIds] = useState([]);
+
+  // Receive Shipment Window Data
+  const [receiveShipmentWindowOpen, setReceiveShipmentWindowOpen] =
+    useState(false);
 
   const [sortRecQueueModel, setSortRecQueueModel] = useLocalStorage(
     "sortPackQueueModel",
@@ -68,6 +74,7 @@ const ReceivingQueue = () => {
     return () => setIsMounted(false);
   }, []);
 
+  console.log(selectedShipmentIds);
   return (
     <Box className={classes.box}>
       <Grid
@@ -86,8 +93,10 @@ const ReceivingQueue = () => {
               <Grid container item xs={"auto"}>
                 <CommonButton
                   label="Receive Shipment"
-                  disabled={true}
-                  onClick={undefined}
+                  disabled={selectedShipmentIds.length === 0}
+                  onClick={() => {
+                    setReceiveShipmentWindowOpen((prev) => !prev);
+                  }}
                 />
               </Grid>
               <Grid container item justifyContent="start" xs={6}>
@@ -116,8 +125,8 @@ const ReceivingQueue = () => {
                 tableData={filteredReceivingQueue}
                 sortModel={sortRecQueueModel}
                 setSortModel={setSortRecQueueModel}
-                selectedShipmentIds={receivingQueue}
-                setSelectedShipmentIds={setReceivingQueue}
+                selectedShipmentIds={selectedShipmentIds}
+                setSelectedShipmentIds={setSelectedShipmentIds}
                 setReceivingQueue={setReceivingQueue}
                 setFilteredReceivingQueue={setFilteredReceivingQueue}
                 searchText={""}
@@ -127,6 +136,21 @@ const ReceivingQueue = () => {
           />
         </Grid>
       </Grid>
+
+      <ReceiveShipmentDialog
+        onSubmit={() => {}}
+        open={receiveShipmentWindowOpen}
+        onClose={() => {
+          setReceiveShipmentWindowOpen(false);
+        }}
+        orderNum={""}
+        parts={[]}
+        title={""}
+        onDestinationChange={() => {}}
+        destination={""}
+        actions={""}
+        viewOnly={false}
+      />
     </Box>
   );
 };
