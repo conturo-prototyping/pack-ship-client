@@ -77,8 +77,8 @@ const DialogTable = ({
         rows={rowData}
         columns={columns}
         disableSelectionOnClick
-        pageSize={rowData.length}
-        rowsPerPageOptions={[rowData.length]}
+        pageSize={rowData?.length}
+        rowsPerPageOptions={[rowData?.length]}
         hideFooter
         onEditRowsModelChange={(params) => {
           if (params && Object.keys(params).length > 0) {

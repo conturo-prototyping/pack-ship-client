@@ -21,32 +21,6 @@ const PackingSlipTable = ({
   viewOnly = false,
 }) => {
   const classes = useStyle();
-  const apiRef = useGridApiRef();
-
-  const handleCellClick = React.useCallback(
-    (params) => {
-      if (params.field === "packQty" && !viewOnly) {
-        apiRef.current.setCellMode(params.id, params.field, "edit");
-      }
-    },
-    [apiRef, viewOnly]
-  );
-
-  useEffect(() => {
-    if (!viewOnly) {
-      apiRef.current.setCellFocus(rowData[0].id, "packQty");
-      apiRef.current.setCellMode(rowData[0].id, "packQty", "edit");
-
-      return apiRef.current.subscribeEvent(
-        "cellModeChange",
-        (event) => {
-          event.defaultMuiPrevented = true;
-        },
-        { isFirst: true }
-      );
-    }
-    // eslint-disable-next-line
-  }, []);
 
   const columns = [
     {
