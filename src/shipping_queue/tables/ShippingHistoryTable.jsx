@@ -356,7 +356,7 @@ const ShippingHistoryTable = ({
       key={"Download"} 
       onClick={ async () => {
         await createShipmentPdfDoc();
-        setHistoryMenuPosition(null);
+        setContextMenu(null);
       }}
     >
       Download
