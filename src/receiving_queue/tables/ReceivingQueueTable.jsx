@@ -217,15 +217,20 @@ const ReceivingQueueTable = ({
 
   useEffect(() => {
     const filtered = receivingQueue.filter(
-      (order) => selectedShipmentIds.includes(order?._id) // Ensure selected rows are included
+      (order) =>
+        order.manifest
+          .map((e) => [e.item?.orderNumber, e.item?.partNumber])
+          .flat()
+          .map((e) => e.toLowerCase().includes(searchText?.toLowerCase()))
+          .some((e) => e) || selectedShipmentIds.includes(order?.id) // Ensure selected rows are included
     );
     setFilteredReceivingQueue(sortDataByModel(sortModel, filtered));
     // eslint-disable-next-line
   }, [searchText, setFilteredReceivingQueue]);
 
   useEffect(() => {
-    setQueueData(receivingQueue);
-  }, [receivingQueue]);
+    setQueueData(tableData);
+  }, [tableData]);
 
   //TODO: Set later for when data is coming in.
   // eslint-disable-next-line
