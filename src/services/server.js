@@ -239,6 +239,27 @@ export const API = {
     }
   },
 
+  async createIncomingDelivery(
+    internalPurchaseOrderNumber,
+    dueBackDate,
+    sourceShipmentId
+  ) {
+    try {
+      const response = await instance.put("/incomingDeliveries", {
+        internalPurchaseOrderNumber,
+        dueBackDate,
+        sourceShipmentId,
+      });
+
+      return response.data;
+    } catch (error) {
+      console.error("createIncomingDelivery", error);
+      throw new Error(
+        error?.response?.data ?? "An error occurred creating incoming delivery"
+      );
+    }
+  },
+
   async createShipment(
     manifest,
     customer,
@@ -249,7 +270,9 @@ export const API = {
     deliverySpeed = undefined,
     customerAccount = undefined,
     customerHandoffName = undefined,
-    shippingAddress = undefined
+    shippingAddress = undefined,
+    isDueBack = undefined,
+    isDueBackOn = undefined
   ) {
     try {
       const response = await instance.put("/shipments", {
@@ -263,6 +286,8 @@ export const API = {
         customerAccount,
         customerHandoffName,
         shippingAddress,
+        isDueBack,
+        isDueBackOn: isDueBackOn.$d.toLocaleDateString(),
       });
 
       return response.data;
