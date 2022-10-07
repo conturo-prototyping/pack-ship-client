@@ -1,16 +1,7 @@
 import React, { useEffect } from "react";
 import { Box } from "@mui/material";
 import { makeStyles } from "@mui/styles";
-import { hasValueError } from "../utils/validators/number_validator";
 import { useGridApiRef, DataGridPro } from "@mui/x-data-grid-pro";
-
-const useStyle = makeStyles((theme) => ({
-  fulfilledQtyHeader: {
-    display: "flex",
-    alignItems: "center",
-    flexWrap: "wrap",
-  },
-}));
 
 const DialogTable = ({
   rowData,
@@ -18,6 +9,7 @@ const DialogTable = ({
   setFilledForm,
   columns,
   cellEditName,
+  onEditRowsModelChange,
   viewOnly = false,
 }) => {
   const apiRef = useGridApiRef();
@@ -80,21 +72,7 @@ const DialogTable = ({
         pageSize={rowData?.length}
         rowsPerPageOptions={[rowData?.length]}
         hideFooter
-        onEditRowsModelChange={(params) => {
-          if (params && Object.keys(params).length > 0) {
-            setFilledForm(
-              filledForm.map((e) => {
-                if (Object.keys(params).includes(e.id)) {
-                  return {
-                    ...e,
-                    packQty: params[e.id]["packQty"]["value"],
-                  };
-                }
-                return e;
-              })
-            );
-          }
-        }}
+        onEditRowsModelChange={onEditRowsModelChange}
         editMode={"row"}
         apiRef={apiRef}
         onCellClick={handleCellClick}

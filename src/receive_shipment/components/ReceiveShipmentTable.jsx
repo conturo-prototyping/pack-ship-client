@@ -20,8 +20,6 @@ const ReceiveShipmentTable = ({
   setFilledForm,
   viewOnly = false,
 }) => {
-  const classes = useStyle();
-
   const columns = [
     {
       field: "part",
@@ -31,35 +29,17 @@ const ReceiveShipmentTable = ({
       flex: 1,
     },
     {
-      field: "batchQty",
+      field: "qty",
       renderHeader: (params) => {
-        return <Typography sx={{ fontWeight: 900 }}>Batch Qty</Typography>;
+        return <Typography sx={{ fontWeight: 900 }}>Qty</Typography>;
       },
       type: "number",
       flex: 1,
     },
     {
-      field: "fulfilledQty",
-      headerName: "Fulfilled Qty",
-      type: "number",
-      flex: 1,
+      field: "receivedQty",
       renderHeader: (params) => {
-        return (
-          <div className={classes.fulfilledQtyHeader}>
-            <Typography sx={{ fontWeight: 900 }}>Fulfilled Qty</Typography>
-            <HelpTooltip
-              tooltipText={
-                "This includes number of items that have been packed as well as number of items that have shipped."
-              }
-            />
-          </div>
-        );
-      },
-    },
-    {
-      field: "packQty",
-      renderHeader: (params) => {
-        return <Typography sx={{ fontWeight: 900 }}>Pack Qty</Typography>;
+        return <Typography sx={{ fontWeight: 900 }}>Qty Received</Typography>;
       },
       flex: 1,
       default: 0,
@@ -77,7 +57,7 @@ const ReceiveShipmentTable = ({
       filledForm={filledForm}
       setFilledForm={setFilledForm}
       columns={columns}
-      cellEditName="packQty"
+      cellEditName="receivedQty"
       viewOnly={viewOnly}
     />
   );

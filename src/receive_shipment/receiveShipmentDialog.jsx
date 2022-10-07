@@ -9,19 +9,18 @@ const ReceiveShipmentDialog = ({
   orderNum,
   parts,
   title,
-  onDestinationChange,
-  destination = "CUSTOMER",
   actions = undefined,
   viewOnly = false,
 }) => {
   const [filledForm, setFilledForm] = useState([]);
 
   useEffect(() => {
+    console.log("HEY", parts);
     setFilledForm(parts);
   }, [parts]);
 
   function isSubmittable() {
-    return filledForm.every((e) => e.packQty && e.packQty >= 0);
+    return filledForm.every((e) => e.receivedQty && e.receivedQty >= 0);
   }
 
   return (
@@ -30,7 +29,7 @@ const ReceiveShipmentDialog = ({
       titleText={title}
       onClose={onClose}
       onBackdropClick={onClose}
-      onSubmit={() => onSubmit(filledForm, orderNum, destination)}
+      onSubmit={() => onSubmit(filledForm, orderNum)}
       submitDisabled={!isSubmittable()}
       actions={actions}>
       <ReceiveShipmentTable
