@@ -384,7 +384,9 @@ const CreateShipmentDialog = ({
                       renderInput={(params) => <TextField {...params} />}
                     />
                     {displayDateHelper && shippingInfo.isDueBack ? (
-                      <FormHelperText>Please Provide a Date</FormHelperText>
+                      <FormHelperText error>
+                        Please Provide a Date
+                      </FormHelperText>
                     ) : (
                       <></>
                     )}
