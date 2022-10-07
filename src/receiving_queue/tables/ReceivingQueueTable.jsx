@@ -218,11 +218,13 @@ const ReceivingQueueTable = ({
   useEffect(() => {
     const filtered = receivingQueue.filter(
       (order) =>
+        order.label.toLowerCase().includes(searchText?.toLowerCase()) ||
         order.manifest
           .map((e) => [e.item?.orderNumber, e.item?.partNumber])
           .flat()
           .map((e) => e.toLowerCase().includes(searchText?.toLowerCase()))
-          .some((e) => e) || selectedShipmentIds.includes(order?.id) // Ensure selected rows are included
+          .some((e) => e) ||
+        selectedShipmentIds.includes(order?.id) // Ensure selected rows are included
     );
     setFilteredReceivingQueue(sortDataByModel(sortModel, filtered));
     // eslint-disable-next-line
