@@ -1,18 +1,7 @@
-import React, { useEffect } from "react";
-import { Typography, Box } from "@mui/material";
-import HelpTooltip from "../../components/HelpTooltip";
-import { makeStyles } from "@mui/styles";
+import React, { useCallback } from "react";
+import { Typography } from "@mui/material";
 import { hasValueError } from "../../utils/validators/number_validator";
-import { useGridApiRef } from "@mui/x-data-grid-pro";
 import DialogTable from "../../common/DialogTable";
-
-const useStyle = makeStyles((theme) => ({
-  fulfilledQtyHeader: {
-    display: "flex",
-    alignItems: "center",
-    flexWrap: "wrap",
-  },
-}));
 
 const ReceiveShipmentTable = ({
   rowData,
@@ -23,6 +12,14 @@ const ReceiveShipmentTable = ({
   const columns = [
     {
       field: "part",
+      renderCell: (params) => (
+        <div>
+          <Typography>{params.row.partNumber}</Typography>
+          <Typography color="textSecondary">
+            {params.row.partDescription}
+          </Typography>
+        </div>
+      ),
       renderHeader: (params) => {
         return <Typography sx={{ fontWeight: 900 }}>Part</Typography>;
       },
@@ -37,7 +34,7 @@ const ReceiveShipmentTable = ({
       flex: 1,
     },
     {
-      field: "receivedQty",
+      field: "qtyReceived",
       renderHeader: (params) => {
         return <Typography sx={{ fontWeight: 900 }}>Qty Received</Typography>;
       },
@@ -51,13 +48,33 @@ const ReceiveShipmentTable = ({
     },
   ];
 
+  const onEditRowsModelChange = useCallback(
+    (params) => {
+      if (params && Object.keys(params).length > 0) {
+        setFilledForm(
+          filledForm.map((e) => {
+            if (Object.keys(params).includes(e.id)) {
+              return {
+                ...e,
+                qtyReceived: params[e.id]["qtyReceived"]["value"],
+              };
+            }
+            return e;
+          })
+        );
+      }
+    },
+    [filledForm, setFilledForm]
+  );
+
   return (
     <DialogTable
       rowData={rowData}
       filledForm={filledForm}
       setFilledForm={setFilledForm}
       columns={columns}
-      cellEditName="receivedQty"
+      cellEditName="qtyReceived"
+      onEditRowsModelChange={onEditRowsModelChange}
       viewOnly={viewOnly}
     />
   );

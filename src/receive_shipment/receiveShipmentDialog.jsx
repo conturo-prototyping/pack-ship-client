@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useMemo } from "react";
 import PackingDialog from "../components/PackingDialog";
 import ReceiveShipmentTable from "./components/ReceiveShipmentTable";
 
@@ -14,13 +14,30 @@ const ReceiveShipmentDialog = ({
 }) => {
   const [filledForm, setFilledForm] = useState([]);
 
-  useEffect(() => {
-    console.log("HEY", parts);
-    setFilledForm(parts);
+  const rowData = useMemo(() => {
+    const manifest = parts[0]?.manifest;
+    if (manifest)
+      return manifest.map((e) => {
+        return {
+          shipmentID: parts[0].id,
+          id: e.item._id,
+          batch: e.item.batch,
+          orderNumber: e.item.orderNumber,
+          partDescription: e.item.partDescription,
+          partNumber: e.item.partNumber,
+          partRev: e.item.partRev,
+          qty: e.qty,
+        };
+      });
+    return [];
   }, [parts]);
 
+  useEffect(() => {
+    setFilledForm(rowData);
+  }, [rowData]);
+
   function isSubmittable() {
-    return filledForm.every((e) => e.receivedQty && e.receivedQty >= 0);
+    return filledForm.every((e) => e.qtyReceived && e.qtyReceived >= 0);
   }
 
   return (
@@ -29,11 +46,11 @@ const ReceiveShipmentDialog = ({
       titleText={title}
       onClose={onClose}
       onBackdropClick={onClose}
-      onSubmit={() => onSubmit(filledForm, orderNum)}
+      onSubmit={() => onSubmit(filledForm, parts[0]?.id)}
       submitDisabled={!isSubmittable()}
       actions={actions}>
       <ReceiveShipmentTable
-        rowData={parts}
+        rowData={rowData}
         filledForm={filledForm}
         setFilledForm={setFilledForm}
         viewOnly={viewOnly}

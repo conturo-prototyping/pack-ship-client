@@ -14,7 +14,7 @@ import { useLocalStorage } from "../utils/localStorage";
 import CommonButton from "../common/Button";
 import { OrderPartNumberSearch } from "../components/OrderAndPartSearchBar";
 import ReceiveShipmentDialog from "../receive_shipment/ReceiveShipmentDialog";
-import { usePackShipSnackbar } from "../common/Snackbar";
+import { snackbarVariants, usePackShipSnackbar } from "../common/Snackbar";
 import { API } from "../services/server";
 
 const useStyle = makeStyles((theme) => ({
@@ -73,56 +73,24 @@ const ReceivingQueue = () => {
   }
 
   const onReceiveShipmentSubmit = useCallback(
-    (filledForm) => {
+    (filledForm, id) => {
       const items = filledForm.map((e) => {
-        return { item: e.id, qtyReceived: e.qtyReceived };
+        return { item: e.id, qty: e.qtyReceived };
       });
-      console.log(filledForm, items);
-      // API.submitIncomingDelivery(e.id, e.qtyReceived)
-      //   .then(() => {
-      // if (destination !== DestinationTypes.VENDOR) {
-      //   // update the fullfilled Qty
-      //   const updatedFulfilled = filledForm.map((e) => {
-      //     let tmp = {
-      //       ...e,
-      //       fulfilledQty: e.fulfilledQty + parseInt(e.packQty),
-      //     };
-      //     delete tmp.packQty;
-      //     return tmp;
-      //   });
 
-      //   // Find updated ids
-      //   const updatedIds = updatedFulfilled.map((e) => e.id);
-
-      //   // Replace the items with the updated ones based on id
-      //   const updatedFilteredPackingQueue = filteredPackingQueue.map(
-      //     (e) => {
-      //       if (updatedIds.includes(e.id)) {
-      //         return updatedFulfilled.find((a) => e.id === a.id);
-      //       }
-      //       return e;
-      //     }
-      //   );
-      //   const updatedPackingQueue = packingQueue.map((e) => {
-      //     if (updatedIds.includes(e.id)) {
-      //       return updatedFulfilled.find((a) => e.id === a.id);
-      //     }
-      //     return e;
-      //   });
-
-      // Replace the list with the updated version
-      //     setFilteredPackingQueue(updatedFilteredPackingQueue);
-      //     setPackingQueue(updatedPackingQueue);
-      //   }
-
-      //   onPackingSlipClose();
-      //   enqueueSnackbar("Packing slip created!", snackbarVariants.success);
-      // })
-      // .catch((e) => {
-      //   enqueueSnackbar(e.message, snackbarVariants.error);
-      // });
+      API.submitIncomingDelivery(id, items)
+        .then(() => {
+          enqueueSnackbar(
+            "Received incoming delivery!",
+            snackbarVariants.success
+          );
+          onReceiveShipmentClose();
+        })
+        .catch((e) => {
+          enqueueSnackbar(e.message, snackbarVariants.error);
+        });
     },
-    [filteredReceivingQueue, receivingQueue, enqueueSnackbar]
+    [enqueueSnackbar]
   );
 
   function onTabChange(event, newValue) {
@@ -134,11 +102,11 @@ const ReceivingQueue = () => {
     return () => setIsMounted(false);
   }, []);
 
-  const selectedReceiveShipment = useMemo(() =>
-    filteredReceivingQueue.filter((e) => selectedShipmentIds[0] === e.id)
+  const selectedReceiveShipment = useMemo(
+    () => filteredReceivingQueue.filter((e) => selectedShipmentIds[0] === e.id),
+    [filteredReceivingQueue, selectedShipmentIds]
   );
 
-  console.log(selectedShipmentIds);
   return (
     <Box className={classes.box}>
       <Grid
@@ -212,7 +180,6 @@ const ReceivingQueue = () => {
             ? `Receive Shipment for ${selectedReceiveShipment[0]["label"]}`
             : ""
         }
-        actions={""}
         viewOnly={false}
       />
     </Box>
