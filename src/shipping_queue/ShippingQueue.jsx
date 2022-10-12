@@ -32,11 +32,6 @@ const useStyle = makeStyles((theme) => ({
     paddingTop: PACKING_SLIP_TOP_MARGIN,
     marginBottom: "1rem!important",
   },
-  bottomBarGrid: {
-    boxSizing: "border-box",
-    marginTop: "1rem!important",
-    height: "3rem",
-  },
 }));
 
 export const TabNames = {
@@ -176,8 +171,7 @@ const ShippingQueue = () => {
         className={classes.topBarGrid}
         container
         justifyContent="start"
-        spacing={2}
-      >
+        spacing={2}>
         <Grid container item xs={12} spacing={2}>
           {currentTab === TabNames.Queue ? (
             <Grid
@@ -185,8 +179,7 @@ const ShippingQueue = () => {
               item
               xs={12}
               spacing={2}
-              sx={{ marginBottom: "1rem!important" }}
-            >
+              sx={{ marginBottom: "1rem!important" }}>
               <Grid container item xs={"auto"}>
                 <CommonButton
                   label="Create Shipment"
