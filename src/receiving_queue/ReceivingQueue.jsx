@@ -40,6 +40,8 @@ export const TabNames = {
 const ReceivingQueue = () => {
   const classes = useStyle();
 
+  const [searchString, setSearchString] = useState("");
+
   //isMounted will be used later to make sure data isn't misrepresented
   // eslint-disable-next-line
   const [isMounted, setIsMounted] = useState(false);
@@ -113,7 +115,8 @@ const ReceivingQueue = () => {
         className={classes.topBarGrid}
         container
         justifyContent="start"
-        spacing={2}>
+        spacing={2}
+      >
         <Grid container item xs={12} spacing={2}>
           {currentTab === TabNames.Queue ? (
             <Grid
@@ -121,7 +124,8 @@ const ReceivingQueue = () => {
               item
               xs={12}
               spacing={2}
-              sx={{ marginBottom: "1rem!important" }}>
+              sx={{ marginBottom: "1rem!important" }}
+            >
               <Grid container item xs={"auto"}>
                 <CommonButton
                   label="Receive Shipment"
@@ -132,7 +136,12 @@ const ReceivingQueue = () => {
                 />
               </Grid>
               <Grid container item justifyContent="start" xs={6}>
-                <Search onSearch={() => {}} autoFocus />
+                <Search
+                  onSearch={(e) => {
+                    setSearchString(e);
+                  }}
+                  autoFocus
+                />
               </Grid>
             </Grid>
           ) : (
@@ -161,7 +170,7 @@ const ReceivingQueue = () => {
                 setSelectedShipmentIds={setSelectedShipmentIds}
                 setReceivingQueue={setReceivingQueue}
                 setFilteredReceivingQueue={setFilteredReceivingQueue}
-                searchText={""}
+                searchText={searchString}
               />
             }
             historyTab={<div />}
