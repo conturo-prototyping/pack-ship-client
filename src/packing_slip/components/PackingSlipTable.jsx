@@ -1,9 +1,8 @@
-import React, { useEffect } from "react";
+import React, { useCallback } from "react";
 import { Typography } from "@mui/material";
 import HelpTooltip from "../../components/HelpTooltip";
 import { makeStyles } from "@mui/styles";
 import { hasValueError } from "../../utils/validators/number_validator";
-import { useGridApiRef } from "@mui/x-data-grid-pro";
 import DialogTable from "../../common/DialogTable";
 
 const useStyle = makeStyles((theme) => ({
@@ -21,32 +20,6 @@ const PackingSlipTable = ({
   viewOnly = false,
 }) => {
   const classes = useStyle();
-  const apiRef = useGridApiRef();
-
-  const handleCellClick = React.useCallback(
-    (params) => {
-      if (params.field === "packQty" && !viewOnly) {
-        apiRef.current.setCellMode(params.id, params.field, "edit");
-      }
-    },
-    [apiRef, viewOnly]
-  );
-
-  useEffect(() => {
-    if (!viewOnly) {
-      apiRef.current.setCellFocus(rowData[0].id, "packQty");
-      apiRef.current.setCellMode(rowData[0].id, "packQty", "edit");
-
-      return apiRef.current.subscribeEvent(
-        "cellModeChange",
-        (event) => {
-          event.defaultMuiPrevented = true;
-        },
-        { isFirst: true }
-      );
-    }
-    // eslint-disable-next-line
-  }, []);
 
   const columns = [
     {
@@ -97,6 +70,22 @@ const PackingSlipTable = ({
     },
   ];
 
+  const onEditRowsModelChange = useCallback((params) => {
+    if (params && Object.keys(params).length > 0) {
+      setFilledForm(
+        filledForm.map((e) => {
+          if (Object.keys(params).includes(e.id)) {
+            return {
+              ...e,
+              packQty: params[e.id]["packQty"]["value"],
+            };
+          }
+          return e;
+        })
+      );
+    }
+  }, []);
+
   return (
     <DialogTable
       rowData={rowData}
@@ -104,6 +93,7 @@ const PackingSlipTable = ({
       setFilledForm={setFilledForm}
       columns={columns}
       cellEditName="packQty"
+      onEditRowsModelChange={onEditRowsModelChange}
       viewOnly={viewOnly}
     />
   );

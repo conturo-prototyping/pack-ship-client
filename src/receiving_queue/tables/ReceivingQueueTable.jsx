@@ -136,10 +136,10 @@ const ReceivingQueueTable = ({
         setIsSelectAll(false);
       } else {
         // add it
-        newSelection.push(selection);
+        newSelection[0] = selection;
 
         setSelectedShipmentIds(newSelection);
-        setIsSelectAll(newSelection.length === tableData.length);
+        setIsSelectAll(newSelection.length >= 1);
       }
       return newSelection;
     },
