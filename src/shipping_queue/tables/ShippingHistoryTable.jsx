@@ -11,6 +11,7 @@ import { API } from "../../services/server";
 import { getSortFromModel } from "../utils/sortModelFunctions";
 import { PackShipProgress } from "../../common/CircularProgress";
 import { snackbarVariants, usePackShipSnackbar } from "../../common/Snackbar";
+import pdfMake from "pdfmake/build/pdfmake";
 import {
   PACKING_SLIP_TOP_MARGIN,
   PACKING_SLIP_BOTTOM_MARGIN,
@@ -78,7 +79,8 @@ const ShippingHistoryTable = ({
   const [isMounted, setIsMounted] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
 
-  const [historyMenuPosition, setHistoryMenuPosition] = useState(null);
+  const [contextMenu, setContextMenu] = useState(null);
+
   const [clickedHistShipment, setClickedHistShipment] = useState();
 
   // Edit Shipment Dialog
@@ -98,19 +100,9 @@ const ShippingHistoryTable = ({
     setIsMounted(true);
   }, []);
 
-  const onHistoryRowClick = useCallback((params, event, __) => {
-    API.getShipment(params.id).then((data) => {
-      if (data) {
-        setClickedHistShipment(data.shipment);
-      }
-    });
-
-    setHistoryMenuPosition({ left: event.pageX, top: event.pageY });
-  }, []);
-
   const onEditShipmentClose = useCallback(() => {
     // close context menu
-    setHistoryMenuPosition(null);
+    setContextMenu(null);
     // close edit dialog
     setIsEditShipmentOpen(false);
     // reset whether to check form for errors
@@ -163,7 +155,7 @@ const ShippingHistoryTable = ({
           await reloadData();
 
           //close context menu
-          setHistoryMenuPosition(null);
+          setContextMenu(null);
 
           setCanErrorCheck(false);
           enqueueSnackbar(
@@ -298,6 +290,22 @@ const ShippingHistoryTable = ({
     [fetchSearch, sortModel, orderNumber, partNumber]
   );
 
+  const createShipmentPdfDoc = useCallback( async () => {
+    await API.downloadShipmentPDF(clickedHistShipment)
+      .then( (data) => {
+        pdfMake.createPdf(data.docDefinition).open();
+        enqueueSnackbar("Shipment paperwork downloaded", snackbarVariants.success);
+        return data;
+      })
+      .catch( e => {
+        console.error(e);
+        enqueueSnackbar(e.message, snackbarVariants.error);
+      })
+  },[clickedHistShipment, enqueueSnackbar]);
+
+
+
+
   const columns = [
     {
       field: "shipmentId",
@@ -344,6 +352,15 @@ const ShippingHistoryTable = ({
       View
     </MenuItem>,
     // <MenuItem key="download-menu-item">Download</MenuItem>,
+    <MenuItem 
+      key={"Download"} 
+      onClick={ async () => {
+        await createShipmentPdfDoc();
+        setContextMenu(null);
+      }}
+    >
+      Download
+    </MenuItem>,
     <MenuItem
       key="edit-menu-item"
       onClick={() => {
@@ -356,13 +373,30 @@ const ShippingHistoryTable = ({
     <MenuItem
       key="delete-menu-item"
       onClick={() => {
-        setHistoryMenuPosition(null);
+        setContextMenu(null);
         setConfirmShippingDeleteDialogOpen(true);
       }}
     >
       Delete
     </MenuItem>,
   ];
+
+  const handleContextMenu = (event) => {
+    event.preventDefault();
+    const selectedRowId = event.currentTarget.getAttribute("data-id");
+    if (selectedRowId) {
+      setContextMenu(
+        contextMenu === null
+          ? { mouseX: event.clientX, mouseY: event.clientY }
+          : null
+      );
+      API.getShipment(selectedRowId).then((data) => {
+        if (data) {
+          setClickedHistShipment(data.shipment);
+        }
+      });
+    }
+  };
 
   return (
     <div className={classes.root}>
@@ -385,7 +419,6 @@ const ShippingHistoryTable = ({
         checkboxSelection={false}
         editMode="row"
         sortingMode="server"
-        onRowClick={onHistoryRowClick}
         sortModel={sortModel}
         onSortModelChange={async (model) => {
           setSortModel(model);
@@ -402,12 +435,14 @@ const ShippingHistoryTable = ({
         components={{
           LoadingOverlay: () => <PackShipProgress />,
         }}
+        componentsProps={{
+          row: {
+            onContextMenu: handleContextMenu,
+          },
+        }}
       />
 
-      <ContextMenu
-        menuPosition={historyMenuPosition}
-        setMenuPosition={setHistoryMenuPosition}
-      >
+      <ContextMenu contextMenu={contextMenu} setContextMenu={setContextMenu}>
         {historyRowMenuOptions}
       </ContextMenu>
 
