@@ -12,9 +12,8 @@ import {
 import ReceivingQueueTable from "./tables/ReceivingQueueTable";
 import { useLocalStorage } from "../utils/localStorage";
 import CommonButton from "../common/Button";
-import { OrderPartNumberSearch } from "../components/OrderAndPartSearchBar";
 import ReceivingHistoryTable from "./tables/ReceivingHistoryTable";
-import { getSortFromModel } from "./utils/sortModelFunctions";
+import { API } from "../services/server";
 
 const useStyle = makeStyles((theme) => ({
   box: {
@@ -60,8 +59,8 @@ const ReceivingQueue = () => {
   const [sortRecHistoryModel, setSortRecHistoryModel] = useLocalStorage(
     "sortPackHistoryModel",
     [
-      { field: "shipmentId", sort: "asc" },
-      { field: "dateCreated", sort: "asc" },
+      { field: "label", sort: "asc" },
+      { field: "receivedOn", sort: "asc" },
     ]
   );
 
@@ -70,11 +69,7 @@ const ReceivingQueue = () => {
   const [currentTab, setCurrentTab] = useState(TabNames.Queue);
 
   const [filteredHist, setFilteredHist] = useState([]);
-  const [orderNumber, setOrderNumber] = useState("");
-  const [partNumber, setPartNumber] = useState("");
   const [historyLoading, setHistoryLoading] = useState(false);
-  const [histTotalCount, setHistTotalCount] = useState(0);
-  const [histPageNum, setHistPageNum] = useState(0);
   const histResultsPerPage = 10;
 
   function onTabChange(event, newValue) {
@@ -86,65 +81,37 @@ const ReceivingQueue = () => {
     return () => setIsMounted(false);
   }, []);
 
-  const fetchSearch = useCallback(
-    async (sort, pageNumber, oNum, pNum) => {
+  const fetchReceivingHistory = useCallback(
+    async () => {
       if (isMounted && currentTab === 1) setHistoryLoading(true);
-      //TODO call search for receiving hist
-      //   await API.searchPackingSlipsHistory(
-      //     sort.sortBy,
-      //     sort.sortOrder,
-      //     oNum,
-      //     pNum,
-      //     histResultsPerPage,
-      //     pageNumber
-      //   )
-      //     .then((data) => {
-      //       if (data) {
-      //         if (isMounted) {
-      //           let tableData = extractHistoryDetails(data?.packingSlips);
-      //           setFilteredHist(tableData);
-      //           setHistTotalCount(data?.totalCount);
-      //         }
-      //       }
-      //     })
-      //     .finally(() => {
-      //       setHistoryLoading(false);
-      //     });
+      await API.getReceivingHistory()
+        .then((data) => {
+          if (data && isMounted) {
+            const history = data?.receivedDeliveries.map((e) => {
+              return {
+                id: e._id,
+                label: e.label,
+                receivedOn: new Date(e.receivedOn).toLocaleString(),
+              };
+            });
+            setFilteredHist(history);
+          }
+        })
+        .finally(() => {
+          setHistoryLoading(false);
+        });
     },
     // eslint-disable-next-line
     [histResultsPerPage, isMounted, currentTab]
   );
 
   async function onHistorySearchClick() {
-    setHistPageNum(0);
-    await fetchSearch(
-      getSortFromModel(sortRecHistoryModel),
-      0,
-      orderNumber,
-      partNumber
-    );
+    await fetchReceivingHistory();
   }
 
   async function onHistoryClearClick() {
-    setOrderNumber("");
-    setPartNumber("");
-    setHistPageNum(0);
-    await fetchSearch(getSortFromModel(sortRecHistoryModel), 0, "", "");
+    await fetchReceivingHistory();
   }
-
-  const onHistPageChange = useCallback(
-    async (pageNumber) => {
-      setHistPageNum(pageNumber);
-      //TODO fetch search
-      // await fetchSearch(
-      //   getSortFromModel(sortPackHistoryModel),
-      //   pageNumber,
-      //   orderNumber,
-      //   partNumber
-      // );
-    },
-    [fetchSearch, sortRecHistoryModel, orderNumber, partNumber]
-  );
 
   return (
     <Box className={classes.box}>
@@ -175,14 +142,22 @@ const ReceivingQueue = () => {
               </Grid>
             </Grid>
           ) : (
-            <OrderPartNumberSearch
-              partNumber={partNumber}
-              orderNumber={orderNumber}
-              onClearClick={onHistoryClearClick}
-              onSearchClick={onHistorySearchClick}
-              setOrderNumber={setOrderNumber}
-              setPartNumber={setPartNumber}
-            />
+            <Grid container item justifyContent="start" xs={6}>
+              <Search
+                onSearch={async (e) => {
+                  if (e) {
+                    setFilteredHist(
+                      filteredHist.filter((data) =>
+                        data.label.toLowerCase().includes(e.toLowerCase())
+                      )
+                    );
+                  } else {
+                    await fetchReceivingHistory();
+                  }
+                }}
+                autoFocus
+              ></Search>
+            </Grid>
           )}
         </Grid>
 
@@ -207,15 +182,9 @@ const ReceivingQueue = () => {
               <ReceivingHistoryTable
                 sortModel={sortRecHistoryModel}
                 setSortModel={setSortRecHistoryModel}
-                fetchSearch={fetchSearch}
-                histTotalCount={histTotalCount}
+                fetchSearch={fetchReceivingHistory}
                 historyLoading={historyLoading}
                 filteredHist={filteredHist}
-                histResultsPerPage={histResultsPerPage}
-                orderNumber={orderNumber}
-                partNumber={partNumber}
-                pageNumber={histPageNum}
-                onPageChange={onHistPageChange}
               />
             }
           />

@@ -288,4 +288,16 @@ export const API = {
       );
     }
   },
+
+  async getReceivingHistory() {
+    try {
+      const response = await instance.get("/incomingDeliveries/allReceived");
+      return response.data;
+    } catch (error) {
+      console.error("getReceivingHistory", error);
+      throw new Error(
+        error?.response?.data ?? "An error occurred getting receiving history"
+      );
+    }
+  },
 };

@@ -38,16 +38,16 @@ const useStyle = makeStyles((theme) => ({
 
 const columns = [
   {
-    field: "shipmentId",
+    field: "label",
     renderHeader: () => {
       return <Typography sx={{ fontWeight: 900 }}>Shipment ID</Typography>;
     },
     flex: 1,
   },
   {
-    field: "dateCreated",
+    field: "receivedOn",
     renderHeader: () => {
-      return <Typography sx={{ fontWeight: 900 }}>Date Created</Typography>;
+      return <Typography sx={{ fontWeight: 900 }}>Date Received</Typography>;
     },
     flex: 1,
   },
@@ -57,14 +57,8 @@ const ReceivingHistoryTable = ({
   sortModel,
   setSortModel,
   fetchSearch,
-  histTotalCount,
   historyLoading,
   filteredHist,
-  histResultsPerPage,
-  orderNumber,
-  partNumber,
-  pageNumber,
-  onPageChange,
 }) => {
   const classes = useStyle();
 
@@ -93,7 +87,7 @@ const ReceivingHistoryTable = ({
 
   const reloadData = useCallback(() => {
     if (isMounted) {
-      fetchSearch(getSortFromModel(sortModel), 0, "", "").finally(() => {});
+      fetchSearch().finally(() => {});
     }
     // eslint-disable-next-line
   }, [isMounted]);
@@ -198,9 +192,6 @@ const ReceivingHistoryTable = ({
   return (
     <div className={classes.root}>
       <DataGrid
-        paginationMode="server"
-        onPageChange={onPageChange}
-        rowCount={histTotalCount}
         sx={{
           border: "none",
           height: `calc(100vh - ${PACKING_SLIP_BOTTOM_MARGIN} - ${PACKING_SLIP_TOP_MARGIN} - 15rem)`,
@@ -210,13 +201,10 @@ const ReceivingHistoryTable = ({
         disableSelectionOnClick={true}
         rows={historyLoading ? [] : filteredHist}
         rowHeight={65}
-        page={pageNumber}
         columns={columns}
-        pageSize={histResultsPerPage}
         rowsPerPageOptions={[10]}
         checkboxSelection={false}
         editMode="row"
-        sortingMode="server"
         onRowClick={(params, event, details) => {
           setSelectedRow(params.row);
           setMenuPosition({ left: event.pageX, top: event.pageY });
@@ -224,12 +212,7 @@ const ReceivingHistoryTable = ({
         sortModel={sortModel}
         onSortModelChange={async (model) => {
           setSortModel(model);
-          await fetchSearch(
-            getSortFromModel(model),
-            pageNumber,
-            orderNumber,
-            partNumber
-          );
+          await fetchSearch();
         }}
         loading={historyLoading}
         components={{
