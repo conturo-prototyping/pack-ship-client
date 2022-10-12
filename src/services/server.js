@@ -13,9 +13,22 @@ export const API = {
         orderNumber,
         dateCreated,
       });
+      console.log("pdf downloaded");
       return response.data;
     } catch (error) {
       console.error("downloadPDF", error);
+      throw new Error(
+        error?.response?.data ?? "An error occurred downloading PDF"
+      );
+    }
+  },
+
+  async downloadShipmentPDF(shipmentInfo) {
+    try {
+      const res = await instance.post("/shipments/pdf", shipmentInfo);
+      return res.data;
+    } catch (error) {
+      console.error("downloadShipmentPDF", error);
       throw new Error(
         error?.response?.data ?? "An error occurred downloading PDF"
       );
@@ -226,6 +239,27 @@ export const API = {
     }
   },
 
+  async createIncomingDelivery(
+    internalPurchaseOrderNumber,
+    dueBackDate,
+    sourceShipmentId
+  ) {
+    try {
+      const response = await instance.put("/incomingDeliveries", {
+        internalPurchaseOrderNumber,
+        dueBackDate,
+        sourceShipmentId,
+      });
+
+      return response.data;
+    } catch (error) {
+      console.error("createIncomingDelivery", error);
+      throw new Error(
+        error?.response?.data ?? "An error occurred creating incoming delivery"
+      );
+    }
+  },
+
   async createShipment(
     manifest,
     customer,
@@ -236,7 +270,9 @@ export const API = {
     deliverySpeed = undefined,
     customerAccount = undefined,
     customerHandoffName = undefined,
-    shippingAddress = undefined
+    shippingAddress = undefined,
+    isDueBack = undefined,
+    isDueBackOn = undefined
   ) {
     try {
       const response = await instance.put("/shipments", {
@@ -250,6 +286,8 @@ export const API = {
         customerAccount,
         customerHandoffName,
         shippingAddress,
+        isDueBack,
+        isDueBackOn: isDueBackOn.$d.toLocaleDateString(),
       });
 
       return response.data;

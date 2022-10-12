@@ -38,7 +38,8 @@ const PackingSlipDialog = ({
       <DestinationToggle
         disabled={!!destination}
         destination={destination || DestinationTypes.CUSTOMER}
-        onDestinationChange={onDestinationChange}></DestinationToggle>
+        onDestinationChange={onDestinationChange}
+      />
 
       <PackingSlipTable
         rowData={parts}
