@@ -1,12 +1,9 @@
 import React, { useEffect } from "react";
 import { Box } from "@mui/material";
-import { makeStyles } from "@mui/styles";
 import { useGridApiRef, DataGridPro } from "@mui/x-data-grid-pro";
 
 const DialogTable = ({
   rowData,
-  filledForm,
-  setFilledForm,
   columns,
   cellEditName,
   onEditRowsModelChange,
@@ -20,7 +17,7 @@ const DialogTable = ({
         apiRef.current.setCellMode(params.id, params.field, "edit");
       }
     },
-    [apiRef, viewOnly]
+    [apiRef, viewOnly, cellEditName]
   );
 
   useEffect(() => {
@@ -38,6 +35,7 @@ const DialogTable = ({
     }
     // eslint-disable-next-line
   }, []);
+
   return (
     <Box
       sx={{

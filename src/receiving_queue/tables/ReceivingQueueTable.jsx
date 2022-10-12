@@ -143,7 +143,7 @@ const ReceivingQueueTable = ({
       }
       return newSelection;
     },
-    [selectedShipmentIds]
+    [selectedShipmentIds, setSelectedShipmentIds]
   );
 
   const onQueueRowClick = useCallback(
@@ -159,7 +159,7 @@ const ReceivingQueueTable = ({
     (value, tableData) => {
       setIsSelectAll(value);
     },
-    [setSelectedShipmentIds]
+    [setIsSelectAll]
   );
 
   const columns = useMemo(
@@ -190,7 +190,13 @@ const ReceivingQueueTable = ({
         },
       },
     ],
-    [selectedShipmentIds]
+    [
+      selectedShipmentIds,
+      isSelectAllOn,
+      onQueueRowClick,
+      tableData,
+      onSelectAllClick,
+    ]
   );
 
   const sortDataByModel = useCallback(

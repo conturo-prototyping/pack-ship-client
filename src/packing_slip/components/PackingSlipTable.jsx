@@ -70,21 +70,24 @@ const PackingSlipTable = ({
     },
   ];
 
-  const onEditRowsModelChange = useCallback((params) => {
-    if (params && Object.keys(params).length > 0) {
-      setFilledForm(
-        filledForm.map((e) => {
-          if (Object.keys(params).includes(e.id)) {
-            return {
-              ...e,
-              packQty: params[e.id]["packQty"]["value"],
-            };
-          }
-          return e;
-        })
-      );
-    }
-  }, []);
+  const onEditRowsModelChange = useCallback(
+    (params) => {
+      if (params && Object.keys(params).length > 0) {
+        setFilledForm(
+          filledForm.map((e) => {
+            if (Object.keys(params).includes(e.id)) {
+              return {
+                ...e,
+                packQty: params[e.id]["packQty"]["value"],
+              };
+            }
+            return e;
+          })
+        );
+      }
+    },
+    [filledForm, setFilledForm]
+  );
 
   return (
     <DialogTable
