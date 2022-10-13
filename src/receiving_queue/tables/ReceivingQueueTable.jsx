@@ -10,6 +10,7 @@ import {
 import { API } from "../../services/server";
 import ReceivingQueueDropdown from "../ReceivingQueueDropdown";
 import { styled } from "@mui/system";
+import { getCheckboxColumn } from "../../components/CheckboxColumn";
 import { PackShipProgress } from "../../common/CircularProgress";
 
 const useStyle = makeStyles((theme) => ({
@@ -58,8 +59,8 @@ const ReceivingQueueTable = ({
   tableData,
   sortModel,
   setSortModel,
-  selectedOrderIds,
-  setSelectedOrderIds,
+  selectedShipmentIds,
+  setSelectedShipmentIds,
   setReceivingQueue,
   setFilteredReceivingQueue,
   searchText,
@@ -107,7 +108,6 @@ const ReceivingQueueTable = ({
               });
             });
 
-            console.log(data, queueTableData);
             // The set state order is important
             queueTableData = sortDataByModel(sortModel, queueTableData);
             setReceivingQueue(queueTableData);
@@ -121,13 +121,57 @@ const ReceivingQueueTable = ({
     // eslint-disable-next-line
   }, [
     setFilteredReceivingQueue,
-    setSelectedOrderIds,
+    setSelectedShipmentIds,
     setReceivingQueue,
     isMounted,
   ]);
 
+  const handleSelection = useCallback(
+    (selection, tableData) => {
+      let newSelection = selectedShipmentIds;
+      if (selectedShipmentIds.includes(selection)) {
+        // remove it
+        newSelection = selectedShipmentIds.filter((e) => e !== selection);
+        // if something is deselected then selectAll is false
+        setIsSelectAll(false);
+      } else {
+        // add it
+        newSelection[0] = selection;
+
+        setSelectedShipmentIds(newSelection);
+        setIsSelectAll(newSelection.length >= 1);
+      }
+      return newSelection;
+    },
+    [selectedShipmentIds, setSelectedShipmentIds]
+  );
+
+  const onQueueRowClick = useCallback(
+    (selectionModel, tableData) => {
+      const newSelectedShipmentIds = handleSelection(selectionModel, tableData);
+
+      setSelectedShipmentIds([...newSelectedShipmentIds]);
+    },
+    [handleSelection, setSelectedShipmentIds]
+  );
+
+  const onSelectAllClick = useCallback(
+    (value, tableData) => {
+      setIsSelectAll(value);
+    },
+    [setIsSelectAll]
+  );
+
   const columns = useMemo(
     () => [
+      getCheckboxColumn(
+        () => false, // No params to disable on for now.
+        selectedShipmentIds,
+        isSelectAllOn,
+        tableData,
+        onSelectAllClick,
+        onQueueRowClick
+      ),
       {
         field: "label",
         flex: 2,
@@ -138,49 +182,6 @@ const ReceivingQueueTable = ({
           return <ReceivingQueueDropdown params={params} />;
         },
       },
-      // {
-      //   field: "orderNumber",
-      //   flex: 1,
-      //   renderHeader: (params) => {
-      //     return <Typography sx={{ fontWeight: 900 }}>Order</Typography>;
-      //   },
-      // },
-      // {
-      //   field: "part",
-      //   renderCell: (params) => (
-      //     <div>
-      //       <Typography>{params.row.part}</Typography>
-      //       <Typography color="textSecondary">
-      //         {params.row.partDescription}
-      //       </Typography>
-      //     </div>
-      //   ),
-      //   flex: 1,
-      //   renderHeader: (params) => {
-      //     return <Typography sx={{ fontWeight: 900 }}>Part</Typography>;
-      //   },
-      // },
-      // {
-      //   field: "batchQty",
-      //   type: "number",
-      //   flex: 0.75,
-      //   renderHeader: (params) => {
-      //     return <Typography sx={{ fontWeight: 900 }}>Batch Qty</Typography>;
-      //   },
-      // },
-      // {
-      //   field: "fulfilledQty",
-      //   type: "number",
-      //   renderHeader: (params) => {
-      //     return (
-      //       <div className={classes.fulfilledQtyHeader}>
-      //         <Typography sx={{ fontWeight: 900 }}>Fulfilled Qty</Typography>
-      //         <HelpTooltip tooltipText="This includes number of items that have been packed as well as number of items that have shipped." />
-      //       </div>
-      //     );
-      //   },
-      //   flex: 0.75,
-      // },
       {
         field: "source",
         flex: 1,
@@ -189,7 +190,13 @@ const ReceivingQueueTable = ({
         },
       },
     ],
-    []
+    [
+      selectedShipmentIds,
+      isSelectAllOn,
+      onQueueRowClick,
+      tableData,
+      onSelectAllClick,
+    ]
   );
 
   const sortDataByModel = useCallback(
@@ -203,7 +210,7 @@ const ReceivingQueueTable = ({
         // setQueueData(
         return clickedColumnField?.handler(
           model[0]?.sort,
-          selectedOrderIds,
+          selectedShipmentIds,
           data
         );
         // );
@@ -211,25 +218,27 @@ const ReceivingQueueTable = ({
         return data;
       }
     },
-    [columns, selectedOrderIds]
+    [columns, selectedShipmentIds]
   );
 
   useEffect(() => {
     const filtered = receivingQueue.filter(
       (order) =>
-        order?.orderNumber?.toLowerCase().includes(searchText?.toLowerCase()) ||
-        order?.items?.filter((e) =>
-          e.item?.partNumber?.toLowerCase().includes(searchText?.toLowerCase())
-        ).length > 0 ||
-        selectedOrderIds.includes(order?.id) // Ensure selected rows are included
+        order.label.toLowerCase().includes(searchText?.toLowerCase()) ||
+        order.manifest
+          .map((e) => [e.item?.orderNumber, e.item?.partNumber])
+          .flat()
+          .map((e) => e.toLowerCase().includes(searchText?.toLowerCase()))
+          .some((e) => e) ||
+        selectedShipmentIds.includes(order?.id) // Ensure selected rows are included
     );
     setFilteredReceivingQueue(sortDataByModel(sortModel, filtered));
     // eslint-disable-next-line
   }, [searchText, setFilteredReceivingQueue]);
 
   useEffect(() => {
-    setQueueData(receivingQueue);
-  }, [receivingQueue]);
+    setQueueData(tableData);
+  }, [tableData]);
 
   //TODO: Set later for when data is coming in.
   // eslint-disable-next-line
@@ -290,17 +299,17 @@ const ReceivingQueueTable = ({
         onSortModelChange={(model) => {
           setSortModel(model);
           setQueueData(
-            sortDataByModel(model, tableData, columns, selectedOrderIds)
+            sortDataByModel(model, tableData, columns, selectedShipmentIds)
           );
         }}
         components={{
           LoadingOverlay: () => <PackShipProgress />,
           Footer: () =>
-            selectedOrderIds.length > 0 ? (
+            selectedShipmentIds.length > 0 ? (
               <Grid container item alignItems="center" spacing={2}>
                 <Grid container item xs={6} justifyContent="flex-start">
                   <Typography sx={{ padding: "8px" }}>
-                    {selectedOrderIds.length} rows selected
+                    {selectedShipmentIds.length} rows selected
                   </Typography>
                 </Grid>
                 <Grid container item xs={6} justifyContent="flex-end">

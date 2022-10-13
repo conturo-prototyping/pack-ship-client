@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useCallback, useMemo } from "react";
 import PackShipTabs from "../components/Tabs";
 import { Box, Grid } from "@mui/material";
 import makeStyles from "@mui/styles/makeStyles";
@@ -13,6 +13,9 @@ import ReceivingQueueTable from "./tables/ReceivingQueueTable";
 import { useLocalStorage } from "../utils/localStorage";
 import CommonButton from "../common/Button";
 import { OrderPartNumberSearch } from "../components/OrderAndPartSearchBar";
+import ReceiveShipmentDialog from "../receive_shipment/ReceiveShipmentDialog";
+import { snackbarVariants, usePackShipSnackbar } from "../common/Snackbar";
+import { API } from "../services/server";
 
 const useStyle = makeStyles((theme) => ({
   box: {
@@ -37,13 +40,21 @@ export const TabNames = {
 const ReceivingQueue = () => {
   const classes = useStyle();
 
+  const [searchString, setSearchString] = useState("");
+
   //isMounted will be used later to make sure data isn't misrepresented
   // eslint-disable-next-line
   const [isMounted, setIsMounted] = useState(false);
+  const enqueueSnackbar = usePackShipSnackbar();
 
   // Queue Table Data
   const [receivingQueue, setReceivingQueue] = useState([]);
   const [filteredReceivingQueue, setFilteredReceivingQueue] = useState([]);
+  const [selectedShipmentIds, setSelectedShipmentIds] = useState([]);
+
+  // Receive Shipment Window Data
+  const [receiveShipmentWindowOpen, setReceiveShipmentWindowOpen] =
+    useState(false);
 
   const [sortRecQueueModel, setSortRecQueueModel] = useLocalStorage(
     "sortPackQueueModel",
@@ -59,6 +70,31 @@ const ReceivingQueue = () => {
   // eslint-disable-next-line
   const [currentTab, setCurrentTab] = useState(TabNames.Queue);
 
+  function onReceiveShipmentClose() {
+    setReceiveShipmentWindowOpen(false);
+  }
+
+  const onReceiveShipmentSubmit = useCallback(
+    (filledForm, id) => {
+      const items = filledForm.map((e) => {
+        return { item: e.id, qty: e.qtyReceived };
+      });
+
+      API.submitIncomingDelivery(id, items)
+        .then(() => {
+          enqueueSnackbar(
+            "Received incoming delivery!",
+            snackbarVariants.success
+          );
+          onReceiveShipmentClose();
+        })
+        .catch((e) => {
+          enqueueSnackbar(e.message, snackbarVariants.error);
+        });
+    },
+    [enqueueSnackbar]
+  );
+
   function onTabChange(event, newValue) {
     setCurrentTab(Object.keys(TabNames)[newValue]);
   }
@@ -67,6 +103,12 @@ const ReceivingQueue = () => {
     setIsMounted(true);
     return () => setIsMounted(false);
   }, []);
+
+  const selectedReceiveShipment = useMemo(
+    () =>
+      filteredReceivingQueue?.filter((e) => selectedShipmentIds[0] === e.id),
+    [filteredReceivingQueue, selectedShipmentIds]
+  );
 
   return (
     <Box className={classes.box}>
@@ -86,12 +128,19 @@ const ReceivingQueue = () => {
               <Grid container item xs={"auto"}>
                 <CommonButton
                   label="Receive Shipment"
-                  disabled={true}
-                  onClick={undefined}
+                  disabled={selectedShipmentIds.length === 0}
+                  onClick={() => {
+                    setReceiveShipmentWindowOpen((prev) => !prev);
+                  }}
                 />
               </Grid>
               <Grid container item justifyContent="start" xs={6}>
-                <Search onSearch={() => {}} autoFocus />
+                <Search
+                  onSearch={(e) => {
+                    setSearchString(e);
+                  }}
+                  autoFocus
+                />
               </Grid>
             </Grid>
           ) : (
@@ -116,17 +165,31 @@ const ReceivingQueue = () => {
                 tableData={filteredReceivingQueue}
                 sortModel={sortRecQueueModel}
                 setSortModel={setSortRecQueueModel}
-                selectedOrderIds={receivingQueue}
-                setSelectedOrderIds={setReceivingQueue}
+                selectedShipmentIds={selectedShipmentIds}
+                setSelectedShipmentIds={setSelectedShipmentIds}
                 setReceivingQueue={setReceivingQueue}
                 setFilteredReceivingQueue={setFilteredReceivingQueue}
-                searchText={""}
+                searchText={searchString}
               />
             }
             historyTab={<div />}
           />
         </Grid>
       </Grid>
+
+      <ReceiveShipmentDialog
+        onSubmit={onReceiveShipmentSubmit}
+        open={receiveShipmentWindowOpen}
+        onClose={onReceiveShipmentClose}
+        orderNum={""}
+        parts={selectedReceiveShipment}
+        title={
+          selectedReceiveShipment?.length > 0
+            ? `Receive Shipment for ${selectedReceiveShipment[0]["label"]}`
+            : ""
+        }
+        viewOnly={false}
+      />
     </Box>
   );
 };

@@ -326,4 +326,19 @@ export const API = {
       );
     }
   },
+
+  async submitIncomingDelivery(_id, receivedQuantities) {
+    try {
+      const response = await instance.post("/incomingDeliveries/receive", {
+        _id,
+        receivedQuantities,
+      });
+      return response.data;
+    } catch (error) {
+      console.error("submitIncomingDelivery", error);
+      throw new Error(
+        error?.response?.data ?? "An error occurred downloading PDF"
+      );
+    }
+  },
 };

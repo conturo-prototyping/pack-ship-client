@@ -34,13 +34,12 @@ const PackingSlipDialog = ({
       onBackdropClick={onClose}
       onSubmit={() => onSubmit(filledForm, orderNum, destination)}
       submitDisabled={!isSubmittable()}
-      actions={actions}
-    >
+      actions={actions}>
       <DestinationToggle
         disabled={!!destination}
         destination={destination || DestinationTypes.CUSTOMER}
         onDestinationChange={onDestinationChange}
-      ></DestinationToggle>
+      />
 
       <PackingSlipTable
         rowData={parts}
