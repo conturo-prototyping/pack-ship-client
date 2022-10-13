@@ -287,7 +287,7 @@ export const API = {
         customerHandoffName,
         shippingAddress,
         isDueBack,
-        isDueBackOn: isDueBackOn.$d.toLocaleDateString(),
+        isDueBackOn: isDueBackOn?.$d.toLocaleDateString(),
       });
 
       return response.data;
@@ -323,6 +323,18 @@ export const API = {
       console.error("getShippingQueue", error);
       throw new Error(
         error?.response?.data ?? "An error occurred getting shipping queue"
+      );
+    }
+  },
+
+  async getReceivingHistory() {
+    try {
+      const response = await instance.get("/incomingDeliveries/allReceived");
+      return response.data;
+    } catch (error) {
+      console.error("getReceivingHistory", error);
+      throw new Error(
+        error?.response?.data ?? "An error occurred getting receiving history"
       );
     }
   },
