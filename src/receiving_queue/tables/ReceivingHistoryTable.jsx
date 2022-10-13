@@ -144,7 +144,6 @@ const ReceivingHistoryTable = ({
         sortModel={sortModel}
         onSortModelChange={async (model) => {
           setSortModel(model);
-          await fetchSearch();
         }}
         loading={historyLoading}
         components={{

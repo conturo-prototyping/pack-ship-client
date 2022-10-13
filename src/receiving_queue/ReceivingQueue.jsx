@@ -79,6 +79,7 @@ const ReceivingQueue = () => {
   const [currentTab, setCurrentTab] = useState(TabNames.Queue);
 
   const [filteredHist, setFilteredHist] = useState([]);
+  const [allHist, setAllHist] = useState([]);
   const [historyLoading, setHistoryLoading] = useState(false);
   const histResultsPerPage = 10;
   function onReceiveShipmentClose() {
@@ -129,6 +130,7 @@ const ReceivingQueue = () => {
               };
             });
             setFilteredHist(history);
+            setAllHist(history);
           }
         })
         .finally(() => {
@@ -185,7 +187,7 @@ const ReceivingQueue = () => {
                 onSearch={async (e) => {
                   if (e) {
                     setFilteredHist(
-                      filteredHist.filter((data) =>
+                      allHist.filter((data) =>
                         data.label.toLowerCase().includes(e.toLowerCase())
                       )
                     );
