@@ -105,7 +105,8 @@ const ReceivingQueue = () => {
   }, []);
 
   const selectedReceiveShipment = useMemo(
-    () => filteredReceivingQueue.filter((e) => selectedShipmentIds[0] === e.id),
+    () =>
+      filteredReceivingQueue?.filter((e) => selectedShipmentIds[0] === e.id),
     [filteredReceivingQueue, selectedShipmentIds]
   );
 
@@ -115,8 +116,7 @@ const ReceivingQueue = () => {
         className={classes.topBarGrid}
         container
         justifyContent="start"
-        spacing={2}
-      >
+        spacing={2}>
         <Grid container item xs={12} spacing={2}>
           {currentTab === TabNames.Queue ? (
             <Grid
@@ -124,8 +124,7 @@ const ReceivingQueue = () => {
               item
               xs={12}
               spacing={2}
-              sx={{ marginBottom: "1rem!important" }}
-            >
+              sx={{ marginBottom: "1rem!important" }}>
               <Grid container item xs={"auto"}>
                 <CommonButton
                   label="Receive Shipment"
@@ -185,7 +184,7 @@ const ReceivingQueue = () => {
         orderNum={""}
         parts={selectedReceiveShipment}
         title={
-          selectedReceiveShipment.length > 0
+          selectedReceiveShipment?.length > 0
             ? `Receive Shipment for ${selectedReceiveShipment[0]["label"]}`
             : ""
         }
