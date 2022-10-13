@@ -13,7 +13,7 @@ export default function ContextMenu({ children, contextMenu, setContextMenu }) {
         anchorReference="anchorPosition"
         anchorPosition={
           contextMenu !== null
-            ? { top: contextMenu.mouseY, left: contextMenu.mouseX }
+            ? { top: contextMenu?.mouseY, left: contextMenu?.mouseX }
             : undefined
         }
         componentsProps={{

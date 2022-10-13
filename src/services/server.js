@@ -287,7 +287,7 @@ export const API = {
         customerHandoffName,
         shippingAddress,
         isDueBack,
-        isDueBackOn: isDueBackOn.$d.toLocaleDateString(),
+        isDueBackOn: isDueBackOn?.$d.toLocaleDateString(),
       });
 
       return response.data;

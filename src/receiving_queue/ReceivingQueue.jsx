@@ -13,7 +13,6 @@ import ReceivingQueueTable from "./tables/ReceivingQueueTable";
 import { useLocalStorage } from "../utils/localStorage";
 import CommonButton from "../common/Button";
 import ReceivingHistoryTable from "./tables/ReceivingHistoryTable";
-import { OrderPartNumberSearch } from "../components/OrderAndPartSearchBar";
 import ReceiveShipmentDialog from "../receive_shipment/ReceiveShipmentDialog";
 import { snackbarVariants, usePackShipSnackbar } from "../common/Snackbar";
 import { API } from "../services/server";
@@ -139,14 +138,6 @@ const ReceivingQueue = () => {
     // eslint-disable-next-line
     [histResultsPerPage, isMounted, currentTab]
   );
-
-  async function onHistorySearchClick() {
-    await fetchReceivingHistory();
-  }
-
-  async function onHistoryClearClick() {
-    await fetchReceivingHistory();
-  }
 
   const selectedReceiveShipment = useMemo(
     () => filteredReceivingQueue.filter((e) => selectedShipmentIds[0] === e.id),
