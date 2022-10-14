@@ -12,7 +12,7 @@ import {
 import ReceivingQueueTable from "./tables/ReceivingQueueTable";
 import { useLocalStorage } from "../utils/localStorage";
 import CommonButton from "../common/Button";
-import { OrderPartNumberSearch } from "../components/OrderAndPartSearchBar";
+import ReceivingHistoryTable from "./tables/ReceivingHistoryTable";
 import ReceiveShipmentDialog from "../receive_shipment/ReceiveShipmentDialog";
 import { snackbarVariants, usePackShipSnackbar } from "../common/Snackbar";
 import { API } from "../services/server";
@@ -66,10 +66,22 @@ const ReceivingQueue = () => {
     ]
   );
 
+  const [sortRecHistoryModel, setSortRecHistoryModel] = useLocalStorage(
+    "sortPackHistoryModel",
+    [
+      { field: "label", sort: "asc" },
+      { field: "receivedOn", sort: "asc" },
+    ]
+  );
+
   // Common tab states
   // eslint-disable-next-line
   const [currentTab, setCurrentTab] = useState(TabNames.Queue);
 
+  const [filteredHist, setFilteredHist] = useState([]);
+  const [allHist, setAllHist] = useState([]);
+  const [historyLoading, setHistoryLoading] = useState(false);
+  const histResultsPerPage = 10;
   function onReceiveShipmentClose() {
     setReceiveShipmentWindowOpen(false);
   }
@@ -103,6 +115,31 @@ const ReceivingQueue = () => {
     setIsMounted(true);
     return () => setIsMounted(false);
   }, []);
+
+  const fetchReceivingHistory = useCallback(
+    async () => {
+      if (isMounted && currentTab === 1) setHistoryLoading(true);
+      await API.getReceivingHistory()
+        .then((data) => {
+          if (data && isMounted) {
+            const history = data?.receivedDeliveries.map((e) => {
+              return {
+                id: e._id,
+                label: e.label,
+                receivedOn: new Date(e.receivedOn).toLocaleString(),
+              };
+            });
+            setFilteredHist(history);
+            setAllHist(history);
+          }
+        })
+        .finally(() => {
+          setHistoryLoading(false);
+        });
+    },
+    // eslint-disable-next-line
+    [histResultsPerPage, isMounted, currentTab]
+  );
 
   const selectedReceiveShipment = useMemo(
     () =>
@@ -144,14 +181,22 @@ const ReceivingQueue = () => {
               </Grid>
             </Grid>
           ) : (
-            <OrderPartNumberSearch
-              partNumber={""}
-              orderNumber={""}
-              onClearClick={() => {}}
-              onSearchClick={() => {}}
-              setOrderNumber={() => {}}
-              setPartNumber={() => {}}
-            />
+            <Grid container item justifyContent="start" xs={6}>
+              <Search
+                onSearch={async (e) => {
+                  if (e) {
+                    setFilteredHist(
+                      allHist.filter((data) =>
+                        data.label.toLowerCase().includes(e.toLowerCase())
+                      )
+                    );
+                  } else {
+                    await fetchReceivingHistory();
+                  }
+                }}
+                autoFocus
+              ></Search>
+            </Grid>
           )}
         </Grid>
 
@@ -172,7 +217,15 @@ const ReceivingQueue = () => {
                 searchText={searchString}
               />
             }
-            historyTab={<div />}
+            historyTab={
+              <ReceivingHistoryTable
+                sortModel={sortRecHistoryModel}
+                setSortModel={setSortRecHistoryModel}
+                fetchSearch={fetchReceivingHistory}
+                historyLoading={historyLoading}
+                filteredHist={filteredHist}
+              />
+            }
           />
         </Grid>
       </Grid>
