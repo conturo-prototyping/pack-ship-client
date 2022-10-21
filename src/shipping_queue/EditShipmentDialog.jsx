@@ -69,7 +69,7 @@ const EditShipmentTableDialog = ({
       <PopupDialog
         open={isOpen}
         titleText={`${viewOnly ? "" : "Edit Shipment / "}${
-          shipment?.shipmentId
+          shipment?.label
         } (${shipment?.manifest?.[0]?.destination})`}
         onClose={onClose}
         onSubmit={onSubmit}

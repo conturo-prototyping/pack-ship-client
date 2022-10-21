@@ -22,7 +22,7 @@ const ShipQueuePackSlipDrowdown = ({ params }) => {
           }}
         >
           {isOpen ? <ExpandLess /> : <ExpandMore />}
-          <ListItemText primary={params.row.label.split("-")[1]} />
+          <ListItemText primary={params.row.label} />
         </ListItemButton>
         <Collapse in={isOpen} timeout="auto" unmountOnExit>
           <DataGrid

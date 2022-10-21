@@ -19,7 +19,7 @@ const ReceiveShipmentDialog = ({
     if (manifest)
       return manifest.map((e) => {
         return {
-          shipmentID: parts[0].id,
+          label: parts[0].label,
           id: e.item._id,
           batch: e.item.batch,
           orderNumber: e.item.orderNumber,
