@@ -6,10 +6,10 @@ const instance = axios.create({
 });
 
 export const API = {
-  async downloadPDF(label, orderNumber, dateCreated) {
+  async downloadPDF(packingSlipId, orderNumber, dateCreated) {
     try {
       const response = await instance.post("/packingSlips/pdf", {
-        label, // this is the item._id not the item.label the user interacts with (dumb name....)
+        packingSlipId,
         orderNumber,
         dateCreated,
       });
