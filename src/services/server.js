@@ -13,7 +13,6 @@ export const API = {
         orderNumber,
         dateCreated,
       });
-      console.log("pdf downloaded");
       return response.data;
     } catch (error) {
       console.error("downloadPDF", error);
