@@ -4,7 +4,7 @@ const SORT = {
 };
 
 const FIELD = {
-  packingSlipId: "SLIPNUM",
+  label: "SLIPNUM",
   dateCreated: "DATE",
   orderId: "ORDER",
 };

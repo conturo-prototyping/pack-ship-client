@@ -109,7 +109,7 @@ const ShippingQueueTable = ({
               queueTableData.push({
                 id: e._id,
                 orderNumber: e.orderNumber,
-                packingSlipId: e.packingSlipId,
+                label: e.label,
                 customer: e.customer,
                 items: e.items,
                 destination: e.destination,
@@ -255,7 +255,7 @@ const ShippingQueueTable = ({
         },
       },
       {
-        field: "packingSlipId",
+        field: "label",
         renderCell: (params) => {
           return <ShipQueuePackSlipDrowdown params={params} />;
         },
