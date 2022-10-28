@@ -109,7 +109,7 @@ const ShippingQueueTable = ({
               queueTableData.push({
                 id: e._id,
                 orderNumber: e.orderNumber,
-                label: e.label,
+                label: e?.label,
                 customer: e.customer,
                 items: e.items,
                 destination: e.destination,
