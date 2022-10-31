@@ -100,7 +100,7 @@ const ReceivingHistoryTable = ({
           setContextMenu(null);
         }}
       >
-        Delete
+        Undo Receipt
       </MenuItem>,
     ],
     []
