@@ -39,6 +39,7 @@ const ReceiveShipmentTable = ({
         return <Typography sx={{ fontWeight: 900 }}>Qty Received</Typography>;
       },
       flex: 1,
+      type: "number",
       default: 0,
       editable: true,
       preProcessEditCellProps: (params) => {
