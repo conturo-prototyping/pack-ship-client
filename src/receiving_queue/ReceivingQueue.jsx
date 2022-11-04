@@ -153,7 +153,8 @@ const ReceivingQueue = () => {
         className={classes.topBarGrid}
         container
         justifyContent="start"
-        spacing={2}>
+        spacing={2}
+      >
         <Grid container item xs={12} spacing={2}>
           {currentTab === TabNames.Queue ? (
             <Grid
@@ -161,13 +162,17 @@ const ReceivingQueue = () => {
               item
               xs={12}
               spacing={2}
-              sx={{ marginBottom: "1rem!important" }}>
+              sx={{ marginBottom: "1rem!important" }}
+            >
               <Grid container item xs={"auto"}>
                 <CommonButton
                   label="Receive Shipment"
                   disabled={selectedShipmentIds.length === 0}
                   onClick={() => {
-                    setReceiveShipmentWindowOpen((prev) => !prev);
+                    setTimeout(
+                      () => setReceiveShipmentWindowOpen((prev) => !prev),
+                      0
+                    );
                   }}
                 />
               </Grid>
