@@ -27,7 +27,7 @@ const ReceiveShipmentDialog = ({
             partNumber: e.item.partNumber,
             partRev: e.item.partRev,
             qty: e.qty,
-            qtyReceived: 0,
+            qtyReceived: e.qtyReceived || 0,
           };
         });
     }
