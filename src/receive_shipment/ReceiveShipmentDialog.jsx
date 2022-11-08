@@ -17,7 +17,7 @@ const ReceiveShipmentDialog = ({
   const [filledForm, setFilledForm] = useState([]);
   const [originalData, setOriginalData] = useState([]);
   const [displayDateHelper, setDisplayDateHelper] = useState(false);
-  const [receivedOn, setReceivedOn] = useState("");
+  const [receivedOn, setReceivedOn] = useState(undefined);
 
   const originalReceivedOn = useMemo(() => parts[0]?.receivedOn, [parts]);
 
@@ -46,7 +46,7 @@ const ReceiveShipmentDialog = ({
   }, [rowData]);
 
   useEffect(() => {
-    setDisplayDateHelper(receivedOn === "" || receivedOn === undefined);
+    setDisplayDateHelper(!receivedOn?.isValid() || receivedOn === undefined);
   }, [receivedOn]);
 
   const isSubmittable = useCallback(() => {
@@ -63,7 +63,8 @@ const ReceiveShipmentDialog = ({
         (e) => e.qtyReceived !== undefined && e.qtyReceived > 0
       ) &&
       hasChanged() &&
-      !displayDateHelper
+      !displayDateHelper &&
+      receivedOn?.isValid()
     );
   }, [
     displayDateHelper,
