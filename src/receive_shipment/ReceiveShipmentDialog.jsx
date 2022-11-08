@@ -1,18 +1,25 @@
-import React, { useState, useEffect, useMemo } from "react";
+import React, { useState, useEffect, useMemo, useCallback } from "react";
 import PackingDialog from "../components/PackingDialog";
 import ReceiveShipmentTable from "./components/ReceiveShipmentTable";
+import { DialogActions, Grid, Typography } from "@mui/material";
+import CommonButton from "../common/Button";
+import PackShipDatePicker from "../components/PackShipDatePicker";
 
 const ReceiveShipmentDialog = ({
   onSubmit,
   open,
   onClose,
-  orderNum,
   parts,
   title,
   actions = undefined,
   viewOnly = false,
 }) => {
   const [filledForm, setFilledForm] = useState([]);
+  const [originalData, setOriginalData] = useState([]);
+  const [displayDateHelper, setDisplayDateHelper] = useState(false);
+  const [receivedOn, setReceivedOn] = useState("");
+
+  const originalReceivedOn = useMemo(() => parts[0]?.receivedOn, [parts]);
 
   const rowData = useMemo(() => {
     const manifest = parts[0]?.manifest;
@@ -27,6 +34,7 @@ const ReceiveShipmentDialog = ({
           partNumber: e.item.partNumber,
           partRev: e.item.partRev,
           qty: e.qty,
+          qtyReceived: e.qtyReceived || 0,
         };
       });
     return [];
@@ -34,11 +42,85 @@ const ReceiveShipmentDialog = ({
 
   useEffect(() => {
     setFilledForm(rowData);
+    setOriginalData(rowData);
   }, [rowData]);
 
-  function isSubmittable() {
-    return filledForm.every((e) => e.qtyReceived && e.qtyReceived >= 0);
-  }
+  useEffect(() => {
+    setDisplayDateHelper(receivedOn === "" || receivedOn === undefined);
+  }, [receivedOn]);
+
+  const isSubmittable = useCallback(() => {
+    const hasChanged = () => {
+      return (
+        filledForm.some(
+          (e, index) => e.qtyReceived !== originalData[index].qtyReceived
+        ) || receivedOn !== originalReceivedOn
+      );
+    };
+
+    return (
+      filledForm.every(
+        (e) => e.qtyReceived !== undefined && e.qtyReceived > 0
+      ) &&
+      hasChanged() &&
+      !displayDateHelper
+    );
+  }, [
+    displayDateHelper,
+    filledForm,
+    receivedOn,
+    originalReceivedOn,
+    originalData,
+  ]);
+
+  const generateActions = useMemo(() => {
+    return (
+      <DialogActions sx={{ display: "flex", flexGrow: 4 }}>
+        <Grid
+          xs={3}
+          container
+          item
+          direction="row"
+          spacing={0}
+          justifyContent="left">
+          <Grid xs={4} container item alignItems={"center"}>
+            <Typography sx={{ fontWeight: "bold", alignItems: "center" }}>
+              Date Received:
+            </Typography>
+          </Grid>
+          <Grid item xs={8}>
+            <PackShipDatePicker
+              disabled={false}
+              value={receivedOn}
+              disablePast={false}
+              label="Date Received"
+              onChange={(newValue) => {
+                setReceivedOn(newValue);
+                setDisplayDateHelper(false);
+              }}
+              displayDateHelper={displayDateHelper}
+            />
+          </Grid>
+        </Grid>
+        <div style={{ flex: "1 0 0" }} />
+        <CommonButton onClick={onClose} label="Cancel" />
+        <CommonButton
+          disabled={!isSubmittable()}
+          autoFocus
+          onClick={() => onSubmit(filledForm, parts[0]?.id, receivedOn)}
+          label={"Ok"}
+        />
+      </DialogActions>
+    );
+  }, [
+    receivedOn,
+    filledForm,
+    isSubmittable,
+    onClose,
+    onSubmit,
+    parts,
+    displayDateHelper,
+  ]);
 
   return (
     <PackingDialog
@@ -48,7 +130,7 @@ const ReceiveShipmentDialog = ({
       onBackdropClick={onClose}
       onSubmit={() => onSubmit(filledForm, parts[0]?.id)}
       submitDisabled={!isSubmittable()}
-      actions={actions}>
+      actions={actions ? actions : generateActions}>
       <ReceiveShipmentTable
         rowData={rowData}
         filledForm={filledForm}

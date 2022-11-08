@@ -87,9 +87,9 @@ const ReceivingQueue = () => {
   }
 
   const onReceiveShipmentSubmit = useCallback(
-    (filledForm, id) => {
+    (filledForm, id, receivedOn) => {
       const items = filledForm.map((e) => {
-        return { item: e.id, qty: e.qtyReceived };
+        return { item: e.id, qty: e.qtyReceived, receivedOn };
       });
 
       API.submitIncomingDelivery(id, items)
@@ -195,7 +195,7 @@ const ReceivingQueue = () => {
                   }
                 }}
                 autoFocus
-              ></Search>
+              />
             </Grid>
           )}
         </Grid>

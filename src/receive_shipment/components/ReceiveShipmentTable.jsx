@@ -42,7 +42,9 @@ const ReceiveShipmentTable = ({
       default: 0,
       editable: true,
       preProcessEditCellProps: (params) => {
-        const hasError = !hasValueError(params.props.value);
+        const hasError =
+          !hasValueError(params.props.value) ||
+          parseInt(params.props.value) < 0;
         return { ...params.props, error: hasError };
       },
     },
@@ -56,7 +58,7 @@ const ReceiveShipmentTable = ({
             if (Object.keys(params).includes(e.id)) {
               return {
                 ...e,
-                qtyReceived: params[e.id]["qtyReceived"]["value"],
+                qtyReceived: parseInt(params[e.id]["qtyReceived"]["value"]),
               };
             }
             return e;
