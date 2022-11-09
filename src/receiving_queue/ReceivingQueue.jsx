@@ -87,9 +87,9 @@ const ReceivingQueue = () => {
   }
 
   const onReceiveShipmentSubmit = useCallback(
-    (filledForm, id, receivedOn) => {
+    (filledForm, id) => {
       const items = filledForm.map((e) => {
-        return { item: e.id, qty: e.qtyReceived, receivedOn };
+        return { item: e.id, qty: e.qtyReceived };
       });
 
       API.submitIncomingDelivery(id, items)
