@@ -103,7 +103,7 @@ const EditReceiveShipmentDialog = ({
           </Grid>
         </Grid>
         <div style={{ flex: "1 0 0" }} />
-        {!viewOnly ? (
+        {!viewOnly || (
           <>
             <CommonButton onClick={onClose} label="Cancel" />
             <CommonButton
@@ -113,8 +113,6 @@ const EditReceiveShipmentDialog = ({
               label={"Ok"}
             />
           </>
-        ) : (
-          <></>
         )}
       </DialogActions>
     );
