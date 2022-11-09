@@ -18,6 +18,8 @@ import {
   PACKING_SLIP_TOP_MARGIN,
   PACKING_SLIP_RIGHT_MARGIN,
   PACKING_SLIP_LEFT_MARGIN,
+  TOP_LEFT_ACTION_BUTTON_WIDTH,
+  TOP_LEFT_ACTION_BUTTON_HEIGHT,
 } from "../utils/Constants";
 import { DestinationTypes } from "../utils/Constants";
 
@@ -254,6 +256,10 @@ const PackingQueue = () => {
                   label="Make Packing Slip"
                   disabled={selectedOrderIds.length === 0 || tabValue !== 0}
                   onClick={onPackingSlipClick}
+                  sx={{
+                    minWidth: TOP_LEFT_ACTION_BUTTON_WIDTH,
+                    maxHeight: TOP_LEFT_ACTION_BUTTON_HEIGHT,
+                  }}
                 />
               </Grid>
               <Grid container item justifyContent="start" xs={6}>

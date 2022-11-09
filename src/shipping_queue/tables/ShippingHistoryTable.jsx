@@ -15,6 +15,7 @@ import pdfMake from "pdfmake/build/pdfmake";
 import {
   PACKING_SLIP_TOP_MARGIN,
   PACKING_SLIP_BOTTOM_MARGIN,
+  NAV_BAR_HEIGHT,
 } from "../../utils/Constants";
 
 const useStyle = makeStyles((theme) => ({
@@ -290,21 +291,21 @@ const ShippingHistoryTable = ({
     [fetchSearch, sortModel, orderNumber, partNumber]
   );
 
-  const createShipmentPdfDoc = useCallback( async () => {
+  const createShipmentPdfDoc = useCallback(async () => {
     await API.downloadShipmentPDF(clickedHistShipment)
-      .then( (data) => {
+      .then((data) => {
         pdfMake.createPdf(data.docDefinition).open();
-        enqueueSnackbar("Shipment paperwork downloaded", snackbarVariants.success);
+        enqueueSnackbar(
+          "Shipment paperwork downloaded",
+          snackbarVariants.success
+        );
         return data;
       })
-      .catch( e => {
+      .catch((e) => {
         console.error(e);
         enqueueSnackbar(e.message, snackbarVariants.error);
-      })
-  },[clickedHistShipment, enqueueSnackbar]);
-
-
-
+      });
+  }, [clickedHistShipment, enqueueSnackbar]);
 
   const columns = [
     {
@@ -352,9 +353,9 @@ const ShippingHistoryTable = ({
       View
     </MenuItem>,
     // <MenuItem key="download-menu-item">Download</MenuItem>,
-    <MenuItem 
-      key={"Download"} 
-      onClick={ async () => {
+    <MenuItem
+      key={"Download"}
+      onClick={async () => {
         await createShipmentPdfDoc();
         setContextMenu(null);
       }}
@@ -406,7 +407,7 @@ const ShippingHistoryTable = ({
         rowCount={histTotalCount}
         sx={{
           border: "none",
-          height: `calc(100vh - ${PACKING_SLIP_BOTTOM_MARGIN} - ${PACKING_SLIP_TOP_MARGIN} - 15rem)`,
+          height: `calc(100vh - ${PACKING_SLIP_BOTTOM_MARGIN} - ${PACKING_SLIP_TOP_MARGIN} - ${NAV_BAR_HEIGHT} - 5rem)`,
           minHeight: "20rem",
         }}
         className={classes.table}
