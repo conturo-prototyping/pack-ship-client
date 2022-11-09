@@ -265,7 +265,7 @@ const ReceivingQueueTable = ({
         </tbody>
       </table>
     );
-  }, [page, queueData.length]);
+  }, [page, queueData?.length]);
 
   return (
     <div className={classes.root}>
