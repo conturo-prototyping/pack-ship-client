@@ -19,29 +19,29 @@ const EditReceiveShipmentDialog = ({
   const [displayDateHelper, setDisplayDateHelper] = useState(false);
   const [receivedOn, setReceivedOn] = useState("");
 
-  const originalReceivedOn = useMemo(() => parts[0]?.receivedOn, [parts]);
-
   const rowData = useMemo(() => {
-    const manifest = parts[0]?.manifest;
-    if (manifest)
-      return manifest.map((e) => {
+    const receivedQuantities = parts?.receivedQuantities;
+    if (receivedQuantities) {
+      return receivedQuantities.map((e) => {
         return {
-          label: parts[0].label,
-          id: e.item._id,
-          batch: e.item.batch,
-          orderNumber: e.item.orderNumber,
-          partDescription: e.item.partDescription,
-          partNumber: e.item.partNumber,
-          partRev: e.item.partRev,
-          qty: e.qty,
-          qtyReceived: e.qtyReceived || 0,
+          ...e,
+          id: e._id,
+          qtyReceived: e.qty,
         };
       });
+    }
     return [];
+  }, [parts]);
+
+  const originalReceivedOn = useMemo(() => parts.receivedOn, [parts]);
+
+  useEffect(() => {
+    setReceivedOn(parts.receivedOn);
   }, [parts]);
 
   useEffect(() => {
     setFilledForm(rowData);
+    console.log("ROWDATA", rowData);
     setOriginalData(rowData);
   }, [rowData]);
 
@@ -51,15 +51,29 @@ const EditReceiveShipmentDialog = ({
 
   const isSubmittable = useCallback(() => {
     const hasChanged = () => {
+      console.log(
+        "HASCHANGED",
+        filledForm?.some(
+          (e, index) => e.qtyReceived !== originalData[index].qtyReceived
+        ),
+        receivedOn !== originalReceivedOn
+      );
       return (
-        filledForm.some(
+        filledForm?.some(
           (e, index) => e.qtyReceived !== originalData[index].qtyReceived
         ) || receivedOn !== originalReceivedOn
       );
     };
 
+    console.log(
+      filledForm?.every(
+        (e) => e.qtyReceived !== undefined && e.qtyReceived > 0
+      ),
+      hasChanged(),
+      !displayDateHelper
+    );
     return (
-      filledForm.every(
+      filledForm?.every(
         (e) => e.qtyReceived !== undefined && e.qtyReceived > 0
       ) &&
       hasChanged() &&
@@ -133,7 +147,7 @@ const EditReceiveShipmentDialog = ({
       titleText={title}
       onClose={onClose}
       onBackdropClick={onClose}
-      onSubmit={() => onSubmit(filledForm, parts[0]?.id)}
+      onSubmit={() => onSubmit(filledForm, parts[0]?.id, receivedOn)}
       submitDisabled={!isSubmittable()}
       actions={actions ? actions : generateActions}>
       <ReceiveShipmentTable
