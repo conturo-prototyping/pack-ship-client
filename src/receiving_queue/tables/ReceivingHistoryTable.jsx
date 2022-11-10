@@ -175,12 +175,6 @@ const ReceivingHistoryTable = ({
           ? { mouseX: event.clientX, mouseY: event.clientY }
           : null
       );
-      // TODO CALL SOMETHING?
-      // API.getShipment(selectedRowId).then((data) => {
-      //   if (data) {
-      //     setClickedHistShipment(data.shipment);
-      //   }
-      // });
     }
   };
 

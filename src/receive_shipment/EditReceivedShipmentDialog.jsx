@@ -41,7 +41,6 @@ const EditReceiveShipmentDialog = ({
 
   useEffect(() => {
     setFilledForm(rowData);
-    console.log("ROWDATA", rowData);
     setOriginalData(rowData);
   }, [rowData]);
 
@@ -51,13 +50,6 @@ const EditReceiveShipmentDialog = ({
 
   const isSubmittable = useCallback(() => {
     const hasChanged = () => {
-      console.log(
-        "HASCHANGED",
-        filledForm?.some(
-          (e, index) => e.qtyReceived !== originalData[index].qtyReceived
-        ),
-        receivedOn !== originalReceivedOn
-      );
       return (
         filledForm?.some(
           (e, index) => e.qtyReceived !== originalData[index].qtyReceived
@@ -65,13 +57,6 @@ const EditReceiveShipmentDialog = ({
       );
     };
 
-    console.log(
-      filledForm?.every(
-        (e) => e.qtyReceived !== undefined && e.qtyReceived > 0
-      ),
-      hasChanged(),
-      !displayDateHelper
-    );
     return (
       filledForm?.every(
         (e) => e.qtyReceived !== undefined && e.qtyReceived > 0
@@ -123,7 +108,7 @@ const EditReceiveShipmentDialog = ({
             <CommonButton
               disabled={!isSubmittable()}
               autoFocus
-              onClick={() => onSubmit(filledForm, parts[0]?.id, receivedOn)}
+              onClick={() => onSubmit(filledForm, parts?.id, receivedOn)}
               label={"Ok"}
             />
           </>
@@ -145,9 +130,10 @@ const EditReceiveShipmentDialog = ({
     <PackingDialog
       open={open}
       titleText={title}
+      s
       onClose={onClose}
       onBackdropClick={onClose}
-      onSubmit={() => onSubmit(filledForm, parts[0]?.id, receivedOn)}
+      onSubmit={() => onSubmit(filledForm, parts?._id, receivedOn)}
       submitDisabled={!isSubmittable()}
       actions={actions ? actions : generateActions}>
       <ReceiveShipmentTable
