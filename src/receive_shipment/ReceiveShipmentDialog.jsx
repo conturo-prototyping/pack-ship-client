@@ -15,20 +15,22 @@ const ReceiveShipmentDialog = ({
   const [filledForm, setFilledForm] = useState([]);
 
   const rowData = useMemo(() => {
-    const manifest = parts[0]?.manifest;
-    if (manifest)
-      return manifest.map((e) => {
-        return {
-          label: parts[0].label,
-          id: e.item._id,
-          batch: e.item.batch,
-          orderNumber: e.item.orderNumber,
-          partDescription: e.item.partDescription,
-          partNumber: e.item.partNumber,
-          partRev: e.item.partRev,
-          qty: e.qty,
-        };
-      });
+    if (parts) {
+      const manifest = parts[0]?.manifest;
+      if (manifest)
+        return manifest.map((e) => {
+          return {
+            label: parts[0].label,
+            id: e.item._id,
+            batch: e.item.batch,
+            orderNumber: e.item.orderNumber,
+            partDescription: e.item.partDescription,
+            partNumber: e.item.partNumber,
+            partRev: e.item.partRev,
+            qty: e.qty,
+          };
+        });
+    }
     return [];
   }, [parts]);
 

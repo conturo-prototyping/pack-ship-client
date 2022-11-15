@@ -21,12 +21,16 @@ const EditReceiveShipmentDialog = ({
 
   const rowData = useMemo(() => {
     const receivedQuantities = parts?.receivedQuantities;
+
     if (receivedQuantities) {
       return receivedQuantities.map((e) => {
         return {
           ...e,
           id: e._id,
           qtyReceived: e.qty,
+          qty: e.item.Quantity,
+          partDescription: e.item.PartName,
+          partNumber: e.item.PartNumber,
         };
       });
     }
