@@ -384,7 +384,7 @@ export const API = {
       const response = await instance.patch(
         `/incomingDeliveries/${deliveryId}`,
         {
-          edited,
+          ...edited,
         }
       );
       return response.data;
