@@ -10,6 +10,7 @@ import { PackShipProgress } from "../../common/CircularProgress";
 import {
   PACKING_SLIP_TOP_MARGIN,
   PACKING_SLIP_BOTTOM_MARGIN,
+  NAV_BAR_HEIGHT,
 } from "../../utils/Constants";
 
 const useStyle = makeStyles((theme) => ({
@@ -121,10 +122,8 @@ const PackingQueueTable = ({
 
       return (
         selectedOrderNumber !== null &&
-        (
-          selectedOrderNumber !== params.row.orderNumber ||
-          selectedRows[0].destination !== params.row.destination
-        )
+        (selectedOrderNumber !== params.row.orderNumber ||
+          selectedRows[0].destination !== params.row.destination)
       );
     },
 
@@ -233,7 +232,7 @@ const PackingQueueTable = ({
                 fulfilledQty: e.packedQty,
                 partDescription: e.partDescription,
                 destination: e.destination,
-                destinationCode: e.destinationCode
+                destinationCode: e.destinationCode,
               });
             });
 
@@ -477,7 +476,7 @@ const PackingQueueTable = ({
       <DataGrid
         sx={{
           border: "none",
-          height: `calc(100vh - ${PACKING_SLIP_BOTTOM_MARGIN} - ${PACKING_SLIP_TOP_MARGIN} - 15rem)`,
+          height: `calc(100vh - ${PACKING_SLIP_BOTTOM_MARGIN} - ${PACKING_SLIP_TOP_MARGIN} - ${NAV_BAR_HEIGHT} - 5rem)`,
           minHeight: "20rem",
         }}
         className={classes.table}

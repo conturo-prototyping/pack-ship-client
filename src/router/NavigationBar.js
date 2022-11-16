@@ -1,6 +1,7 @@
 import { AppBar, Box, Tab, Tabs, Toolbar } from "@mui/material";
 import { withStyles } from "@mui/styles";
 import { Link } from "react-router-dom";
+import { NAV_BAR_HEIGHT } from "../utils/Constants";
 import { ROUTE_PACKING_SLIP, ROUTE_SHIPMENTS, ROUTE_RECEIVING } from "./router";
 
 // const CustomTab = withStyles({
@@ -45,7 +46,9 @@ const NavigationBar = ({ value, onChange }) => {
           alignItems: "flex-end",
           borderBottom: 1,
           borderColor: "divider",
-        }}>
+          height: NAV_BAR_HEIGHT,
+        }}
+      >
         <Toolbar>
           <Tabs
             value={value}
@@ -54,7 +57,8 @@ const NavigationBar = ({ value, onChange }) => {
               title: "indicator",
               hidden: false,
               sx: { backgroundColor: "black", height: 4 },
-            }}>
+            }}
+          >
             <CustomTab
               component={Link}
               to={ROUTE_PACKING_SLIP}
@@ -73,8 +77,8 @@ const NavigationBar = ({ value, onChange }) => {
             />
             <CustomTab
               component={Link}
-              to={ROUTE_RECEIVING} // TODO change to a valid route
-              key={ROUTE_RECEIVING} //TODO change to the route
+              to={ROUTE_RECEIVING}
+              key={ROUTE_RECEIVING}
               // style={{ textTransform: "none" }}
               {...a11yProps(2)}
               label="Receiving"

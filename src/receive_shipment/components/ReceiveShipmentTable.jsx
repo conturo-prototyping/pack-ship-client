@@ -72,8 +72,6 @@ const ReceiveShipmentTable = ({
   return (
     <DialogTable
       rowData={rowData}
-      filledForm={filledForm}
-      setFilledForm={setFilledForm}
       columns={columns}
       cellEditName="qtyReceived"
       onEditRowsModelChange={onEditRowsModelChange}
