@@ -212,7 +212,7 @@ const ReceivingQueue = () => {
                   }
                 }}
                 autoFocus
-              ></Search>
+              />
             </Grid>
           )}
         </Grid>

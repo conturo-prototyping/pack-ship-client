@@ -31,7 +31,6 @@ const ReceiveShipmentDialog = ({
           };
         });
     }
-
     return [];
   }, [parts]);
 
@@ -51,8 +50,7 @@ const ReceiveShipmentDialog = ({
       onBackdropClick={onClose}
       onSubmit={() => onSubmit(filledForm, parts[0]?.id)}
       submitDisabled={!isSubmittable()}
-      actions={actions}
-    >
+      actions={actions}>
       <ReceiveShipmentTable
         rowData={rowData}
         filledForm={filledForm}

@@ -12,8 +12,6 @@ import {
   FormGroup,
   Grid,
   Typography,
-  TextField,
-  FormHelperText,
 } from "@mui/material";
 import { API } from "../services/server";
 import { useEffect } from "react";
@@ -21,9 +19,7 @@ import { isShippingInfoValid } from "../utils/Validators";
 import { usePackShipSnackbar, snackbarVariants } from "../common/Snackbar";
 import ShippingAddressForm from "./components/ShippingAddressForm";
 import { DestinationTypes } from "../utils/Constants";
-import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
-import { DatePicker } from "@mui/x-date-pickers/DatePicker";
-import { LocalizationProvider } from "@mui/x-date-pickers/LocalizationProvider";
+import PackShipDatePicker from "../components/PackShipDatePicker";
 
 const CreateShipmentDialog = ({
   customer,
@@ -338,16 +334,14 @@ const CreateShipmentDialog = ({
               item
               direction="row"
               spacing={1}
-              justifyContent="space-evenly"
-            >
+              justifyContent="space-evenly">
               <Grid
                 xs={4}
                 container
                 item
                 direction="row"
                 spacing={1}
-                justifyContent="left"
-              >
+                justifyContent="left">
                 <Grid xs={6} item>
                   <FormGroup>
                     <FormControlLabel
@@ -368,29 +362,20 @@ const CreateShipmentDialog = ({
                   </FormGroup>
                 </Grid>
                 <Grid item xs={6}>
-                  <LocalizationProvider dateAdapter={AdapterDayjs}>
-                    <DatePicker
-                      disabled={!shippingInfo.isDueBack}
-                      disablePast={true}
-                      label="Due Back Date"
-                      value={shippingInfo.isDueBackOn}
-                      onChange={(newValue) => {
-                        setShippingInfo({
-                          ...shippingInfo,
-                          isDueBackOn: newValue,
-                        });
-                        setDisplayDateHelper(false);
-                      }}
-                      renderInput={(params) => <TextField {...params} />}
-                    />
-                    {displayDateHelper && shippingInfo.isDueBack ? (
-                      <FormHelperText error>
-                        Please Provide a Date
-                      </FormHelperText>
-                    ) : (
-                      <></>
-                    )}
-                  </LocalizationProvider>
+                  <PackShipDatePicker
+                    disabled={!shippingInfo.isDueBack}
+                    value={shippingInfo.isDueBackOn}
+                    disablePast={true}
+                    label="Due Back Date"
+                    onChange={(newValue) => {
+                      setShippingInfo({
+                        ...shippingInfo,
+                        isDueBackOn: newValue,
+                      });
+                      setDisplayDateHelper(false);
+                    }}
+                    displayDateHelper={displayDateHelper}
+                  />
                 </Grid>
               </Grid>
 
@@ -400,8 +385,7 @@ const CreateShipmentDialog = ({
                 item
                 direction="row"
                 spacing={1}
-                justifyContent="right"
-              >
+                justifyContent="right">
                 <Grid item>
                   <CommonButton
                     onClick={onClose}
@@ -437,8 +421,7 @@ const CreateShipmentDialog = ({
       }`}
       open={open}
       onClose={onClose}
-      actions={renderDialogActions()}
-    >
+      actions={renderDialogActions()}>
       {renderContents()}
     </PackingDialog>
   );
