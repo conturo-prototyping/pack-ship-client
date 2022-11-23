@@ -90,7 +90,7 @@ const EditReceiveShipmentDialog = ({
           </Grid>
           <Grid item xs={8}>
             <PackShipDatePicker
-              disabled={false}
+              disabled={viewOnly}
               value={receivedOn}
               disablePast={false}
               label="Date Received"
@@ -103,13 +103,17 @@ const EditReceiveShipmentDialog = ({
           </Grid>
         </Grid>
         <div style={{ flex: "1 0 0" }} />
-        <CommonButton onClick={onClose} label="Cancel" />
-        <CommonButton
-          disabled={!isSubmittable()}
-          autoFocus
-          onClick={() => onSubmit(filledForm, parts[0]?.id, receivedOn)}
-          label={"Ok"}
-        />
+        {viewOnly || (
+          <>
+            <CommonButton onClick={onClose} label="Cancel" />
+            <CommonButton
+              disabled={!isSubmittable()}
+              autoFocus
+              onClick={() => onSubmit(filledForm, parts[0]?.id, receivedOn)}
+              label={"Ok"}
+            />
+          </>
+        )}
       </DialogActions>
     );
   }, [
@@ -120,6 +124,7 @@ const EditReceiveShipmentDialog = ({
     onSubmit,
     parts,
     displayDateHelper,
+    viewOnly,
   ]);
 
   return (
