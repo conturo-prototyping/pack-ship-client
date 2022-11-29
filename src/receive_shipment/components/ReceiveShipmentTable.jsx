@@ -40,7 +40,7 @@ const ReceiveShipmentTable = ({
       },
       flex: 1,
       default: 0,
-      editable: true,
+      editable: !viewOnly,
       preProcessEditCellProps: (params) => {
         const hasError =
           !hasValueError(params.props.value) ||
@@ -72,8 +72,6 @@ const ReceiveShipmentTable = ({
   return (
     <DialogTable
       rowData={rowData}
-      filledForm={filledForm}
-      setFilledForm={setFilledForm}
       columns={columns}
       cellEditName="qtyReceived"
       onEditRowsModelChange={onEditRowsModelChange}
