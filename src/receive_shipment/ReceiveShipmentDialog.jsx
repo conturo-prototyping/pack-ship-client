@@ -28,6 +28,7 @@ const ReceiveShipmentDialog = ({
             partRev: e.item.partRev,
             qty: e.qty,
             qtyReceived: e.qtyReceived || 0,
+            customId: e._id + e.item._id,
           };
         });
     }
@@ -56,6 +57,7 @@ const ReceiveShipmentDialog = ({
         filledForm={filledForm}
         setFilledForm={setFilledForm}
         viewOnly={viewOnly}
+        rowId={"customId"}
       />
     </PackingDialog>
   );

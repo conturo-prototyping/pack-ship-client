@@ -68,15 +68,9 @@ const ReceivingQueueTable = ({
 }) => {
   const classes = useStyle();
   const [queueData, setQueueData] = useState(tableData);
-  //TODO: Use later for selections
-  // eslint-disable-next-line
   const [selectedCustomerId, setSelectedCustomerId] = useState(null);
-  //TODO: Use later for selections
-  // eslint-disable-next-line
   const [isSelectAllOn, setIsSelectAll] = useState(false);
   const [isMounted, setIsMounted] = useState(false);
-  //TODO: Set later for when data is coming in.
-  // eslint-disable-next-line
   const [isLoading, setIsLoading] = useState(false);
 
   const numRowsPerPage = 10;

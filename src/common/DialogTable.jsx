@@ -8,6 +8,7 @@ const DialogTable = ({
   cellEditName,
   onEditRowsModelChange,
   viewOnly = false,
+  rowId = "id",
 }) => {
   const apiRef = useGridApiRef();
 
@@ -22,8 +23,8 @@ const DialogTable = ({
 
   useEffect(() => {
     if (!viewOnly) {
-      apiRef.current.setCellFocus(rowData[0].id, cellEditName);
-      apiRef.current.setCellMode(rowData[0].id, cellEditName, "edit");
+      apiRef.current.setCellFocus(rowData[0][rowId], cellEditName);
+      apiRef.current.setCellMode(rowData[0][rowId], cellEditName, "edit");
 
       return apiRef.current.subscribeEvent(
         "cellModeChange",
@@ -74,6 +75,7 @@ const DialogTable = ({
         editMode={"row"}
         apiRef={apiRef}
         onCellClick={handleCellClick}
+        getRowId={(row) => row[rowId]}
       />
     </Box>
   );

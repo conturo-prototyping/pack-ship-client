@@ -3,6 +3,7 @@ import { Typography, List, ListItemText, ListItemButton } from "@mui/material";
 import ExpandLess from "@mui/icons-material/ExpandLess";
 import ExpandMore from "@mui/icons-material/ExpandMore";
 import { DataGrid } from "@mui/x-data-grid";
+import { v4 } from "uuid";
 
 const ReceivingQueueDropdown = ({ params }) => {
   const [isOpen, setIsOpen] = useState(false);
@@ -10,7 +11,7 @@ const ReceivingQueueDropdown = ({ params }) => {
   const tableData = useMemo(() => {
     return params.row.manifest?.map((e) => {
       return {
-        id: e.item.orderBumber + e.item.partNumber,
+        id: e.item.orderBumber + e.item.partNumber + v4(),
         item: e.item,
         order: e.item.orderNumber,
         part: e.item,

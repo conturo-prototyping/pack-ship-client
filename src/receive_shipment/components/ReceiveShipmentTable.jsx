@@ -8,6 +8,7 @@ const ReceiveShipmentTable = ({
   filledForm,
   setFilledForm,
   viewOnly = false,
+  rowId = "id",
 }) => {
   const columns = [
     {
@@ -55,10 +56,10 @@ const ReceiveShipmentTable = ({
       if (params && Object.keys(params).length > 0) {
         setFilledForm(
           filledForm.map((e) => {
-            if (Object.keys(params).includes(e.id)) {
+            if (Object.keys(params).includes(e[rowId])) {
               return {
                 ...e,
-                qtyReceived: parseInt(params[e.id]["qtyReceived"]["value"]),
+                qtyReceived: parseInt(params[e[rowId]]["qtyReceived"]["value"]),
               };
             }
             return e;
@@ -76,6 +77,7 @@ const ReceiveShipmentTable = ({
       cellEditName="qtyReceived"
       onEditRowsModelChange={onEditRowsModelChange}
       viewOnly={viewOnly}
+      rowId={rowId}
     />
   );
 };
