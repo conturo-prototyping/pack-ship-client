@@ -17,6 +17,8 @@ import {
   PACKING_SLIP_BOTTOM_MARGIN,
   PACKING_SLIP_RIGHT_MARGIN,
   PACKING_SLIP_LEFT_MARGIN,
+  TOP_LEFT_ACTION_BUTTON_WIDTH,
+  TOP_LEFT_ACTION_BUTTON_HEIGHT,
 } from "../utils/Constants";
 
 const useStyle = makeStyles((theme) => ({
@@ -171,7 +173,8 @@ const ShippingQueue = () => {
         className={classes.topBarGrid}
         container
         justifyContent="start"
-        spacing={2}>
+        spacing={2}
+      >
         <Grid container item xs={12} spacing={2}>
           {currentTab === TabNames.Queue ? (
             <Grid
@@ -179,12 +182,17 @@ const ShippingQueue = () => {
               item
               xs={12}
               spacing={2}
-              sx={{ marginBottom: "1rem!important" }}>
+              sx={{ marginBottom: "1rem!important" }}
+            >
               <Grid container item xs={"auto"}>
                 <CommonButton
                   label="Create Shipment"
                   disabled={selectedOrderIds.length === 0}
                   onClick={onCreateShipmentClick}
+                  sx={{
+                    minWidth: TOP_LEFT_ACTION_BUTTON_WIDTH,
+                    maxHeight: TOP_LEFT_ACTION_BUTTON_HEIGHT,
+                  }}
                 />
               </Grid>
               <Grid container item justifyContent="start" xs={6}>
