@@ -68,7 +68,6 @@ const ReceivingQueueTable = ({
 }) => {
   const classes = useStyle();
   const [queueData, setQueueData] = useState(tableData);
-  const [selectedCustomerId, setSelectedCustomerId] = useState(null);
   const [isSelectAllOn, setIsSelectAll] = useState(false);
   const [isMounted, setIsMounted] = useState(false);
   const [isLoading, setIsLoading] = useState(false);

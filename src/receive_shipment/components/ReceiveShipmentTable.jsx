@@ -67,7 +67,7 @@ const ReceiveShipmentTable = ({
         );
       }
     },
-    [filledForm, setFilledForm]
+    [filledForm, setFilledForm, rowId]
   );
 
   return (
