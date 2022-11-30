@@ -62,7 +62,7 @@ const EditReceiveShipmentDialog = ({
     };
 
     return (
-      filledForm?.every(
+      filledForm?.some(
         (e) => e.qtyReceived !== undefined && e.qtyReceived > 0
       ) &&
       hasChanged() &&

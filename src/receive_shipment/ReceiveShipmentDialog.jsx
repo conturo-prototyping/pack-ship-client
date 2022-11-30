@@ -39,7 +39,7 @@ const ReceiveShipmentDialog = ({
   }, [rowData]);
 
   function isSubmittable() {
-    return filledForm.every((e) => e.qtyReceived && e.qtyReceived >= 0);
+    return filledForm.some((e) => e.qtyReceived && e.qtyReceived >= 0);
   }
 
   return (
