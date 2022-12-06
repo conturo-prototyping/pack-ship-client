@@ -4,6 +4,7 @@ import ReceiveShipmentTable from "./components/ReceiveShipmentTable";
 import { DialogActions, Grid, Typography } from "@mui/material";
 import CommonButton from "../common/Button";
 import PackShipDatePicker from "../components/PackShipDatePicker";
+import dayjs from "dayjs";
 
 const EditReceiveShipmentDialog = ({
   onSubmit,
@@ -17,7 +18,7 @@ const EditReceiveShipmentDialog = ({
   const [filledForm, setFilledForm] = useState([]);
   const [originalData, setOriginalData] = useState([]);
   const [displayDateHelper, setDisplayDateHelper] = useState(false);
-  const [receivedOn, setReceivedOn] = useState("");
+  const [receivedOn, setReceivedOn] = useState(undefined);
 
   const rowData = useMemo(() => {
     const receivedQuantities = parts?.receivedQuantities;
@@ -40,7 +41,7 @@ const EditReceiveShipmentDialog = ({
   const originalReceivedOn = useMemo(() => parts.receivedOn, [parts]);
 
   useEffect(() => {
-    setReceivedOn(parts.receivedOn);
+    setReceivedOn(dayjs(parts.receivedOn));
   }, [parts]);
 
   useEffect(() => {
@@ -49,7 +50,7 @@ const EditReceiveShipmentDialog = ({
   }, [rowData]);
 
   useEffect(() => {
-    setDisplayDateHelper(receivedOn === "" || receivedOn === undefined);
+    setDisplayDateHelper(!receivedOn?.isValid() || receivedOn === undefined);
   }, [receivedOn]);
 
   const isSubmittable = useCallback(() => {
@@ -66,7 +67,8 @@ const EditReceiveShipmentDialog = ({
         (e) => e.qtyReceived !== undefined && e.qtyReceived > 0
       ) &&
       hasChanged() &&
-      !displayDateHelper
+      !displayDateHelper &&
+      receivedOn?.isValid()
     );
   }, [
     displayDateHelper,
