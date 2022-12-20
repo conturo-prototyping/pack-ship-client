@@ -40,9 +40,11 @@ const ReceiveShipmentTable = ({
       },
       flex: 1,
       default: 0,
-      editable: true,
+      editable: !viewOnly,
       preProcessEditCellProps: (params) => {
-        const hasError = !hasValueError(params.props.value);
+        const hasError =
+          !hasValueError(params.props.value) ||
+          parseInt(params.props.value) < 0;
         return { ...params.props, error: hasError };
       },
     },
@@ -56,7 +58,7 @@ const ReceiveShipmentTable = ({
             if (Object.keys(params).includes(e.id)) {
               return {
                 ...e,
-                qtyReceived: params[e.id]["qtyReceived"]["value"],
+                qtyReceived: parseInt(params[e.id]["qtyReceived"]["value"]),
               };
             }
             return e;
@@ -70,8 +72,6 @@ const ReceiveShipmentTable = ({
   return (
     <DialogTable
       rowData={rowData}
-      filledForm={filledForm}
-      setFilledForm={setFilledForm}
       columns={columns}
       cellEditName="qtyReceived"
       onEditRowsModelChange={onEditRowsModelChange}

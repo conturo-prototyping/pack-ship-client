@@ -15,6 +15,7 @@ import { snackbarVariants, usePackShipSnackbar } from "../../common/Snackbar";
 import {
   PACKING_SLIP_TOP_MARGIN,
   PACKING_SLIP_BOTTOM_MARGIN,
+  NAV_BAR_HEIGHT,
 } from "../../utils/Constants";
 
 pdfMake.vfs = pdfFonts.pdfMake.vfs;
@@ -380,7 +381,7 @@ const HistoryTable = ({
         rowCount={histTotalCount}
         sx={{
           border: "none",
-          height: `calc(100vh - ${PACKING_SLIP_BOTTOM_MARGIN} - ${PACKING_SLIP_TOP_MARGIN} - 15rem)`,
+          height: `calc(100vh - ${PACKING_SLIP_BOTTOM_MARGIN} - ${PACKING_SLIP_TOP_MARGIN} - ${NAV_BAR_HEIGHT} - 5rem)`,
           minHeight: "20rem",
         }}
         className={classes.table}

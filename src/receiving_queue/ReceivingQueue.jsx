@@ -8,6 +8,8 @@ import {
   PACKING_SLIP_BOTTOM_MARGIN,
   PACKING_SLIP_RIGHT_MARGIN,
   PACKING_SLIP_LEFT_MARGIN,
+  TOP_LEFT_ACTION_BUTTON_WIDTH,
+  TOP_LEFT_ACTION_BUTTON_HEIGHT,
 } from "../utils/Constants";
 import ReceivingQueueTable from "./tables/ReceivingQueueTable";
 import { useLocalStorage } from "../utils/localStorage";
@@ -174,9 +176,16 @@ const ReceivingQueue = () => {
                 <Grid container item xs={"auto"}>
                   <CommonButton
                     label="Receive Shipment"
-                    disabled={selectedShipmentIds.length === 0} //TODO
+                    disabled={selectedShipmentIds.length === 0}
                     onClick={() => {
-                      setReceiveShipmentWindowOpen((prev) => !prev);
+                      setTimeout(
+                        () => setReceiveShipmentWindowOpen((prev) => !prev),
+                        0
+                      );
+                    }}
+                    sx={{
+                      minWidth: TOP_LEFT_ACTION_BUTTON_WIDTH,
+                      maxHeight: TOP_LEFT_ACTION_BUTTON_HEIGHT,
                     }}
                   />
                 </Grid>
@@ -200,7 +209,13 @@ const ReceivingQueue = () => {
               </Grid>
             </Grid>
           ) : (
-            <Grid container item justifyContent="start" xs={6}>
+            <Grid
+              container
+              item
+              justifyContent="start"
+              xs={6}
+              sx={{ marginBottom: "1rem!important" }}
+            >
               <Search
                 onSearch={async (e) => {
                   if (e) {
@@ -214,7 +229,7 @@ const ReceivingQueue = () => {
                   }
                 }}
                 autoFocus
-              ></Search>
+              />
             </Grid>
           )}
         </Grid>

@@ -367,4 +367,47 @@ export const API = {
       );
     }
   },
+
+  async getOneReceivingHistoryElement(deliveryId) {
+    try {
+      const response = await instance.get(`/incomingDeliveries/${deliveryId}`);
+      return response.data;
+    } catch (error) {
+      console.error("getReceivingHistory", error);
+      throw new Error(
+        error?.response?.data ?? "An error occurred getting receiving history"
+      );
+    }
+  },
+
+  async undoReceiving(deliveryId) {
+    try {
+      const response = await instance.post(`/incomingDeliveries/undoReceive`, {
+        deliveryId,
+      });
+      return response.data;
+    } catch (error) {
+      console.error("getReceivingHistory", error);
+      throw new Error(
+        error?.response?.data ?? "An error occurred getting receiving history"
+      );
+    }
+  },
+
+  async patchIncomingDelivery(deliveryId, edited) {
+    try {
+      const response = await instance.patch(
+        `/incomingDeliveries/${deliveryId}`,
+        {
+          ...edited,
+        }
+      );
+      return response.data;
+    } catch (error) {
+      console.error("getReceivingHistory", error);
+      throw new Error(
+        error?.response?.data ?? "An error occurred getting receiving history"
+      );
+    }
+  },
 };

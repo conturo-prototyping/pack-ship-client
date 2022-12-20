@@ -13,22 +13,24 @@ const ReceiveShipmentDialog = ({
   viewOnly = false,
 }) => {
   const [filledForm, setFilledForm] = useState([]);
-
   const rowData = useMemo(() => {
-    const manifest = parts[0]?.manifest;
-    if (manifest)
-      return manifest.map((e) => {
-        return {
-          label: parts[0].label,
-          id: e.item._id,
-          batch: e.item.batch,
-          orderNumber: e.item.orderNumber,
-          partDescription: e.item.partDescription,
-          partNumber: e.item.partNumber,
-          partRev: e.item.partRev,
-          qty: e.qty,
-        };
-      });
+    if (parts?.length > 0) {
+      const manifest = parts[0]?.manifest;
+      if (manifest)
+        return manifest.map((e) => {
+          return {
+            label: parts[0]?.label,
+            id: e.item._id,
+            batch: e.item.batch,
+            orderNumber: e.item.orderNumber,
+            partDescription: e.item.partDescription,
+            partNumber: e.item.partNumber,
+            partRev: e.item.partRev,
+            qty: e.qty,
+            qtyReceived: e.qtyReceived || 0,
+          };
+        });
+    }
     return [];
   }, [parts]);
 
@@ -37,7 +39,7 @@ const ReceiveShipmentDialog = ({
   }, [rowData]);
 
   function isSubmittable() {
-    return filledForm.every((e) => e.qtyReceived && e.qtyReceived >= 0);
+    return filledForm.some((e) => e.qtyReceived && e.qtyReceived >= 0);
   }
 
   return (

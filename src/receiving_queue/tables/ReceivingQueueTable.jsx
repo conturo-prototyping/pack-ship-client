@@ -6,6 +6,7 @@ import { createColumnFilters } from "../../utils/TableFilters";
 import {
   PACKING_SLIP_TOP_MARGIN,
   PACKING_SLIP_BOTTOM_MARGIN,
+  NAV_BAR_HEIGHT,
 } from "../../utils/Constants";
 import { API } from "../../services/server";
 import ReceivingQueueDropdown from "../ReceivingQueueDropdown";
@@ -265,14 +266,14 @@ const ReceivingQueueTable = ({
         </tbody>
       </table>
     );
-  }, [page, queueData.length]);
+  }, [page, queueData?.length]);
 
   return (
     <div className={classes.root}>
       <ReceivingQueueDataGrid
         sx={{
           border: "none",
-          height: `calc(100vh - ${PACKING_SLIP_BOTTOM_MARGIN} - ${PACKING_SLIP_TOP_MARGIN} - 15rem)`,
+          height: `calc(100vh - ${PACKING_SLIP_BOTTOM_MARGIN} - ${PACKING_SLIP_TOP_MARGIN} - ${NAV_BAR_HEIGHT} - 5rem)`,
           minHeight: "20rem",
         }}
         className={classes.table}
