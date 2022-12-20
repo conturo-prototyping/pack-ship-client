@@ -192,7 +192,7 @@ const ReceivingQueue = () => {
               <Grid container item xs={6} justifyContent="end">
                 <CommonButton
                   label="Cancel"
-                  disabled={false} //{selectedShipmentIds.length === 0} //TODO
+                  disabled={selectedShipmentIds.length === 0} //TODO
                   onClick={() => {
                     setCancelShipmentOpen((prev) => !prev);
                   }}
