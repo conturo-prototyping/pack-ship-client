@@ -13,6 +13,7 @@ import ReceivingQueueDropdown from "../ReceivingQueueDropdown";
 import { styled } from "@mui/system";
 import { getCheckboxColumn } from "../../components/CheckboxColumn";
 import { PackShipProgress } from "../../common/CircularProgress";
+import { WORK_ORDER_PO, CONSUMABLE_PO } from "../../common/ItemTypes";
 
 const useStyle = makeStyles((theme) => ({
   root: {
@@ -100,14 +101,33 @@ const ReceivingQueueTable = ({
             // Gather the queue data for the table
             let queueTableData = [];
 
-            data?.queue?.incomingDeliveries.forEach((e) => {
+            data?.queue.consumablePOQueue.forEach((e) => {
               queueTableData.push({
                 id: e._id,
-                manifest: e.manifest,
+                manifest: e.po,
                 source: e.source,
                 label: e.label,
+                poType: CONSUMABLE_PO,
               });
             });
+
+            data?.queue.workOrderPOQueue.forEach((e) => {
+              queueTableData.push({
+                id: e._id,
+                manifest: e.po,
+                source: e.source,
+                label: e.label,
+                poType: WORK_ORDER_PO,
+              });
+            });
+            // data?.queue?.incomingDeliveries.forEach((e) => {
+            //   queueTableData.push({
+            //     id: e._id,
+            //     manifest: e.manifest,
+            //     source: e.source,
+            //     label: e.label,
+            //   });
+            // });
 
             // The set state order is important
             queueTableData = sortDataByModel(sortModel, queueTableData);
