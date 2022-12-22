@@ -107,7 +107,7 @@ const ReceivingQueueTable = ({
                 manifest: e.po,
                 source: e.source,
                 label: e.label,
-                poType: CONSUMABLE_PO,
+                poType: e.sourcePoType,
               });
             });
 
@@ -115,19 +115,11 @@ const ReceivingQueueTable = ({
               queueTableData.push({
                 id: e._id,
                 manifest: e.po,
-                source: e.source,
+                source: e.po[0].lines[0]?.packingSlip.destination,
                 label: e.label,
-                poType: WORK_ORDER_PO,
+                poType: e.sourcePoType,
               });
             });
-            // data?.queue?.incomingDeliveries.forEach((e) => {
-            //   queueTableData.push({
-            //     id: e._id,
-            //     manifest: e.manifest,
-            //     source: e.source,
-            //     label: e.label,
-            //   });
-            // });
 
             // The set state order is important
             queueTableData = sortDataByModel(sortModel, queueTableData);
