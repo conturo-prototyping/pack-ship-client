@@ -97,10 +97,15 @@ const ReceivingQueue = () => {
   const onReceiveShipmentSubmit = useCallback(
     (filledForm, id) => {
       const items = filledForm.map((e) => {
-        return { item: e.id, qty: e.qtyReceived };
+        return { poLineId: e.lineId, qtyReceived: e.qtyReceived };
       });
 
-      API.submitIncomingDelivery(id, items)
+      API.submitIncomingDelivery(
+        id,
+        filledForm[0].poType,
+        filledForm[0].poId,
+        items
+      )
         .then(() => {
           enqueueSnackbar(
             "Received incoming delivery!",
