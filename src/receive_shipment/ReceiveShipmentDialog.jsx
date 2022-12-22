@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useMemo } from "react";
+import { CONSUMABLE_PO, WORK_ORDER_PO } from "../common/ItemTypes";
 import PackingDialog from "../components/PackingDialog";
 import ReceiveShipmentTable from "./components/ReceiveShipmentTable";
 
@@ -17,19 +18,47 @@ const ReceiveShipmentDialog = ({
     if (parts?.length > 0) {
       const manifest = parts[0]?.manifest;
       if (manifest)
-        return manifest.map((e) => {
-          return {
-            label: parts[0]?.label,
-            id: e.item._id,
-            batch: e.item.batch,
-            orderNumber: e.item.orderNumber,
-            partDescription: e.item.partDescription,
-            partNumber: e.item.partNumber,
-            partRev: e.item.partRev,
-            qty: e.qty,
-            qtyReceived: e.qtyReceived || 0,
-          };
-        });
+        if (parts[0].poType === WORK_ORDER_PO)
+          return manifest
+            .map((e) => {
+              return e.lines.map((m) => {
+                return {
+                  id: e._id + m._id,
+                  poId: e._id,
+                  lineId: m._id,
+                  item: m.item,
+                  order: m.packingSlip.orderNumber,
+                  partNumber: m.item.PartNumber,
+                  partRev: m.item.Revision,
+                  partDescription: m.item.PartName,
+                  batch: m.item.batchNumber,
+                  qty: m.qtyRequested,
+                  poNum: e.PONumber,
+                  poType: parts[0].poType,
+                };
+              });
+            })
+            .reduce((curr, acc) => {
+              return curr.concat(acc);
+            }, []);
+        else if (parts[0].poType === CONSUMABLE_PO)
+          return manifest
+            .map((e) => {
+              return e.lines.map((m) => {
+                return {
+                  id: e._id + m._id,
+                  poId: e._id,
+                  lineId: m._id,
+                  item: m.item,
+                  qty: m.qtyRequested,
+                  poNum: e.PONumber,
+                  poType: parts[0].poType,
+                };
+              });
+            })
+            .reduce((curr, acc) => {
+              return curr.concat(acc);
+            }, []);
     }
     return [];
   }, [parts]);
@@ -56,6 +85,7 @@ const ReceiveShipmentDialog = ({
         filledForm={filledForm}
         setFilledForm={setFilledForm}
         viewOnly={viewOnly}
+        type={parts ? parts[0]?.poType : WORK_ORDER_PO}
       />
     </PackingDialog>
   );
