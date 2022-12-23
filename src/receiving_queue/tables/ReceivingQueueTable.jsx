@@ -211,6 +211,7 @@ const ReceivingQueueTable = ({
       onQueueRowClick,
       tableData,
       onSelectAllClick,
+      searchText,
     ]
   );
 
