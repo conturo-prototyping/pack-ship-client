@@ -397,4 +397,21 @@ export const API = {
       );
     }
   },
+
+  async undoReciept(deliveryId) {
+    try {
+      const response = await instance.patch(
+        `/incomingDeliveries/${deliveryId}/undoReceipt`,
+        {
+          deliveryId,
+        }
+      );
+      return response.data;
+    } catch (error) {
+      console.error("getReceivingHistory", error);
+      throw new Error(
+        error?.response?.data ?? "An error occurred getting receiving history"
+      );
+    }
+  },
 };
