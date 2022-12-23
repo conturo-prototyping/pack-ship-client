@@ -182,7 +182,10 @@ const ReceivingQueueTable = ({
         isSelectAllOn,
         tableData,
         onSelectAllClick,
-        onQueueRowClick
+        onQueueRowClick,
+        false,
+        searchText,
+        false
       ),
       {
         field: "label",
