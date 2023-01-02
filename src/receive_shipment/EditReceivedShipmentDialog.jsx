@@ -5,6 +5,7 @@ import { DialogActions, Grid, Typography } from "@mui/material";
 import CommonButton from "../common/Button";
 import PackShipDatePicker from "../components/PackShipDatePicker";
 import dayjs from "dayjs";
+import { WORK_ORDER_PO } from "../common/ItemTypes";
 
 const EditReceiveShipmentDialog = ({
   onSubmit,
@@ -19,23 +20,31 @@ const EditReceiveShipmentDialog = ({
   const [originalData, setOriginalData] = useState([]);
   const [displayDateHelper, setDisplayDateHelper] = useState(false);
   const [receivedOn, setReceivedOn] = useState(undefined);
+  const [type, setType] = useState(WORK_ORDER_PO);
 
   const rowData = useMemo(() => {
-    const receivedQuantities = parts?.receivedQuantities;
-
+    const receivedQuantities = parts?.linesReceived;
+    
     if (receivedQuantities) {
       return receivedQuantities.map((e) => {
         return {
           ...e,
           id: e._id,
           qtyReceived: e.qty,
-          qty: e.item.Quantity,
-          partDescription: e.item.PartName,
-          partNumber: e.item.PartNumber,
+          qty: e.Quantity,
+          partDescription: e.PartName,
+          partNumber: e.PartNumber,
+          item: e.item,
         };
       });
     }
     return [];
+  }, [parts]);
+
+  useEffect(() => {
+    if(parts) {
+      setType(parts?.sourcePoType);
+    }
   }, [parts]);
 
   const originalReceivedOn = useMemo(() => parts.receivedOn, [parts]);
@@ -147,6 +156,7 @@ const EditReceiveShipmentDialog = ({
         filledForm={filledForm}
         setFilledForm={setFilledForm}
         viewOnly={viewOnly}
+        type={type}
       />
     </PackingDialog>
   );
