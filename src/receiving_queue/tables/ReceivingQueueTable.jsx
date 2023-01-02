@@ -13,7 +13,6 @@ import ReceivingQueueDropdown from "../ReceivingQueueDropdown";
 import { styled } from "@mui/system";
 import { getCheckboxColumn } from "../../components/CheckboxColumn";
 import { PackShipProgress } from "../../common/CircularProgress";
-import { WORK_ORDER_PO, CONSUMABLE_PO } from "../../common/ItemTypes";
 
 const useStyle = makeStyles((theme) => ({
   root: {
@@ -267,7 +266,7 @@ const ReceivingQueueTable = ({
         <tbody>
           <tr>
             <TablePagination
-              count={queueData.length}
+              count={queueData?.length}
               rowsPerPageOptions={[numRowsPerPage]}
               rowsPerPage={numRowsPerPage}
               onPageChange={handlePageChange}
