@@ -238,7 +238,10 @@ const ReceivingQueueTable = ({
       (order) =>
         order.label.toLowerCase().includes(searchText?.toLowerCase()) ||
         order.manifest
-          .map((e) => [e.item?.orderNumber, e.item?.partNumber])
+          .map((e) => e.lines)
+          .flat()
+          .flat()
+          .map((e) => [e.item?.OrderNumber, e.item?.PartNumber])
           .flat()
           .map((e) => e.toLowerCase().includes(searchText?.toLowerCase()))
           .some((e) => e) ||
