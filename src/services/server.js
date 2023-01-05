@@ -360,9 +360,9 @@ export const API = {
       const response = await instance.get(`/incomingDeliveries/${deliveryId}`);
       return response.data;
     } catch (error) {
-      console.error("getReceivingHistory", error);
+      console.error("getOneReceivingHistoryElement", error);
       throw new Error(
-        error?.response?.data ?? "An error occurred getting receiving history"
+        error?.response?.data ?? "An error occurred receiving history element"
       );
     }
   },
@@ -374,9 +374,9 @@ export const API = {
       });
       return response.data;
     } catch (error) {
-      console.error("getReceivingHistory", error);
+      console.error("undoReceiving", error);
       throw new Error(
-        error?.response?.data ?? "An error occurred getting receiving history"
+        error?.response?.data ?? "An error occurred undoing receiving"
       );
     }
   },
@@ -391,9 +391,9 @@ export const API = {
       );
       return response.data;
     } catch (error) {
-      console.error("getReceivingHistory", error);
+      console.error("patchIncomingDelivery", error);
       throw new Error(
-        error?.response?.data ?? "An error occurred getting receiving history"
+        error?.response?.data ?? "An error occurred updated delivery"
       );
     }
   },
@@ -408,9 +408,9 @@ export const API = {
       );
       return response.data;
     } catch (error) {
-      console.error("getReceivingHistory", error);
+      console.error("undoReciept", error);
       throw new Error(
-        error?.response?.data ?? "An error occurred getting receiving history"
+        error?.response?.data ?? "An error occurred undoing receipt"
       );
     }
   },
