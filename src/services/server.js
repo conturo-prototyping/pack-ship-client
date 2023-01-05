@@ -338,11 +338,13 @@ export const API = {
     }
   },
 
-  async submitIncomingDelivery(_id, receivedQuantities) {
+  async submitIncomingDelivery(_id, sourcePOType, sourcePOId, linesReceived) {
     try {
       const response = await instance.post("/incomingDeliveries/receive", {
         _id,
-        receivedQuantities,
+        sourcePOType,
+        sourcePOId,
+        linesReceived,
       });
       return response.data;
     } catch (error) {

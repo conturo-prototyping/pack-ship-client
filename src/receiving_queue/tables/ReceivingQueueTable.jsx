@@ -100,12 +100,23 @@ const ReceivingQueueTable = ({
             // Gather the queue data for the table
             let queueTableData = [];
 
-            data?.queue?.incomingDeliveries.forEach((e) => {
+            data?.queue.consumablePOQueue.forEach((e) => {
               queueTableData.push({
                 id: e._id,
-                manifest: e.manifest,
+                manifest: e.po,
                 source: e.source,
                 label: e.label,
+                poType: e.sourcePoType,
+              });
+            });
+
+            data?.queue.workOrderPOQueue.forEach((e) => {
+              queueTableData.push({
+                id: e._id,
+                manifest: e.po,
+                source: e.po[0].lines[0]?.packingSlip.destination,
+                label: e.label,
+                poType: e.sourcePoType,
               });
             });
 
@@ -255,7 +266,7 @@ const ReceivingQueueTable = ({
         <tbody>
           <tr>
             <TablePagination
-              count={queueData.length}
+              count={queueData?.length}
               rowsPerPageOptions={[numRowsPerPage]}
               rowsPerPage={numRowsPerPage}
               onPageChange={handlePageChange}
