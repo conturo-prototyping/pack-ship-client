@@ -177,7 +177,7 @@ const ReceivingQueue = () => {
               spacing={2}
               sx={{ marginBottom: "1rem!important" }}
             >
-              <Grid container item xs={6} spacing={2}>
+              <Grid container item xs={10} spacing={2}>
                 <Grid container item xs={"auto"}>
                   <CommonButton
                     label="Receive Shipment"
@@ -203,7 +203,7 @@ const ReceivingQueue = () => {
                   />
                 </Grid>
               </Grid>
-              <Grid container item xs={6} justifyContent="end">
+              <Grid container item xs={2} justifyContent="end">
                 <CommonButton
                   label="Cancel"
                   disabled={selectedShipmentIds.length === 0}
