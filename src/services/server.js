@@ -355,6 +355,21 @@ export const API = {
     }
   },
 
+  async cancelIncomingDelivery(_id, reason) {
+    try {
+      const response = await instance.put("/incomingDeliveries/cancel", {
+        _id,
+        reason,
+      });
+      return response.data;
+    } catch (error) {
+      console.error("cancelIncomingDelivery", error);
+      throw new Error(
+        error?.response?.data ?? "An error occurred canceling incoming delivery"
+      );
+    }
+  },
+
   async getOneReceivingHistoryElement(deliveryId) {
     try {
       const response = await instance.get(`/incomingDeliveries/${deliveryId}`);
