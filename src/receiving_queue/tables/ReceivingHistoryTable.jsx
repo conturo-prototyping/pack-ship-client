@@ -95,6 +95,7 @@ const ReceivingHistoryTable = ({
         onClick={async () => {
           await API.getOneReceivingHistoryElement(selectedRow.id).then(
             (data) => {
+              console.log(data.incomingDelivery);
               setViewOnly(true);
               setReceivedData({
                 ...data.incomingDelivery,

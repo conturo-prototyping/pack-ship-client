@@ -24,13 +24,13 @@ const EditReceiveShipmentDialog = ({
 
   const rowData = useMemo(() => {
     const receivedQuantities = parts?.linesReceived;
-    
+
     if (receivedQuantities) {
       return receivedQuantities.map((e) => {
         return {
           ...e,
           id: e._id,
-          qtyReceived: e.qty,
+          qtyReceived: e.qty || e.qtyReceived,
           qty: e.Quantity,
           partDescription: e.PartName,
           partNumber: e.PartNumber,
@@ -42,7 +42,7 @@ const EditReceiveShipmentDialog = ({
   }, [parts]);
 
   useEffect(() => {
-    if(parts) {
+    if (parts) {
       setType(parts?.sourcePoType);
     }
   }, [parts]);
@@ -117,7 +117,9 @@ const EditReceiveShipmentDialog = ({
           </Grid>
         </Grid>
         <div style={{ flex: "1 0 0" }} />
-        {viewOnly || (
+        {viewOnly ? (
+          <></>
+        ) : (
           <>
             <CommonButton onClick={onClose} label="Cancel" />
             <CommonButton
