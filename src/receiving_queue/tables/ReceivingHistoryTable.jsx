@@ -148,7 +148,7 @@ const ReceivingHistoryTable = ({
       API.patchIncomingDelivery(id, {
         ...receivedData,
         receivedOn,
-        receivedQuantities: items,
+        linesReceived: items,
       })
         .then(() => {
           enqueueSnackbar("Edited delivery!", snackbarVariants.success);
