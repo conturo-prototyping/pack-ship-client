@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useMemo, useCallback } from "react";
 import PackingDialog from "../components/PackingDialog";
 import ReceiveShipmentTable from "./components/ReceiveShipmentTable";
-import { DialogActions, Grid, Typography } from "@mui/material";
+import { DialogActions } from "@mui/material";
 import CommonButton from "../common/Button";
 import PackShipDatePicker from "../components/PackShipDatePicker";
 import dayjs from "dayjs";
@@ -137,8 +137,7 @@ const EditReceiveShipmentDialog = ({
       onBackdropClick={onClose}
       onSubmit={() => onSubmit(filledForm, parts?._id, receivedOn)}
       submitDisabled={!isSubmittable()}
-      actions={actions ? actions : generateActions}
-    >
+      actions={actions ? actions : generateActions}>
       <ReceiveShipmentTable
         rowData={rowData}
         filledForm={filledForm}
