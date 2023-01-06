@@ -89,33 +89,18 @@ const EditReceiveShipmentDialog = ({
 
   const generateActions = useMemo(() => {
     return (
-      <DialogActions sx={{ display: "flex", flexGrow: 4 }}>
-        <Grid
-          xs={3}
-          container
-          item
-          direction="row"
-          spacing={0}
-          justifyContent="left">
-          <Grid xs={4} container item alignItems={"center"}>
-            <Typography sx={{ fontWeight: "bold", alignItems: "center" }}>
-              Date Received:
-            </Typography>
-          </Grid>
-          <Grid item xs={8}>
-            <PackShipDatePicker
-              disabled={viewOnly}
-              value={receivedOn}
-              disablePast={false}
-              label="Date Received"
-              onChange={(newValue) => {
-                setReceivedOn(newValue);
-                setDisplayDateHelper(false);
-              }}
-              displayDateHelper={displayDateHelper}
-            />
-          </Grid>
-        </Grid>
+      <DialogActions sx={{ padding: 3, display: "flex", flexGrow: 4 }}>
+        <PackShipDatePicker
+          disabled={viewOnly}
+          value={receivedOn}
+          disablePast={false}
+          label="Date Received"
+          onChange={(newValue) => {
+            setReceivedOn(newValue);
+            setDisplayDateHelper(false);
+          }}
+          displayDateHelper={displayDateHelper}
+        />
         <div style={{ flex: "1 0 0" }} />
         {viewOnly ? (
           <></>
@@ -152,7 +137,8 @@ const EditReceiveShipmentDialog = ({
       onBackdropClick={onClose}
       onSubmit={() => onSubmit(filledForm, parts?._id, receivedOn)}
       submitDisabled={!isSubmittable()}
-      actions={actions ? actions : generateActions}>
+      actions={actions ? actions : generateActions}
+    >
       <ReceiveShipmentTable
         rowData={rowData}
         filledForm={filledForm}
