@@ -8,7 +8,8 @@ export const getCheckboxColumn = (
   onSelectAll,
   onRowClick,
   isFulfilledBatchesOn,
-  searchString
+  searchString,
+  displayHeaderCheckbox = true
 ) => {
   return {
     field: "completed",
@@ -34,21 +35,24 @@ export const getCheckboxColumn = (
         />
       );
     },
-    renderHeader: () => (
-      <Checkbox
-        checked={isSelectAllOn}
-        disableRipple
-        disableFocusRipple
-        onChange={(e) =>
-          onSelectAll(
-            e.target.checked,
-            queueData,
-            isFulfilledBatchesOn,
-            searchString
-          )
-        }
-        style={{ paddingLeft: "0px" }}
-      />
-    ),
+    renderHeader: () =>
+      displayHeaderCheckbox ? (
+        <Checkbox
+          checked={isSelectAllOn}
+          disableRipple
+          disableFocusRipple
+          onChange={(e) =>
+            onSelectAll(
+              e.target.checked,
+              queueData,
+              isFulfilledBatchesOn,
+              searchString
+            )
+          }
+          style={{ paddingLeft: "0px" }}
+        />
+      ) : (
+        <></>
+      ),
   };
 };
