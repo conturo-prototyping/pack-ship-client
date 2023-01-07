@@ -104,7 +104,8 @@ const ReceivingHistoryTable = ({
             }
           );
           setContextMenu(null);
-        }}>
+        }}
+      >
         View
       </MenuItem>,
       <MenuItem
@@ -121,7 +122,8 @@ const ReceivingHistoryTable = ({
             }
           );
           setContextMenu(null);
-        }}>
+        }}
+      >
         Edit
       </MenuItem>,
       <MenuItem
@@ -132,7 +134,8 @@ const ReceivingHistoryTable = ({
             reloadData();
           });
           setContextMenu(null);
-        }}>
+        }}
+      >
         Undo Receipt
       </MenuItem>,
     ],
@@ -188,6 +191,7 @@ const ReceivingHistoryTable = ({
           minHeight: "20rem",
         }}
         className={classes.table}
+        disableColumnMenu
         disableSelectionOnClick={true}
         rows={historyLoading ? [] : filteredHist}
         rowHeight={65}

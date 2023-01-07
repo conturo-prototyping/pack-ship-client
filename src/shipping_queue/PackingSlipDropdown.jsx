@@ -13,12 +13,14 @@ const PackingSlipDrowdown = ({ params, label, manifest }) => {
         <ListItemButton
           onClick={() => {
             setIsOpen(!isOpen);
-          }}>
+          }}
+        >
           {isOpen ? <ExpandLess /> : <ExpandMore />}
           <ListItemText primary={label} />
         </ListItemButton>
         {isOpen && (
           <DataGrid
+            disableColumnMenu
             pageSize={10}
             rowsPerPageOptions={[10]}
             autoHeight
