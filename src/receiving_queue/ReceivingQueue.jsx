@@ -45,12 +45,11 @@ const ReceivingQueue = () => {
 
   const [searchString, setSearchString] = useState("");
 
-  //isMounted will be used later to make sure data isn't misrepresented
-  // eslint-disable-next-line
   const [isMounted, setIsMounted] = useState(false);
   const enqueueSnackbar = usePackShipSnackbar();
 
   // Queue Table Data
+  const [isQueueLoading, setIsQueueLoading] = useState(false);
   const [receivingQueue, setReceivingQueue] = useState([]);
   const [filteredReceivingQueue, setFilteredReceivingQueue] = useState([]);
   const [selectedShipmentIds, setSelectedShipmentIds] = useState([]);
@@ -94,6 +93,58 @@ const ReceivingQueue = () => {
     setReceiveShipmentWindowOpen(false);
   }
 
+  const reloadQueueData = useCallback(async () => {
+    async function fetchData() {
+      const data = await Promise.all([API.getReceivingQueue()]);
+      return { queue: data[0] };
+    }
+
+    if (isMounted) {
+      setIsQueueLoading(true);
+      fetchData()
+        .then((data) => {
+          if (isMounted) {
+            // Gather the queue data for the table
+            let queueTableData = [];
+
+            data?.queue.consumablePOQueue.forEach((e) => {
+              queueTableData.push({
+                id: e._id,
+                manifest: e.po,
+                source: e.source,
+                label: e.label,
+                poType: e.sourcePoType,
+              });
+            });
+
+            data?.queue.workOrderPOQueue.forEach((e) => {
+              queueTableData.push({
+                id: e._id,
+                manifest: e.po,
+                source: e.po[0].lines[0]?.packingSlip.destination,
+                label: e.label,
+                poType: e.sourcePoType,
+              });
+            });
+
+            // The set state order is important
+            // queueTableData = sortDataByModel(sortModel, queueTableData);
+            setReceivingQueue(queueTableData);
+            setFilteredReceivingQueue(queueTableData);
+          }
+        })
+        .finally(() => {
+          setIsQueueLoading(false);
+        });
+    }
+    // eslint-disable-next-line
+  }, [
+    setFilteredReceivingQueue,
+    setSelectedShipmentIds,
+    setReceivingQueue,
+    isMounted,
+  ]);
+
   const onReceiveShipmentSubmit = useCallback(
     (filledForm, id) => {
       const items = filledForm.map((e) => {
@@ -115,9 +166,12 @@ const ReceivingQueue = () => {
         })
         .catch((e) => {
           enqueueSnackbar(e.message, snackbarVariants.error);
+        })
+        .finally(() => {
+          reloadQueueData();
         });
     },
-    [enqueueSnackbar]
+    [enqueueSnackbar, reloadQueueData]
   );
 
   function onTabChange(event, newValue) {
@@ -128,7 +182,6 @@ const ReceivingQueue = () => {
     setIsMounted(true);
     return () => setIsMounted(false);
   }, []);
-
   const fetchReceivingHistory = useCallback(
     async () => {
       if (isMounted && currentTab === 1) setHistoryLoading(true);
@@ -159,6 +212,10 @@ const ReceivingQueue = () => {
       filteredReceivingQueue?.filter((e) => selectedShipmentIds[0] === e.id),
     [filteredReceivingQueue, selectedShipmentIds]
   );
+
+  useEffect(() => {
+    if (isMounted) reloadQueueData();
+  }, [reloadQueueData, isMounted]);
 
   return (
     <Box className={classes.box}>
@@ -251,9 +308,9 @@ const ReceivingQueue = () => {
                 setSortModel={setSortRecQueueModel}
                 selectedShipmentIds={selectedShipmentIds}
                 setSelectedShipmentIds={setSelectedShipmentIds}
-                setReceivingQueue={setReceivingQueue}
                 setFilteredReceivingQueue={setFilteredReceivingQueue}
                 searchText={searchString}
+                isLoading={isQueueLoading}
               />
             }
             historyTab={
@@ -306,6 +363,8 @@ const ReceivingQueue = () => {
                 setCancelReason("");
                 setCancelShipmentOpen(false);
                 setIsCancelError(false);
+                reloadQueueData();
+                setSelectedShipmentIds([]);
               });
           }
         }}
