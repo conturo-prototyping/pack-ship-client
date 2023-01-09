@@ -200,6 +200,8 @@ const ReceivingQueue = () => {
                       setSearchString(e);
                     }}
                     autoFocus
+                    searchString={searchString}
+                    setSearchString={setSearchString}
                   />
                 </Grid>
               </Grid>

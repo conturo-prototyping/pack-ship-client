@@ -263,7 +263,12 @@ const PackingQueue = () => {
                 />
               </Grid>
               <Grid container item justifyContent="start" xs={6}>
-                <Search onSearch={onSearch} autoFocus />
+                <Search
+                  onSearch={onSearch}
+                  autoFocus
+                  searchString={searchString}
+                  setSearchString={setSearchString}
+                />
               </Grid>
               <Grid container item xs justifyContent="flex-end">
                 <CheckboxForm
