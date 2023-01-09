@@ -338,14 +338,16 @@ const CreateShipmentDialog = ({
               item
               direction="row"
               spacing={1}
-              justifyContent="space-evenly">
+              justifyContent="space-evenly"
+            >
               <Grid
                 xs={4}
                 container
                 item
                 direction="row"
                 spacing={1}
-                justifyContent="left">
+                justifyContent="left"
+              >
                 <Grid xs={6} item>
                   <FormGroup>
                     <FormControlLabel
@@ -389,10 +391,14 @@ const CreateShipmentDialog = ({
                 item
                 direction="row"
                 spacing={1}
-                justifyContent="right">
+                justifyContent="right"
+              >
                 <Grid item>
                   <CommonButton
-                    onClick={onClose}
+                    onClick={() => {
+                      onClose();
+                      setDisplayDateHelper(false);
+                    }}
                     label="Cancel"
                     color="secondary"
                   />
@@ -425,7 +431,8 @@ const CreateShipmentDialog = ({
       }`}
       open={open}
       onClose={onClose}
-      actions={renderDialogActions()}>
+      actions={renderDialogActions()}
+    >
       {renderContents()}
     </PackingDialog>
   );

@@ -22,7 +22,7 @@ const PackShipDatePicker = ({
         onChange={onChange}
         renderInput={(params) => <TextField {...params} />}
       />
-      {displayDateHelper && value ? (
+      {displayDateHelper ? (
         <FormHelperText error>Please Provide a Date</FormHelperText>
       ) : (
         <></>
