@@ -106,13 +106,17 @@ const PackingQueueTable = ({
   isFulfilledBatchesOn,
 }) => {
   const classes = useStyle();
-  const numRowsPerPage = 10;
+  const [numRowsPerPage, setNumRowsPerPage] = useState(10);
 
   const [isMounted, setIsMounted] = useState(false);
   const [queueData, setQueueData] = useState(tableData);
   const [isSelectAllOn, setIsSelectAll] = useState(false);
 
   const [isLoading, setIsLoading] = useState(false);
+
+  useEffect(() => {
+    if (window.innerHeight > 1440) setNumRowsPerPage(25);
+  }, []);
 
   const isDisabled = useCallback(
     (params) => {
@@ -459,8 +463,15 @@ const PackingQueueTable = ({
           <tr>
             <TablePagination
               count={queueData.length}
-              rowsPerPageOptions={[numRowsPerPage]}
+              rowsPerPageOptions={[10, 25, 50]}
               rowsPerPage={numRowsPerPage}
+              onRowsPerPageChange={(event) => {
+                const pageValue = parseInt(event.target.value, 10);
+                if (pageValue * page >= queueData.length) {
+                  setPage(page - 1);
+                }
+                setNumRowsPerPage(pageValue);
+              }}
               onPageChange={handlePageChange}
               page={page}
               sx={{ border: "0px" }}
@@ -469,7 +480,7 @@ const PackingQueueTable = ({
         </tbody>
       </table>
     );
-  }, [page, queueData.length]);
+  }, [page, queueData.length, numRowsPerPage]);
 
   return (
     <div className={classes.root}>
@@ -510,7 +521,11 @@ const PackingQueueTable = ({
           LoadingOverlay: () => <PackShipProgress />,
           Footer: () =>
             selectionOrderIds.length > 0 ? (
-              <Grid container item alignItems="center" spacing={2}>
+              <Grid
+                container
+                item
+                alignItems="center"
+                sx={{ backgroundColor: "primary.light" }}>
                 <Grid container item xs={6} justifyContent="flex-start">
                   <Typography sx={{ padding: "8px" }}>
                     {selectionOrderIds.length} rows selected
@@ -521,7 +536,12 @@ const PackingQueueTable = ({
                 </Grid>
               </Grid>
             ) : (
-              <Grid container item xs={12} justifyContent="flex-end">
+              <Grid
+                container
+                item
+                xs={12}
+                justifyContent="flex-end"
+                sx={{ backgroundColor: "primary.light" }}>
                 {generateTablePagination()}
               </Grid>
             ),

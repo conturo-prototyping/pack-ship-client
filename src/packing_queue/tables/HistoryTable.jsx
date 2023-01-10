@@ -383,6 +383,9 @@ const HistoryTable = ({
           border: "none",
           height: `calc(100vh - ${PACKING_SLIP_BOTTOM_MARGIN} - ${PACKING_SLIP_TOP_MARGIN} - ${NAV_BAR_HEIGHT} - 5rem)`,
           minHeight: "20rem",
+          ".MuiDataGrid-footerContainer": {
+            backgroundColor: "primary.light",
+          },
         }}
         className={classes.table}
         disableSelectionOnClick={true}
