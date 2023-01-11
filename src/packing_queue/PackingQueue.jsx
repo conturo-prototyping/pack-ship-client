@@ -50,7 +50,10 @@ const PackingQueue = () => {
   const [historyLoading, setHistoryLoading] = useState(false);
   const [histTotalCount, setHistTotalCount] = useState(0);
   const [histPageNum, setHistPageNum] = useState(0);
-  const histResultsPerPage = 10;
+  const [histResultsPerPage, setHistResultsPerPage] = useLocalStorage(
+    "packingHistNumRows",
+    window.innerHeight > 1440 ? 25 : 10
+  );
 
   // const [isShowUnfinishedBatches, setIsShowUnfinishedBatches] = useState(true);
   const [isFulfilledBatchesOn, setIsFulfilledBatchesOn] = useState(true);
@@ -229,8 +232,7 @@ const PackingQueue = () => {
         className={classes.topBarGrid}
         container
         justifyContent="start"
-        spacing={2}
-      >
+        spacing={2}>
         <Grid container item xs={12} spacing={2}>
           {tabValue === 1 && (
             <OrderPartNumberSearch
@@ -249,8 +251,7 @@ const PackingQueue = () => {
               item
               xs={12}
               spacing={2}
-              sx={{ marginBottom: "1rem!important" }}
-            >
+              sx={{ marginBottom: "1rem!important" }}>
               <Grid container item xs={"auto"}>
                 <CommonButton
                   label="Make Packing Slip"
@@ -352,6 +353,7 @@ const PackingQueue = () => {
                 partNumber={partNumber}
                 pageNumber={histPageNum}
                 onPageChange={onHistPageChange}
+                setHistResultsPerPage={setHistResultsPerPage}
               />
             }
           />

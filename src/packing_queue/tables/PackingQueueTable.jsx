@@ -11,7 +11,9 @@ import {
   PACKING_SLIP_TOP_MARGIN,
   PACKING_SLIP_BOTTOM_MARGIN,
   NAV_BAR_HEIGHT,
+  PAGINATION_SIZING_OPTIONS,
 } from "../../utils/Constants";
+import { useLocalStorage } from "../../utils/localStorage";
 
 const useStyle = makeStyles((theme) => ({
   root: {
@@ -106,17 +108,16 @@ const PackingQueueTable = ({
   isFulfilledBatchesOn,
 }) => {
   const classes = useStyle();
-  const [numRowsPerPage, setNumRowsPerPage] = useState(10);
+  const [numRowsPerPage, setNumRowsPerPage] = useLocalStorage(
+    "packingQueueNumRows",
+    window.innerHeight > 1440 ? 25 : 10
+  );
 
   const [isMounted, setIsMounted] = useState(false);
   const [queueData, setQueueData] = useState(tableData);
   const [isSelectAllOn, setIsSelectAll] = useState(false);
 
   const [isLoading, setIsLoading] = useState(false);
-
-  useEffect(() => {
-    if (window.innerHeight > 1440) setNumRowsPerPage(25);
-  }, []);
 
   const isDisabled = useCallback(
     (params) => {
@@ -463,12 +464,13 @@ const PackingQueueTable = ({
           <tr>
             <TablePagination
               count={queueData.length}
-              rowsPerPageOptions={[10, 25, 50]}
+              rowsPerPageOptions={PAGINATION_SIZING_OPTIONS}
               rowsPerPage={numRowsPerPage}
               onRowsPerPageChange={(event) => {
                 const pageValue = parseInt(event.target.value, 10);
+                // If changing the page size would cause the current page to be "bad", we need to go to the last page
                 if (pageValue * page >= queueData.length) {
-                  setPage(page - 1);
+                  setPage(Math.floor(queueData.length / pageValue));
                 }
                 setNumRowsPerPage(pageValue);
               }}
@@ -480,7 +482,7 @@ const PackingQueueTable = ({
         </tbody>
       </table>
     );
-  }, [page, queueData.length, numRowsPerPage]);
+  }, [page, queueData.length, numRowsPerPage, setNumRowsPerPage]);
 
   return (
     <div className={classes.root}>
@@ -501,7 +503,7 @@ const PackingQueueTable = ({
         }
         columns={columns}
         pageSize={numRowsPerPage}
-        rowsPerPageOptions={[numRowsPerPage]}
+        rowsPerPageOptions={PAGINATION_SIZING_OPTIONS}
         columnBuffer={0}
         disableColumnMenu
         disableColumnSelector
@@ -525,13 +527,21 @@ const PackingQueueTable = ({
                 container
                 item
                 alignItems="center"
-                sx={{ backgroundColor: "primary.light" }}>
+                sx={{
+                  backgroundColor: "primary.light",
+                  borderTop: "1px solid rgba(224, 224, 224, 1)",
+                }}>
                 <Grid container item xs={6} justifyContent="flex-start">
                   <Typography sx={{ padding: "8px" }}>
                     {selectionOrderIds.length} rows selected
                   </Typography>
                 </Grid>
-                <Grid container item xs={6} justifyContent="flex-end">
+                <Grid
+                  container
+                  item
+                  xs={6}
+                  justifyContent="flex-end"
+                  sx={{ borderTop: "1px solid rgba(224, 224, 224, 1)" }}>
                   {generateTablePagination()}
                 </Grid>
               </Grid>
@@ -541,7 +551,10 @@ const PackingQueueTable = ({
                 item
                 xs={12}
                 justifyContent="flex-end"
-                sx={{ backgroundColor: "primary.light" }}>
+                sx={{
+                  backgroundColor: "primary.light",
+                  borderTop: "1px solid rgba(224, 224, 224, 1)",
+                }}>
                 {generateTablePagination()}
               </Grid>
             ),

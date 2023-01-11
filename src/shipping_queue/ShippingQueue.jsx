@@ -71,7 +71,11 @@ const ShippingQueue = () => {
   const [filteredShippingHist, setFilteredShippingHist] = useState([]);
   const [orderNumber, setOrderNumber] = useState("");
   const [partNumber, setPartNumber] = useState("");
-  const histResultsPerPage = 10;
+  const [histResultsPerPage, setHistResultsPerPage] = useLocalStorage(
+    "shippingHistNumRows",
+    window.innerHeight > 1440 ? 25 : 10
+  );
+
   const [sortShippingHistModel, setSortShippingHistModel] = useLocalStorage(
     "sortShippingHistModel",
     [
@@ -173,8 +177,7 @@ const ShippingQueue = () => {
         className={classes.topBarGrid}
         container
         justifyContent="start"
-        spacing={2}
-      >
+        spacing={2}>
         <Grid container item xs={12} spacing={2}>
           {currentTab === TabNames.Queue ? (
             <Grid
@@ -182,8 +185,7 @@ const ShippingQueue = () => {
               item
               xs={12}
               spacing={2}
-              sx={{ marginBottom: "1rem!important" }}
-            >
+              sx={{ marginBottom: "1rem!important" }}>
               <Grid container item xs={"auto"}>
                 <CommonButton
                   label="Create Shipment"
@@ -244,6 +246,7 @@ const ShippingQueue = () => {
                 orderNumber={orderNumber}
                 partNumber={partNumber}
                 historyLoading={historyLoading}
+                setHistResultsPerPage={setHistResultsPerPage}
               />
             }
           />

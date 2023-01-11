@@ -16,6 +16,7 @@ import {
   PACKING_SLIP_TOP_MARGIN,
   PACKING_SLIP_BOTTOM_MARGIN,
   NAV_BAR_HEIGHT,
+  PAGINATION_SIZING_OPTIONS,
 } from "../../utils/Constants";
 
 pdfMake.vfs = pdfFonts.pdfMake.vfs;
@@ -82,6 +83,7 @@ const HistoryTable = ({
   partNumber,
   pageNumber,
   onPageChange,
+  setHistResultsPerPage,
 }) => {
   const classes = useStyle();
 
@@ -394,7 +396,15 @@ const HistoryTable = ({
         page={pageNumber}
         columns={columns}
         pageSize={histResultsPerPage}
-        rowsPerPageOptions={[10]}
+        rowsPerPageOptions={PAGINATION_SIZING_OPTIONS}
+        onPageSizeChange={(newPageSize) => {
+          const pageValue = newPageSize;
+          // If changing the page size would cause the current page to be "bad", we need to go to the last one
+          if (pageValue * pageNumber >= filteredHist.length) {
+            onPageChange(Math.floor(filteredHist.length / pageValue));
+          }
+          setHistResultsPerPage(pageValue);
+        }}
         checkboxSelection={false}
         editMode="row"
         sortingMode="server"
