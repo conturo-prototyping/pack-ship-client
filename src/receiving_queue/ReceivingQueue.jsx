@@ -225,6 +225,7 @@ const ReceivingQueue = () => {
             >
               <Search
                 onSearch={async (e) => {
+                  setSearchString(e);
                   if (e) {
                     setFilteredHist(
                       allHist.filter((data) =>
@@ -236,6 +237,13 @@ const ReceivingQueue = () => {
                   }
                 }}
                 autoFocus
+                searchString={searchString}
+                setSearchString={async (e) => {
+                  if (!e) {
+                    await fetchReceivingHistory();
+                  }
+                  setSearchString(e);
+                }}
               />
             </Grid>
           )}
