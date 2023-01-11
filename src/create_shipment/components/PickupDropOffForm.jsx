@@ -12,7 +12,7 @@ const PickupDropOffForm = ({ customerName, setCustomerName }) => {
           >
             Received By
           </Typography>
-          <HelpTooltip tooltipText="Enter the name of the person you are handing off this delivery to." />
+          <HelpTooltip tooltipText="Enter the name of the person who has picked up this delivery." />
         </div>
       </Grid>
       <Grid item xs>
