@@ -338,11 +338,13 @@ export const API = {
     }
   },
 
-  async submitIncomingDelivery(_id, receivedQuantities) {
+  async submitIncomingDelivery(_id, sourcePOType, sourcePOId, linesReceived) {
     try {
       const response = await instance.post("/incomingDeliveries/receive", {
         _id,
-        receivedQuantities,
+        sourcePOType,
+        sourcePOId,
+        linesReceived,
       });
       return response.data;
     } catch (error) {
@@ -353,14 +355,29 @@ export const API = {
     }
   },
 
+  async cancelIncomingDelivery(_id, reason) {
+    try {
+      const response = await instance.put("/incomingDeliveries/cancel", {
+        _id,
+        reason,
+      });
+      return response.data;
+    } catch (error) {
+      console.error("cancelIncomingDelivery", error);
+      throw new Error(
+        error?.response?.data ?? "An error occurred canceling incoming delivery"
+      );
+    }
+  },
+
   async getOneReceivingHistoryElement(deliveryId) {
     try {
       const response = await instance.get(`/incomingDeliveries/${deliveryId}`);
       return response.data;
     } catch (error) {
-      console.error("getReceivingHistory", error);
+      console.error("getOneReceivingHistoryElement", error);
       throw new Error(
-        error?.response?.data ?? "An error occurred getting receiving history"
+        error?.response?.data ?? "An error occurred receiving history element"
       );
     }
   },
@@ -372,9 +389,9 @@ export const API = {
       });
       return response.data;
     } catch (error) {
-      console.error("getReceivingHistory", error);
+      console.error("undoReceiving", error);
       throw new Error(
-        error?.response?.data ?? "An error occurred getting receiving history"
+        error?.response?.data ?? "An error occurred undoing receiving"
       );
     }
   },
@@ -389,9 +406,26 @@ export const API = {
       );
       return response.data;
     } catch (error) {
-      console.error("getReceivingHistory", error);
+      console.error("patchIncomingDelivery", error);
       throw new Error(
-        error?.response?.data ?? "An error occurred getting receiving history"
+        error?.response?.data ?? "An error occurred updated delivery"
+      );
+    }
+  },
+
+  async undoReciept(deliveryId) {
+    try {
+      const response = await instance.patch(
+        `/incomingDeliveries/${deliveryId}/undoReceipt`,
+        {
+          deliveryId,
+        }
+      );
+      return response.data;
+    } catch (error) {
+      console.error("undoReciept", error);
+      throw new Error(
+        error?.response?.data ?? "An error occurred undoing receipt"
       );
     }
   },

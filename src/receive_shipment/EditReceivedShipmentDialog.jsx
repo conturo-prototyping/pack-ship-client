@@ -1,9 +1,11 @@
 import React, { useState, useEffect, useMemo, useCallback } from "react";
 import PackingDialog from "../components/PackingDialog";
 import ReceiveShipmentTable from "./components/ReceiveShipmentTable";
-import { DialogActions, Grid, Typography } from "@mui/material";
+import { DialogActions } from "@mui/material";
 import CommonButton from "../common/Button";
 import PackShipDatePicker from "../components/PackShipDatePicker";
+import dayjs from "dayjs";
+import { WORK_ORDER_PO } from "../common/ItemTypes";
 
 const EditReceiveShipmentDialog = ({
   onSubmit,
@@ -17,30 +19,38 @@ const EditReceiveShipmentDialog = ({
   const [filledForm, setFilledForm] = useState([]);
   const [originalData, setOriginalData] = useState([]);
   const [displayDateHelper, setDisplayDateHelper] = useState(false);
-  const [receivedOn, setReceivedOn] = useState("");
+  const [receivedOn, setReceivedOn] = useState(undefined);
+  const [type, setType] = useState(WORK_ORDER_PO);
 
   const rowData = useMemo(() => {
-    const receivedQuantities = parts?.receivedQuantities;
+    const receivedQuantities = parts?.linesReceived;
 
     if (receivedQuantities) {
       return receivedQuantities.map((e) => {
         return {
           ...e,
           id: e._id,
-          qtyReceived: e.qty,
-          qty: e.item.Quantity,
-          partDescription: e.item.PartName,
-          partNumber: e.item.PartNumber,
+          qtyReceived: e.qty || e.qtyReceived,
+          qty: e.Quantity,
+          partDescription: e.PartName,
+          partNumber: e.PartNumber,
+          item: e.item,
         };
       });
     }
     return [];
   }, [parts]);
 
+  useEffect(() => {
+    if (parts) {
+      setType(parts?.sourcePoType);
+    }
+  }, [parts]);
+
   const originalReceivedOn = useMemo(() => parts.receivedOn, [parts]);
 
   useEffect(() => {
-    setReceivedOn(parts.receivedOn);
+    setReceivedOn(dayjs(parts.receivedOn));
   }, [parts]);
 
   useEffect(() => {
@@ -49,7 +59,7 @@ const EditReceiveShipmentDialog = ({
   }, [rowData]);
 
   useEffect(() => {
-    setDisplayDateHelper(receivedOn === "" || receivedOn === undefined);
+    setDisplayDateHelper(!receivedOn?.isValid() || receivedOn === undefined);
   }, [receivedOn]);
 
   const isSubmittable = useCallback(() => {
@@ -66,7 +76,8 @@ const EditReceiveShipmentDialog = ({
         (e) => e.qtyReceived !== undefined && e.qtyReceived > 0
       ) &&
       hasChanged() &&
-      !displayDateHelper
+      !displayDateHelper &&
+      receivedOn?.isValid()
     );
   }, [
     displayDateHelper,
@@ -78,35 +89,22 @@ const EditReceiveShipmentDialog = ({
 
   const generateActions = useMemo(() => {
     return (
-      <DialogActions sx={{ display: "flex", flexGrow: 4 }}>
-        <Grid
-          xs={3}
-          container
-          item
-          direction="row"
-          spacing={0}
-          justifyContent="left">
-          <Grid xs={4} container item alignItems={"center"}>
-            <Typography sx={{ fontWeight: "bold", alignItems: "center" }}>
-              Date Received:
-            </Typography>
-          </Grid>
-          <Grid item xs={8}>
-            <PackShipDatePicker
-              disabled={viewOnly}
-              value={receivedOn}
-              disablePast={false}
-              label="Date Received"
-              onChange={(newValue) => {
-                setReceivedOn(newValue);
-                setDisplayDateHelper(false);
-              }}
-              displayDateHelper={displayDateHelper}
-            />
-          </Grid>
-        </Grid>
+      <DialogActions sx={{ padding: 3, display: "flex", flexGrow: 4 }}>
+        <PackShipDatePicker
+          disabled={viewOnly}
+          value={receivedOn}
+          disablePast={false}
+          label="Date Received"
+          onChange={(newValue) => {
+            setReceivedOn(newValue);
+            setDisplayDateHelper(false);
+          }}
+          displayDateHelper={displayDateHelper}
+        />
         <div style={{ flex: "1 0 0" }} />
-        {viewOnly || (
+        {viewOnly ? (
+          <></>
+        ) : (
           <>
             <CommonButton onClick={onClose} label="Cancel" />
             <CommonButton
@@ -139,12 +137,14 @@ const EditReceiveShipmentDialog = ({
       onBackdropClick={onClose}
       onSubmit={() => onSubmit(filledForm, parts?._id, receivedOn)}
       submitDisabled={!isSubmittable()}
-      actions={actions ? actions : generateActions}>
+      actions={actions ? actions : generateActions}
+    >
       <ReceiveShipmentTable
         rowData={rowData}
         filledForm={filledForm}
         setFilledForm={setFilledForm}
         viewOnly={viewOnly}
+        type={type}
       />
     </PackingDialog>
   );

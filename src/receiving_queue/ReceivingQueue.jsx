@@ -18,6 +18,7 @@ import ReceivingHistoryTable from "./tables/ReceivingHistoryTable";
 import ReceiveShipmentDialog from "../receive_shipment/ReceiveShipmentDialog";
 import { snackbarVariants, usePackShipSnackbar } from "../common/Snackbar";
 import { API } from "../services/server";
+import CancelReceiveShipmentDialog from "../receive_shipment/CancelReceiveShipmentDialog";
 
 const useStyle = makeStyles((theme) => ({
   box: {
@@ -58,6 +59,11 @@ const ReceivingQueue = () => {
   const [receiveShipmentWindowOpen, setReceiveShipmentWindowOpen] =
     useState(false);
 
+  // Cancel Window
+  const [cancelShipmentOpen, setCancelShipmentOpen] = useState(false);
+  const [cancelReason, setCancelReason] = useState("");
+  const [isCancelError, setIsCancelError] = useState(false);
+
   const [sortRecQueueModel, setSortRecQueueModel] = useLocalStorage(
     "sortPackQueueModel",
     [
@@ -91,10 +97,15 @@ const ReceivingQueue = () => {
   const onReceiveShipmentSubmit = useCallback(
     (filledForm, id) => {
       const items = filledForm.map((e) => {
-        return { item: e.id, qty: e.qtyReceived };
+        return { poLineId: e.lineId, qtyReceived: e.qtyReceived };
       });
 
-      API.submitIncomingDelivery(id, items)
+      API.submitIncomingDelivery(
+        id,
+        filledForm[0].poType,
+        filledForm[0].poId,
+        items
+      )
         .then(() => {
           enqueueSnackbar(
             "Received incoming delivery!",
@@ -166,28 +177,39 @@ const ReceivingQueue = () => {
               spacing={2}
               sx={{ marginBottom: "1rem!important" }}
             >
-              <Grid container item xs={"auto"}>
+              <Grid container item xs={10} spacing={2}>
+                <Grid container item xs={"auto"}>
+                  <CommonButton
+                    label="Receive Shipment"
+                    disabled={selectedShipmentIds.length === 0}
+                    onClick={() => {
+                      setTimeout(
+                        () => setReceiveShipmentWindowOpen((prev) => !prev),
+                        0
+                      );
+                    }}
+                    sx={{
+                      minWidth: TOP_LEFT_ACTION_BUTTON_WIDTH,
+                      maxHeight: TOP_LEFT_ACTION_BUTTON_HEIGHT,
+                    }}
+                  />
+                </Grid>
+                <Grid container item justifyContent="start" xs={4}>
+                  <Search
+                    onSearch={(e) => {
+                      setSearchString(e);
+                    }}
+                    autoFocus
+                  />
+                </Grid>
+              </Grid>
+              <Grid container item xs={2} justifyContent="end">
                 <CommonButton
-                  label="Receive Shipment"
+                  label="Cancel"
                   disabled={selectedShipmentIds.length === 0}
                   onClick={() => {
-                    setTimeout(
-                      () => setReceiveShipmentWindowOpen((prev) => !prev),
-                      0
-                    );
+                    setCancelShipmentOpen((prev) => !prev);
                   }}
-                  sx={{
-                    minWidth: TOP_LEFT_ACTION_BUTTON_WIDTH,
-                    maxHeight: TOP_LEFT_ACTION_BUTTON_HEIGHT,
-                  }}
-                />
-              </Grid>
-              <Grid container item justifyContent="start" xs={6}>
-                <Search
-                  onSearch={(e) => {
-                    setSearchString(e);
-                  }}
-                  autoFocus
                 />
               </Grid>
             </Grid>
@@ -246,7 +268,49 @@ const ReceivingQueue = () => {
           />
         </Grid>
       </Grid>
-
+      <CancelReceiveShipmentDialog
+        canErrorCheck={true}
+        isError={isCancelError}
+        open={cancelShipmentOpen}
+        onClose={() => {
+          setCancelReason("");
+          setCancelShipmentOpen(false);
+          setIsCancelError(false);
+        }}
+        onChange={(v) => {
+          setCancelReason(v);
+          if (!v) {
+            setIsCancelError(true);
+          } else {
+            setIsCancelError(false);
+          }
+        }}
+        onSubmit={() => {
+          if (!cancelReason) {
+            setIsCancelError(true);
+          } else {
+            API.cancelIncomingDelivery(
+              selectedReceiveShipment[0]?.id,
+              cancelReason
+            )
+              .then((data) => {
+                enqueueSnackbar(
+                  "Incoming shipment has been canceled",
+                  snackbarVariants.success
+                );
+              })
+              .catch((e) => {
+                enqueueSnackbar(e.message, snackbarVariants.error);
+              })
+              .finally(() => {
+                setCancelReason("");
+                setCancelShipmentOpen(false);
+                setIsCancelError(false);
+              });
+          }
+        }}
+        reason={cancelReason}
+      />
       <ReceiveShipmentDialog
         onSubmit={onReceiveShipmentSubmit}
         open={receiveShipmentWindowOpen}

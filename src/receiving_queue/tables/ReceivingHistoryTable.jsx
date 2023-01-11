@@ -127,7 +127,7 @@ const ReceivingHistoryTable = ({
       <MenuItem
         key={"Undo Receipt"}
         onClick={async () => {
-          await API.undoReceiving(selectedRow.id).then(() => {
+          await API.undoReciept(selectedRow.id).then(() => {
             enqueueSnackbar("Undid Receipt!", snackbarVariants.success);
             reloadData();
           });
@@ -148,7 +148,7 @@ const ReceivingHistoryTable = ({
       API.patchIncomingDelivery(id, {
         ...receivedData,
         receivedOn,
-        receivedQuantities: items,
+        linesReceived: items,
       })
         .then(() => {
           enqueueSnackbar("Edited delivery!", snackbarVariants.success);
