@@ -141,6 +141,8 @@ const ReceivingQueueDropdown = ({ params }) => {
             hideFooter
             rows={tableData}
             columns={columns}
+            disableSelectionOnClick
+            onCellClick={(_, event) => event.stopPropagation()}
           />
         )}
       </List>
