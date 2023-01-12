@@ -194,7 +194,12 @@ const ShippingQueue = () => {
                 />
               </Grid>
               <Grid container item justifyContent="start" xs={6}>
-                <Search onSearch={onQueueSearch} autoFocus />
+                <Search
+                  onSearch={onQueueSearch}
+                  autoFocus
+                  searchString={queueSearchText}
+                  setSearchString={setQueueSearchText}
+                />
               </Grid>
             </Grid>
           ) : (

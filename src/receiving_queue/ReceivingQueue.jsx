@@ -198,6 +198,8 @@ const ReceivingQueue = () => {
                       setSearchString(e);
                     }}
                     autoFocus
+                    searchString={searchString}
+                    setSearchString={setSearchString}
                   />
                 </Grid>
               </Grid>
@@ -220,6 +222,7 @@ const ReceivingQueue = () => {
               sx={{ marginBottom: "1rem!important" }}>
               <Search
                 onSearch={async (e) => {
+                  setSearchString(e);
                   if (e) {
                     setFilteredHist(
                       allHist.filter((data) =>
@@ -231,6 +234,13 @@ const ReceivingQueue = () => {
                   }
                 }}
                 autoFocus
+                searchString={searchString}
+                setSearchString={async (e) => {
+                  if (!e) {
+                    await fetchReceivingHistory();
+                  }
+                  setSearchString(e);
+                }}
               />
             </Grid>
           )}
