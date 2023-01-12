@@ -114,7 +114,10 @@ const ReceivingQueueTable = ({
         isSelectAllOn,
         tableData,
         onSelectAllClick,
-        onQueueRowClick
+        onQueueRowClick,
+        false,
+        searchText,
+        false
       ),
       {
         field: "label",
@@ -140,6 +143,7 @@ const ReceivingQueueTable = ({
       onQueueRowClick,
       tableData,
       onSelectAllClick,
+      searchText,
     ]
   );
 
@@ -175,7 +179,7 @@ const ReceivingQueueTable = ({
           .flat()
           .map((e) => [e.item?.OrderNumber, e.item?.PartNumber])
           .flat()
-          .map((e) => e.toLowerCase().includes(searchText?.toLowerCase()))
+          .map((e) => e?.toLowerCase().includes(searchText?.toLowerCase()))
           .some((e) => e) ||
         selectedShipmentIds.includes(order?.id) // Ensure selected rows are included
     );

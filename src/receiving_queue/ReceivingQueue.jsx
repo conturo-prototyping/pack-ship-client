@@ -223,8 +223,7 @@ const ReceivingQueue = () => {
         className={classes.topBarGrid}
         container
         justifyContent="start"
-        spacing={2}
-      >
+        spacing={2}>
         <Grid container item xs={12} spacing={2}>
           {currentTab === TabNames.Queue ? (
             <Grid
@@ -232,8 +231,7 @@ const ReceivingQueue = () => {
               item
               xs={12}
               spacing={2}
-              sx={{ marginBottom: "1rem!important" }}
-            >
+              sx={{ marginBottom: "1rem!important" }}>
               <Grid container item xs={10} spacing={2}>
                 <Grid container item xs={"auto"}>
                   <CommonButton
@@ -257,6 +255,8 @@ const ReceivingQueue = () => {
                       setSearchString(e);
                     }}
                     autoFocus
+                    searchString={searchString}
+                    setSearchString={setSearchString}
                   />
                 </Grid>
               </Grid>
@@ -276,10 +276,10 @@ const ReceivingQueue = () => {
               item
               justifyContent="start"
               xs={6}
-              sx={{ marginBottom: "1rem!important" }}
-            >
+              sx={{ marginBottom: "1rem!important" }}>
               <Search
                 onSearch={async (e) => {
+                  setSearchString(e);
                   if (e) {
                     setFilteredHist(
                       allHist.filter((data) =>
@@ -291,6 +291,13 @@ const ReceivingQueue = () => {
                   }
                 }}
                 autoFocus
+                searchString={searchString}
+                setSearchString={async (e) => {
+                  if (!e) {
+                    await fetchReceivingHistory();
+                  }
+                  setSearchString(e);
+                }}
               />
             </Grid>
           )}
@@ -299,7 +306,7 @@ const ReceivingQueue = () => {
         <Grid item xs={12}>
           <PackShipTabs
             onTabChange={onTabChange}
-            queueTotal={receivingQueue?.length}
+            queueTotal={filteredReceivingQueue?.length}
             queueTab={
               <ReceivingQueueTable
                 receivingQueue={receivingQueue}
