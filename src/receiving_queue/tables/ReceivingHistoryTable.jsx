@@ -188,9 +188,9 @@ const ReceivingHistoryTable = ({
     }
   };
 
-  const handlePageChange = (event, newPage) => {
+  const handlePageChange = useCallback((event, newPage) => {
     setPage(newPage);
-  };
+  }, []);
 
   const generateTablePagination = useCallback(() => {
     return (
@@ -219,7 +219,13 @@ const ReceivingHistoryTable = ({
         </tbody>
       </table>
     );
-  }, [page, filteredHist.length, numRowsPerPage, setNumRowsPerPage]);
+  }, [
+    page,
+    filteredHist.length,
+    numRowsPerPage,
+    setNumRowsPerPage,
+    handlePageChange,
+  ]);
 
   return (
     <div className={classes.root}>
