@@ -93,57 +93,55 @@ const ReceivingQueue = () => {
     setReceiveShipmentWindowOpen(false);
   }
 
-  const reloadQueueData = useCallback(async () => {
-    async function fetchData() {
-      const data = await Promise.all([API.getReceivingQueue()]);
-      return { queue: data[0] };
-    }
+  const reloadQueueData = useCallback(
+    async (isMounted) => {
+      async function fetchData() {
+        const data = await Promise.all([API.getReceivingQueue()]);
+        return { queue: data[0] };
+      }
 
-    if (isMounted) {
-      setIsQueueLoading(true);
-      fetchData()
-        .then((data) => {
-          if (isMounted) {
-            // Gather the queue data for the table
-            let queueTableData = [];
+      if (isMounted) {
+        setIsQueueLoading(true);
+        fetchData()
+          .then((data) => {
+            if (isMounted) {
+              // Gather the queue data for the table
+              let queueTableData = [];
 
-            data?.queue.consumablePOQueue.forEach((e) => {
-              queueTableData.push({
-                id: e._id,
-                manifest: e.po,
-                source: e.source,
-                label: e.label,
-                poType: e.sourcePoType,
+              data?.queue.consumablePOQueue.forEach((e) => {
+                queueTableData.push({
+                  id: e._id,
+                  manifest: e.po,
+                  source: e.source,
+                  label: e.label,
+                  poType: e.sourcePoType,
+                });
               });
-            });
 
-            data?.queue.workOrderPOQueue.forEach((e) => {
-              queueTableData.push({
-                id: e._id,
-                manifest: e.po,
-                source: e.po[0].lines[0]?.packingSlip.destination,
-                label: e.label,
-                poType: e.sourcePoType,
+              data?.queue.workOrderPOQueue.forEach((e) => {
+                queueTableData.push({
+                  id: e._id,
+                  manifest: e.po,
+                  source: e.po[0].lines[0]?.packingSlip.destination,
+                  label: e.label,
+                  poType: e.sourcePoType,
+                });
               });
-            });
 
-            // The set state order is important
-            // queueTableData = sortDataByModel(sortModel, queueTableData);
-            setReceivingQueue(queueTableData);
-            setFilteredReceivingQueue(queueTableData);
-          }
-        })
-        .finally(() => {
-          setIsQueueLoading(false);
-        });
-    }
+              // The set state order is important
+              // queueTableData = sortDataByModel(sortModel, queueTableData);
+              setReceivingQueue(queueTableData);
+              setFilteredReceivingQueue(queueTableData);
+            }
+          })
+          .finally(() => {
+            setIsQueueLoading(false);
+          });
+      }
+    },
     // eslint-disable-next-line
-  }, [
-    setFilteredReceivingQueue,
-    setSelectedShipmentIds,
-    setReceivingQueue,
-    isMounted,
-  ]);
+    [setFilteredReceivingQueue, setSelectedShipmentIds, setReceivingQueue]
+  );
 
   const onReceiveShipmentSubmit = useCallback(
     (filledForm, id) => {
@@ -168,10 +166,10 @@ const ReceivingQueue = () => {
           enqueueSnackbar(e.message, snackbarVariants.error);
         })
         .finally(() => {
-          reloadQueueData();
+          reloadQueueData(isMounted);
         });
     },
-    [enqueueSnackbar, reloadQueueData]
+    [enqueueSnackbar, reloadQueueData, isMounted]
   );
 
   function onTabChange(event, newValue) {
@@ -182,6 +180,7 @@ const ReceivingQueue = () => {
     setIsMounted(true);
     return () => setIsMounted(false);
   }, []);
+
   const fetchReceivingHistory = useCallback(
     async () => {
       if (isMounted && currentTab === 1) setHistoryLoading(true);
@@ -213,9 +212,10 @@ const ReceivingQueue = () => {
     [filteredReceivingQueue, selectedShipmentIds]
   );
 
-  useEffect(() => {
-    if (isMounted) reloadQueueData();
-  }, [reloadQueueData, isMounted]);
+  // useEffect(() => {
+  //   if (isMounted) reloadQueueData();
+  //   return () => setIsMounted(false);
+  // }, [reloadQueueData, isMounted]);
 
   return (
     <Box className={classes.box}>
@@ -223,7 +223,8 @@ const ReceivingQueue = () => {
         className={classes.topBarGrid}
         container
         justifyContent="start"
-        spacing={2}>
+        spacing={2}
+      >
         <Grid container item xs={12} spacing={2}>
           {currentTab === TabNames.Queue ? (
             <Grid
@@ -231,7 +232,8 @@ const ReceivingQueue = () => {
               item
               xs={12}
               spacing={2}
-              sx={{ marginBottom: "1rem!important" }}>
+              sx={{ marginBottom: "1rem!important" }}
+            >
               <Grid container item xs={10} spacing={2}>
                 <Grid container item xs={"auto"}>
                   <CommonButton
@@ -276,7 +278,8 @@ const ReceivingQueue = () => {
               item
               justifyContent="start"
               xs={6}
-              sx={{ marginBottom: "1rem!important" }}>
+              sx={{ marginBottom: "1rem!important" }}
+            >
               <Search
                 onSearch={async (e) => {
                   setSearchString(e);
@@ -318,6 +321,7 @@ const ReceivingQueue = () => {
                 setFilteredReceivingQueue={setFilteredReceivingQueue}
                 searchText={searchString}
                 isLoading={isQueueLoading}
+                reloadQueueData={reloadQueueData}
               />
             }
             historyTab={
@@ -370,7 +374,7 @@ const ReceivingQueue = () => {
                 setCancelReason("");
                 setCancelShipmentOpen(false);
                 setIsCancelError(false);
-                reloadQueueData();
+                reloadQueueData(isMounted);
                 setSelectedShipmentIds([]);
               });
           }

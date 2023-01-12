@@ -64,11 +64,22 @@ const ReceivingQueueTable = ({
   setFilteredReceivingQueue,
   searchText,
   isLoading,
+  reloadQueueData,
 }) => {
   const classes = useStyle();
   const [queueData, setQueueData] = useState(tableData);
   const [isSelectAllOn, setIsSelectAll] = useState(false);
+  const [isMounted, setIsMounted] = useState(false);
   const numRowsPerPage = 10;
+
+  useEffect(() => {
+    setIsMounted(true);
+    return () => setIsMounted(false);
+  }, []);
+
+  useEffect(() => {
+    if (isMounted) reloadQueueData(true);
+  }, [reloadQueueData, isMounted]);
 
   const handleSelection = useCallback(
     (selection, tableData) => {
