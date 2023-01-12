@@ -17,6 +17,7 @@ import { API } from "../../services/server";
 import EditReceiveShipmentDialog from "../../receive_shipment/EditReceivedShipmentDialog";
 import { snackbarVariants, usePackShipSnackbar } from "../../common/Snackbar";
 import { useLocalStorage } from "../../utils/localStorage";
+import { onPageSizeChange } from "../../utils/TablePageSizeHandler";
 
 pdfMake.vfs = pdfFonts.pdfMake.vfs;
 
@@ -112,8 +113,7 @@ const ReceivingHistoryTable = ({
             }
           );
           setContextMenu(null);
-        }}
-      >
+        }}>
         View
       </MenuItem>,
       <MenuItem
@@ -130,8 +130,7 @@ const ReceivingHistoryTable = ({
             }
           );
           setContextMenu(null);
-        }}
-      >
+        }}>
         Edit
       </MenuItem>,
       <MenuItem
@@ -142,8 +141,7 @@ const ReceivingHistoryTable = ({
             reloadData();
           });
           setContextMenu(null);
-        }}
-      >
+        }}>
         Undo Receipt
       </MenuItem>,
     ],
@@ -205,11 +203,13 @@ const ReceivingHistoryTable = ({
               rowsPerPage={numRowsPerPage}
               onRowsPerPageChange={(event) => {
                 const pageValue = parseInt(event.target.value, 10);
-                // If changing the page size would cause the current page to be "bad", we need to go to the last page
-                if (pageValue * page >= filteredHist.length) {
-                  setPage(Math.floor(filteredHist.length / pageValue));
-                }
-                setNumRowsPerPage(pageValue);
+                onPageSizeChange(
+                  pageValue,
+                  page,
+                  filteredHist.length,
+                  setPage,
+                  setNumRowsPerPage
+                );
               }}
               onPageChange={handlePageChange}
               page={page}

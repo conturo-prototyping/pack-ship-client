@@ -14,6 +14,7 @@ import { styled } from "@mui/system";
 import { getCheckboxColumn } from "../../components/CheckboxColumn";
 import { PackShipProgress } from "../../common/CircularProgress";
 import { useLocalStorage } from "../../utils/localStorage";
+import { onPageSizeChange } from "../../utils/TablePageSizeHandler";
 
 const useStyle = makeStyles((theme) => ({
   root: {
@@ -227,11 +228,13 @@ const ReceivingQueueTable = ({
               onPageChange={handlePageChange}
               onRowsPerPageChange={(event) => {
                 const pageValue = parseInt(event.target.value, 10);
-                // If changing the page size would cause the current page to be "bad", we need to go to the last page
-                if (pageValue * page >= queueData.length) {
-                  setPage(Math.floor(queueData.length / pageValue));
-                }
-                setNumRowsPerPage(pageValue);
+                onPageSizeChange(
+                  pageValue,
+                  page,
+                  queueData.length,
+                  setPage,
+                  setNumRowsPerPage
+                );
               }}
               page={page}
               sx={{ border: "0px" }}
@@ -254,7 +257,7 @@ const ReceivingQueueTable = ({
         rows={
           isLoading
             ? []
-            : queueData.slice(
+            : queueData?.slice(
                 page * numRowsPerPage,
                 page * numRowsPerPage + numRowsPerPage
               )

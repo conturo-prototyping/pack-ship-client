@@ -18,6 +18,7 @@ import {
   NAV_BAR_HEIGHT,
   PAGINATION_SIZING_OPTIONS,
 } from "../../utils/Constants";
+import { onPageSizeChange } from "../../utils/TablePageSizeHandler";
 
 const useStyle = makeStyles((theme) => ({
   root: {
@@ -419,12 +420,13 @@ const ShippingHistoryTable = ({
         pageSize={histResultsPerPage}
         rowsPerPageOptions={PAGINATION_SIZING_OPTIONS}
         onPageSizeChange={(newPageSize) => {
-          const pageValue = newPageSize;
-          // If changing the page size would cause the current page to be "bad", we need to go to the last one
-          if (pageValue * page >= filteredShippingHist.length) {
-            onPageChange(Math.floor(filteredShippingHist.length / pageValue));
-          }
-          setHistResultsPerPage(pageValue);
+          onPageSizeChange(
+            newPageSize,
+            page,
+            filteredShippingHist.length,
+            onPageChange,
+            setHistResultsPerPage
+          );
         }}
         checkboxSelection={false}
         editMode="row"

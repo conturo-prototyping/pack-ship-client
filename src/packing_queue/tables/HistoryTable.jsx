@@ -18,6 +18,7 @@ import {
   NAV_BAR_HEIGHT,
   PAGINATION_SIZING_OPTIONS,
 } from "../../utils/Constants";
+import { onPageSizeChange } from "../../utils/TablePageSizeHandler";
 
 pdfMake.vfs = pdfFonts.pdfMake.vfs;
 
@@ -398,12 +399,19 @@ const HistoryTable = ({
         pageSize={histResultsPerPage}
         rowsPerPageOptions={PAGINATION_SIZING_OPTIONS}
         onPageSizeChange={(newPageSize) => {
-          const pageValue = newPageSize;
-          // If changing the page size would cause the current page to be "bad", we need to go to the last one
-          if (pageValue * pageNumber >= filteredHist.length) {
-            onPageChange(Math.floor(filteredHist.length / pageValue));
-          }
-          setHistResultsPerPage(pageValue);
+          onPageSizeChange(
+            newPageSize,
+            pageNumber,
+            filteredHist.length,
+            onPageChange,
+            setHistResultsPerPage
+          );
+          // const pageValue = newPageSize;
+          // // If changing the page size would cause the current page to be "bad", we need to go to the last one
+          // if (pageValue * pageNumber >= filteredHist.length) {
+          //   onPageChange(Math.floor(filteredHist.length / pageValue));
+          // }
+          // setHistResultsPerPage(pageValue);
         }}
         checkboxSelection={false}
         editMode="row"

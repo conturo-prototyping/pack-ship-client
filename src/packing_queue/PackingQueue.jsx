@@ -225,6 +225,22 @@ const PackingQueue = () => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [filteredPackingQueue]);
 
+  useEffect(() => {
+    fetchSearch(
+      getSortFromModel(sortPackHistoryModel),
+      histPageNum,
+      orderNumber,
+      partNumber
+    );
+  }, [
+    histResultsPerPage,
+    fetchSearch,
+    histPageNum,
+    orderNumber,
+    partNumber,
+    sortPackHistoryModel,
+  ]);
+
   return (
     <Box className={classes.box}>
       <Grid
