@@ -28,26 +28,23 @@ const PackingDialog = ({
       maxWidth={maxWidth}
       open={open}
       onClose={onClose}
-      onBackdropClick={onClose}
-    >
+      onBackdropClick={onClose}>
       <Box
         component="form"
         onSubmit={(e) => {
           e.preventDefault();
-        }}
-      >
-        <DialogTitle sx={{ m: 0, p: 2 }}>
+        }}>
+        <DialogTitle sx={{ m: 1, p: 2, paddingTop: "1.5rem" }}>
           <Typography align="center" fontWeight="bold" fontSize={20}>
             {titleText}
           </Typography>
           <IconButton
             sx={{
               position: "absolute",
-              right: 8,
-              top: 8,
+              right: 5,
+              top: 5,
             }}
-            onClick={onClose}
-          >
+            onClick={onClose}>
             <CloseIcon />
           </IconButton>
         </DialogTitle>

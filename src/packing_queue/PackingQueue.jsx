@@ -229,8 +229,7 @@ const PackingQueue = () => {
         className={classes.topBarGrid}
         container
         justifyContent="start"
-        spacing={2}
-      >
+        spacing={2}>
         <Grid container item xs={12} spacing={2}>
           {tabValue === 1 && (
             <OrderPartNumberSearch
@@ -249,8 +248,7 @@ const PackingQueue = () => {
               item
               xs={12}
               spacing={2}
-              sx={{ marginBottom: "1rem!important" }}
-            >
+              sx={{ marginBottom: "1rem!important" }}>
               <Grid container item xs={"auto"}>
                 <CommonButton
                   label="Make Packing Slip"
@@ -263,7 +261,12 @@ const PackingQueue = () => {
                 />
               </Grid>
               <Grid container item justifyContent="start" xs={6}>
-                <Search onSearch={onSearch} autoFocus />
+                <Search
+                  onSearch={onSearch}
+                  autoFocus
+                  searchString={searchString}
+                  setSearchString={setSearchString}
+                />
               </Grid>
               <Grid container item xs justifyContent="flex-end">
                 <CheckboxForm
@@ -321,7 +324,7 @@ const PackingQueue = () => {
               setIsFulfilledBatchesOn(true);
               setSelectedOrderIds([]);
             }}
-            queueTotal={packingQueue?.length}
+            queueTotal={filteredPackingQueue?.length}
             queueTab={
               <PackingQueueTable
                 tableData={filteredPackingQueue}
