@@ -139,7 +139,6 @@ const ReceivingQueueDropdown = ({ params }) => {
           <DataGrid
             autoHeight
             columns={columns}
-            disableColumnMenu
             hideFooter
             pageSize={tableData.length}
             rows={tableData}

@@ -492,7 +492,6 @@ const PackingQueueTable = ({
         pageSize={numRowsPerPage}
         rowsPerPageOptions={[numRowsPerPage]}
         columnBuffer={0}
-        disableColumnMenu
         disableColumnSelector
         disableDensitySelector
         checkboxSelection={false}

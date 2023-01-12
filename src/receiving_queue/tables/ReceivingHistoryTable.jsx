@@ -191,7 +191,6 @@ const ReceivingHistoryTable = ({
           minHeight: "20rem",
         }}
         className={classes.table}
-        disableColumnMenu
         disableSelectionOnClick={true}
         rows={historyLoading ? [] : filteredHist}
         rowHeight={65}

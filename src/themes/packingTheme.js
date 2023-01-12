@@ -9,6 +9,13 @@ const theme = createTheme({
       fontWeight: "bold",
     },
   },
+  components: {
+    MuiDataGrid: {
+      defaultProps: {
+        disableColumnMenu: true,
+      },
+    },
+  },
   palette: {
     primary: {
       contrastText: "#808080",

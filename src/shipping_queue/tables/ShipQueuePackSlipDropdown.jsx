@@ -26,7 +26,6 @@ const ShipQueuePackSlipDrowdown = ({ params }) => {
         </ListItemButton>
         <Collapse in={isOpen} timeout="auto" unmountOnExit>
           <DataGrid
-            disableColumnMenu
             pageSize={10}
             rowsPerPageOptions={[10]}
             autoHeight

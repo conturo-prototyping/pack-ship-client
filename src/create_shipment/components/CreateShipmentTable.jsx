@@ -47,7 +47,6 @@ const CreateShipmentTable = ({ rowData }) => {
       autoHeight
       rows={rowData}
       columns={columns}
-      disableColumnMenu
       disableSelectionOnClick
       rowHeight={65}
       pageSize={rowData.length}

@@ -411,7 +411,6 @@ const ShippingHistoryTable = ({
           minHeight: "20rem",
         }}
         className={classes.table}
-        disableColumnMenu
         disableSelectionOnClick={true}
         rows={isLoading || historyLoading ? [] : filteredShippingHist}
         rowHeight={65}
