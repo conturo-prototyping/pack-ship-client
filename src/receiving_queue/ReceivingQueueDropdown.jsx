@@ -130,17 +130,18 @@ const ReceivingQueueDropdown = ({ params }) => {
         <ListItemButton
           onClick={() => {
             setIsOpen(!isOpen);
-          }}>
+          }}
+        >
           {isOpen ? <ExpandLess /> : <ExpandMore />}
           <ListItemText primary={params.row.label} />
         </ListItemButton>
         {isOpen && (
           <DataGrid
-            pageSize={tableData.length}
             autoHeight
-            hideFooter
-            rows={tableData}
             columns={columns}
+            hideFooter
+            pageSize={tableData.length}
+            rows={tableData}
             disableSelectionOnClick
             onCellClick={(_, event) => event.stopPropagation()}
           />
