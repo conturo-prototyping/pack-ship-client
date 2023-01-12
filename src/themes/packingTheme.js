@@ -1,19 +1,14 @@
 import { createTheme } from "@mui/material/styles";
+import { baseTheme } from "./rootTheme";
 
 const theme = createTheme({
+  ...baseTheme,
   typography: {
     fontFamily: "Arial",
     button: {
       textTransform: "none",
       fontSize: "18px",
       fontWeight: "bold",
-    },
-  },
-  components: {
-    MuiDataGrid: {
-      defaultProps: {
-        disableColumnMenu: true,
-      },
     },
   },
   palette: {
