@@ -212,11 +212,6 @@ const ReceivingQueue = () => {
     [filteredReceivingQueue, selectedShipmentIds]
   );
 
-  // useEffect(() => {
-  //   if (isMounted) reloadQueueData();
-  //   return () => setIsMounted(false);
-  // }, [reloadQueueData, isMounted]);
-
   return (
     <Box className={classes.box}>
       <Grid
