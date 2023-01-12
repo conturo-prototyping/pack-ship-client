@@ -109,11 +109,7 @@ const CreateShipmentDialog = ({
   };
 
   const onNextClick = () => {
-    if (
-      shippingInfo.isDueBack &&
-      !shippingInfo.isDueBackOn &&
-      !shippingInfo.isDueBackOn?.isValid()
-    ) {
+    if (shippingInfo.isDueBack && !shippingInfo.isDueBackOn?.isValid()) {
       setDisplayDateHelper(true);
     } else {
       setCurrentState(ShippingDialogStates.SelectMethodPage);
@@ -378,7 +374,7 @@ const CreateShipmentDialog = ({
                         ...shippingInfo,
                         isDueBackOn: newValue,
                       });
-                      setDisplayDateHelper(false);
+                      setDisplayDateHelper(!newValue?.isValid());
                     }}
                     displayDateHelper={displayDateHelper}
                   />

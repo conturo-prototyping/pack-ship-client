@@ -1,5 +1,5 @@
 import React from "react";
-import { TextField, FormHelperText, Box } from "@mui/material";
+import { TextField } from "@mui/material";
 import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
 import { DatePicker } from "@mui/x-date-pickers/DatePicker";
 import { LocalizationProvider } from "@mui/x-date-pickers/LocalizationProvider";
@@ -22,16 +22,12 @@ const PackShipDatePicker = ({
         onChange={onChange}
         renderInput={(params) => (
           <TextField
-            variant={displayDateHelper ? "filled" : "outlined"}
             {...params}
+            error={displayDateHelper}
+            helperText={displayDateHelper ? "Please Provide a Date" : ""}
           />
         )}
       />
-      {displayDateHelper ? (
-        <FormHelperText error>Please Provide a Date</FormHelperText>
-      ) : (
-        <></>
-      )}
     </LocalizationProvider>
   );
 };
