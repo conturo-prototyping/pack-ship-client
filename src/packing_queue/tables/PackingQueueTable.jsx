@@ -150,15 +150,20 @@ const PackingQueueTable = ({
 
         // if the new selection contains all possible selected order numbers
         // then select all is on
-        const selectedOrderNum = tableData?.find(
-          (e) => e.id === selection
-        )?.orderNumber;
-        const idsWithSelectedOrderNum = tableData
-          ?.filter((e) => e.orderNumber === selectedOrderNum)
+        const selected = tableData?.find((e) => e.id === selection);
+        const selectedOrderNum = selected?.orderNumber;
+        const selectedDestination = selected?.destination;
+
+        const idsWithSelectedOrderNumAndDest = tableData
+          ?.filter(
+            (e) =>
+              e.orderNumber === selectedOrderNum &&
+              e.destination === selectedDestination
+          )
           .map((e) => e.id);
 
         setIsSelectAll(
-          idsWithSelectedOrderNum.sort().toString() ===
+          idsWithSelectedOrderNumAndDest.sort().toString() ===
             newSelection.sort().toString()
         );
       }
@@ -170,22 +175,36 @@ const PackingQueueTable = ({
   const onSelectAllClick = useCallback(
     (value, tableData, isFulfilledBatchesOn, searchString) => {
       setIsSelectAll(value);
-      let selectedOrderIds = [];
+
       if (value) {
         if (selectionOrderIds.length > 0) {
           // Something is selected, so we need to select the remaining
-          // that matach selectedOrderNumber
-          selectedOrderIds = tableData
-            .filter((e) => e.orderNumber === selectedOrderNumber)
-            .map((e) => e.id);
-          setSelectedOrderIds(selectedOrderIds);
+          // that matach selectedOrderNumber and destination
+
+          setSelectedOrderIds(
+            tableData
+              .filter(
+                (e) =>
+                  e.orderNumber === selectedOrderNumber &&
+                  e.destination ===
+                    tableData.find((f) => f.id === selectionOrderIds[0])
+                      ?.destination
+              )
+              .map((e) => e.id)
+          );
         } else if (selectionOrderIds.length === 0) {
           // Nothing selected yet, so select the first row and all that match
-          // the first row order number
-          selectedOrderIds = tableData
-            .filter((e) => e.orderNumber === tableData[0]?.orderNumber)
-            .map((e) => e.id);
-          setSelectedOrderIds(selectedOrderIds);
+          // the first row order number and destination
+          setSelectedOrderIds(
+            tableData
+              .filter(
+                (e) =>
+                  e.orderNumber === tableData[0]?.orderNumber &&
+                  e.destination === tableData[0]?.destination
+              )
+              .map((e) => e.id)
+          );
+
           setSelectedOrderNumber(
             tableData?.find((e) => e.id === tableData[0].id)?.orderNumber ??
               null
@@ -199,7 +218,7 @@ const PackingQueueTable = ({
       // ensure deselected rows are remove from searches, filters
       let queue = applyFulfilledBatchFilter(tableData, isFulfilledBatchesOn);
       queue = applySearch(queue, searchString);
-      queue = ensureSelectionAdded(queue, tableData, selectedOrderIds);
+      queue = ensureSelectionAdded(queue, tableData, selectionOrderIds);
       setFilteredPackingQueue(queue);
     },
     [
@@ -505,7 +524,6 @@ const PackingQueueTable = ({
         pageSize={numRowsPerPage}
         rowsPerPageOptions={PAGINATION_SIZING_OPTIONS}
         columnBuffer={0}
-        disableColumnMenu
         disableColumnSelector
         disableDensitySelector
         checkboxSelection={false}

@@ -112,7 +112,8 @@ const ReceivingHistoryTable = ({
             }
           );
           setContextMenu(null);
-        }}>
+        }}
+      >
         View
       </MenuItem>,
       <MenuItem
@@ -129,7 +130,8 @@ const ReceivingHistoryTable = ({
             }
           );
           setContextMenu(null);
-        }}>
+        }}
+      >
         Edit
       </MenuItem>,
       <MenuItem
@@ -140,7 +142,8 @@ const ReceivingHistoryTable = ({
             reloadData();
           });
           setContextMenu(null);
-        }}>
+        }}
+      >
         Undo Receipt
       </MenuItem>,
     ],

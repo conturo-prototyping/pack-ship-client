@@ -205,7 +205,7 @@ const ShippingQueueTable = ({
       if (value) {
         if (selectedOrderIds.length > 0) {
           // Something is selected, so we need to select the remaining
-          // that matach selectedOrderNumber
+          // that matach selectedCustomerId and destination
           setSelectedOrderIds(
             tableData
               .filter(
@@ -219,7 +219,7 @@ const ShippingQueueTable = ({
           );
         } else if (selectedOrderIds.length === 0) {
           // Nothing selected yet, so select the first row and all that match
-          // the first row order number
+          // the first row selectedCustomerId and destination
 
           setSelectedOrderIds(
             tableData
@@ -396,7 +396,6 @@ const ShippingQueueTable = ({
         pageSize={numRowsPerPage}
         rowsPerPageOptions={PAGINATION_SIZING_OPTIONS}
         columnBuffer={0}
-        disableColumnMenu
         disableColumnSelector
         disableDensitySelector
         checkboxSelection={false}

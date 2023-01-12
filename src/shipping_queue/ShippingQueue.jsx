@@ -198,7 +198,12 @@ const ShippingQueue = () => {
                 />
               </Grid>
               <Grid container item justifyContent="start" xs={6}>
-                <Search onSearch={onQueueSearch} autoFocus />
+                <Search
+                  onSearch={onQueueSearch}
+                  autoFocus
+                  searchString={queueSearchText}
+                  setSearchString={setQueueSearchText}
+                />
               </Grid>
             </Grid>
           ) : (
@@ -216,7 +221,7 @@ const ShippingQueue = () => {
         <Grid item xs={12}>
           <PackShipTabs
             onTabChange={onTabChange}
-            queueTotal={shippingQueue?.length}
+            queueTotal={filteredShippingQueue?.length}
             queueTab={
               <ShippingQueueTable
                 shippingQueue={shippingQueue}

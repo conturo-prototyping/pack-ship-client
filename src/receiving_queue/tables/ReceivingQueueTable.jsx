@@ -9,7 +9,6 @@ import {
   NAV_BAR_HEIGHT,
   PAGINATION_SIZING_OPTIONS,
 } from "../../utils/Constants";
-import { API } from "../../services/server";
 import ReceivingQueueDropdown from "../ReceivingQueueDropdown";
 import { styled } from "@mui/system";
 import { getCheckboxColumn } from "../../components/CheckboxColumn";
@@ -64,22 +63,15 @@ const ReceivingQueueTable = ({
   setSortModel,
   selectedShipmentIds,
   setSelectedShipmentIds,
-  setReceivingQueue,
   setFilteredReceivingQueue,
   searchText,
+  isLoading,
+  reloadQueueData,
 }) => {
   const classes = useStyle();
   const [queueData, setQueueData] = useState(tableData);
-  //TODO: Use later for selections
-  // eslint-disable-next-line
-  const [selectedCustomerId, setSelectedCustomerId] = useState(null);
-  //TODO: Use later for selections
-  // eslint-disable-next-line
   const [isSelectAllOn, setIsSelectAll] = useState(false);
   const [isMounted, setIsMounted] = useState(false);
-  //TODO: Set later for when data is coming in.
-  // eslint-disable-next-line
-  const [isLoading, setIsLoading] = useState(false);
 
   const [numRowsPerPage, setNumRowsPerPage] = useLocalStorage(
     "receivingQueueNumRows",
@@ -92,56 +84,8 @@ const ReceivingQueueTable = ({
   }, []);
 
   useEffect(() => {
-    async function fetchData() {
-      const data = await Promise.all([API.getReceivingQueue()]);
-      return { queue: data[0] };
-    }
-
-    if (isMounted) {
-      setIsLoading(true);
-      fetchData()
-        .then((data) => {
-          if (isMounted) {
-            // Gather the queue data for the table
-            let queueTableData = [];
-
-            data?.queue.consumablePOQueue.forEach((e) => {
-              queueTableData.push({
-                id: e._id,
-                manifest: e.po,
-                source: e.source,
-                label: e.label,
-                poType: e.sourcePoType,
-              });
-            });
-
-            data?.queue.workOrderPOQueue.forEach((e) => {
-              queueTableData.push({
-                id: e._id,
-                manifest: e.po,
-                source: e.po[0].lines[0]?.packingSlip.destination,
-                label: e.label,
-                poType: e.sourcePoType,
-              });
-            });
-
-            // The set state order is important
-            queueTableData = sortDataByModel(sortModel, queueTableData);
-            setReceivingQueue(queueTableData);
-            setFilteredReceivingQueue(queueTableData);
-          }
-        })
-        .finally(() => {
-          setIsLoading(false);
-        });
-    }
-    // eslint-disable-next-line
-  }, [
-    setFilteredReceivingQueue,
-    setSelectedShipmentIds,
-    setReceivingQueue,
-    isMounted,
-  ]);
+    if (isMounted) reloadQueueData(true);
+  }, [reloadQueueData, isMounted]);
 
   const handleSelection = useCallback(
     (selection, tableData) => {
@@ -187,7 +131,10 @@ const ReceivingQueueTable = ({
         isSelectAllOn,
         tableData,
         onSelectAllClick,
-        onQueueRowClick
+        onQueueRowClick,
+        false,
+        searchText,
+        false
       ),
       {
         field: "label",
@@ -213,6 +160,7 @@ const ReceivingQueueTable = ({
       onQueueRowClick,
       tableData,
       onSelectAllClick,
+      searchText,
     ]
   );
 
@@ -248,7 +196,7 @@ const ReceivingQueueTable = ({
           .flat()
           .map((e) => [e.item?.OrderNumber, e.item?.PartNumber])
           .flat()
-          .map((e) => e.toLowerCase().includes(searchText?.toLowerCase()))
+          .map((e) => e?.toLowerCase().includes(searchText?.toLowerCase()))
           .some((e) => e) ||
         selectedShipmentIds.includes(order?.id) // Ensure selected rows are included
     );
@@ -257,11 +205,10 @@ const ReceivingQueueTable = ({
   }, [searchText, setFilteredReceivingQueue]);
 
   useEffect(() => {
-    setQueueData(tableData);
+    setQueueData(sortDataByModel(sortModel, tableData));
+    // eslint-disable-next-line
   }, [tableData]);
 
-  //TODO: Set later for when data is coming in.
-  // eslint-disable-next-line
   const [page, setPage] = useState(0);
 
   const handlePageChange = (event, newPage) => {
@@ -316,7 +263,6 @@ const ReceivingQueueTable = ({
         pageSize={numRowsPerPage}
         rowsPerPageOptions={PAGINATION_SIZING_OPTIONS}
         columnBuffer={0}
-        disableColumnMenu
         disableColumnSelector
         disableDensitySelector
         checkboxSelection={false}
