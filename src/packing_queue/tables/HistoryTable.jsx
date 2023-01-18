@@ -406,12 +406,6 @@ const HistoryTable = ({
             onPageChange,
             setHistResultsPerPage
           );
-          // const pageValue = newPageSize;
-          // // If changing the page size would cause the current page to be "bad", we need to go to the last one
-          // if (pageValue * pageNumber >= filteredHist.length) {
-          //   onPageChange(Math.floor(filteredHist.length / pageValue));
-          // }
-          // setHistResultsPerPage(pageValue);
         }}
         checkboxSelection={false}
         editMode="row"
