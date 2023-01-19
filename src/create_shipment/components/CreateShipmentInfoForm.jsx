@@ -23,6 +23,7 @@ const CreateCarrierShipmentInfoForm = ({
     ...shippingInfo,
     carrier: CARRIERS[0],
   });
+  console.log(shippingInfo);
 
   const defaultInfo = useMemo(() => {
     return {
@@ -43,6 +44,7 @@ const CreateCarrierShipmentInfoForm = ({
 
   useEffect(() => {
     if (reset) {
+      console.log(defaultInfo);
       setShippingInfo(defaultInfo);
       setLocalShippingInfo(defaultInfo);
       setReset(false);
@@ -129,10 +131,6 @@ const CreateCarrierShipmentInfoForm = ({
                 onChange={(checked) => {
                   setLocalShippingInfo({
                     ...localShippingInfo,
-                    checkedCustomer: checked,
-                  });
-                  setShippingInfo({
-                    ...shippingInfo,
                     checkedCustomer: checked,
                   });
                 }}
