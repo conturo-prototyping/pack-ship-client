@@ -24,10 +24,6 @@ const CreateCarrierShipmentInfoForm = ({
     carrier: CARRIERS[0],
   });
 
-  useEffect(() => {
-    setLocalShippingInfo({ ...shippingInfo, carrier: CARRIERS[0] });
-  }, [shippingInfo]);
-
   const defaultInfo = useMemo(() => {
     return {
       manifest: shippingInfo.manifest,
