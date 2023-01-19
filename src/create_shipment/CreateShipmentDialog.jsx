@@ -89,7 +89,7 @@ const CreateShipmentDialog = ({
     setShippingInfo({
       ...shippingInfo,
       deliveryMethod: "CARRIER",
-      checkedCustomer: true,
+      checkedCustomer: customer.defaultCarrierAccount !== undefined,
       customerAccount: customer.defaultCarrierAccount ?? "",
     });
   };
