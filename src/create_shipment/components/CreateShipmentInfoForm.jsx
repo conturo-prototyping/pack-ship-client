@@ -24,6 +24,10 @@ const CreateCarrierShipmentInfoForm = ({
     carrier: CARRIERS[0],
   });
 
+  useEffect(() => {
+    setLocalShippingInfo({ ...shippingInfo, carrier: CARRIERS[0] });
+  }, [shippingInfo]);
+
   const defaultInfo = useMemo(() => {
     return {
       manifest: shippingInfo.manifest,
@@ -31,12 +35,14 @@ const CreateCarrierShipmentInfoForm = ({
       deliveryMethod: shippingInfo.deliveryMethod,
       carrier: CARRIERS[0],
       checkedCustomer: shippingInfo.checkedCustomer,
+      customerAccount: shippingInfo.customerAccount,
     };
   }, [
     shippingInfo.manifest,
     shippingInfo.customer,
     shippingInfo.deliveryMethod,
     shippingInfo.checkedCustomer,
+    shippingInfo.customerAccount,
   ]);
 
   useEffect(() => {
