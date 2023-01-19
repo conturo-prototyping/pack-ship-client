@@ -16,7 +16,9 @@ import {
   PACKING_SLIP_TOP_MARGIN,
   PACKING_SLIP_BOTTOM_MARGIN,
   NAV_BAR_HEIGHT,
+  PAGINATION_SIZING_OPTIONS,
 } from "../../utils/Constants";
+import { onPageSizeChange } from "../../utils/TablePageSizeHandler";
 
 const useStyle = makeStyles((theme) => ({
   root: {
@@ -74,6 +76,7 @@ const ShippingHistoryTable = ({
   orderNumber,
   partNumber,
   historyLoading,
+  setHistResultsPerPage,
 }) => {
   const classes = useStyle();
 
@@ -348,8 +351,7 @@ const ShippingHistoryTable = ({
       onClick={() => {
         setIsEditShipmentOpen(true);
         setIsEditShipmentViewOnly(true);
-      }}
-    >
+      }}>
       View
     </MenuItem>,
     // <MenuItem key="download-menu-item">Download</MenuItem>,
@@ -358,8 +360,7 @@ const ShippingHistoryTable = ({
       onClick={async () => {
         await createShipmentPdfDoc();
         setContextMenu(null);
-      }}
-    >
+      }}>
       Download
     </MenuItem>,
     <MenuItem
@@ -367,8 +368,7 @@ const ShippingHistoryTable = ({
       onClick={() => {
         setIsEditShipmentOpen(true);
         setIsEditShipmentViewOnly(false);
-      }}
-    >
+      }}>
       Edit
     </MenuItem>,
     <MenuItem
@@ -376,8 +376,7 @@ const ShippingHistoryTable = ({
       onClick={() => {
         setContextMenu(null);
         setConfirmShippingDeleteDialogOpen(true);
-      }}
-    >
+      }}>
       Delete
     </MenuItem>,
   ];
@@ -409,6 +408,9 @@ const ShippingHistoryTable = ({
           border: "none",
           height: `calc(100vh - ${PACKING_SLIP_BOTTOM_MARGIN} - ${PACKING_SLIP_TOP_MARGIN} - ${NAV_BAR_HEIGHT} - 5rem)`,
           minHeight: "20rem",
+          ".MuiDataGrid-footerContainer": {
+            backgroundColor: "primary.light",
+          },
         }}
         className={classes.table}
         disableSelectionOnClick={true}
@@ -416,7 +418,16 @@ const ShippingHistoryTable = ({
         rowHeight={65}
         columns={columns}
         pageSize={histResultsPerPage}
-        rowsPerPageOptions={[10]}
+        rowsPerPageOptions={PAGINATION_SIZING_OPTIONS}
+        onPageSizeChange={(newPageSize) => {
+          onPageSizeChange(
+            newPageSize,
+            page,
+            filteredShippingHist.length,
+            onPageChange,
+            setHistResultsPerPage
+          );
+        }}
         checkboxSelection={false}
         editMode="row"
         sortingMode="server"
@@ -524,8 +535,7 @@ const ShippingHistoryTable = ({
             .catch((e) => {
               enqueueSnackbar(e.mesage, snackbarVariants.error);
             });
-        }}
-      >
+        }}>
         <Typography sx={{ fontWeight: 900 }}>
           {clickedHistShipment?.label}
         </Typography>

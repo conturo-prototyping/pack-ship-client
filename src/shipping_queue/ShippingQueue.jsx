@@ -71,7 +71,11 @@ const ShippingQueue = () => {
   const [filteredShippingHist, setFilteredShippingHist] = useState([]);
   const [orderNumber, setOrderNumber] = useState("");
   const [partNumber, setPartNumber] = useState("");
-  const histResultsPerPage = 10;
+  const [histResultsPerPage, setHistResultsPerPage] = useLocalStorage(
+    "shippingHistNumRows",
+    window.innerHeight > 1440 ? 25 : 10
+  );
+
   const [sortShippingHistModel, setSortShippingHistModel] = useLocalStorage(
     "sortShippingHistModel",
     [
@@ -247,6 +251,7 @@ const ShippingQueue = () => {
                 orderNumber={orderNumber}
                 partNumber={partNumber}
                 historyLoading={historyLoading}
+                setHistResultsPerPage={setHistResultsPerPage}
               />
             }
           />

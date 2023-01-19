@@ -50,9 +50,11 @@ const PackingQueue = () => {
   const [historyLoading, setHistoryLoading] = useState(false);
   const [histTotalCount, setHistTotalCount] = useState(0);
   const [histPageNum, setHistPageNum] = useState(0);
-  const histResultsPerPage = 10;
+  const [histResultsPerPage, setHistResultsPerPage] = useLocalStorage(
+    "packingHistNumRows",
+    window.innerHeight > 1440 ? 25 : 10
+  );
 
-  // const [isShowUnfinishedBatches, setIsShowUnfinishedBatches] = useState(true);
   const [isFulfilledBatchesOn, setIsFulfilledBatchesOn] = useState(true);
   const [selectedOrderIds, setSelectedOrderIds] = useState([]);
   const [selectedOrderNumber, setSelectedOrderNumber] = useState(null);
@@ -223,6 +225,22 @@ const PackingQueue = () => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [filteredPackingQueue]);
 
+  useEffect(() => {
+    fetchSearch(
+      getSortFromModel(sortPackHistoryModel),
+      histPageNum,
+      orderNumber,
+      partNumber
+    );
+  }, [
+    histResultsPerPage,
+    fetchSearch,
+    histPageNum,
+    orderNumber,
+    partNumber,
+    sortPackHistoryModel,
+  ]);
+
   return (
     <Box className={classes.box}>
       <Grid
@@ -355,6 +373,7 @@ const PackingQueue = () => {
                 partNumber={partNumber}
                 pageNumber={histPageNum}
                 onPageChange={onHistPageChange}
+                setHistResultsPerPage={setHistResultsPerPage}
               />
             }
           />

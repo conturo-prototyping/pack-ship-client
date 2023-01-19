@@ -3,7 +3,7 @@ import React, { useCallback, useEffect, useState, useMemo } from "react";
 import ContextMenu from "../../components/GenericContextMenu";
 import MenuItem from "@mui/material/MenuItem";
 import makeStyles from "@mui/styles/makeStyles";
-import { Typography } from "@mui/material";
+import { Typography, TablePagination, Grid } from "@mui/material";
 import pdfMake from "pdfmake/build/pdfmake";
 import pdfFonts from "pdfmake/build/vfs_fonts";
 import { PackShipProgress } from "../../common/CircularProgress";
@@ -11,10 +11,13 @@ import {
   PACKING_SLIP_TOP_MARGIN,
   PACKING_SLIP_BOTTOM_MARGIN,
   NAV_BAR_HEIGHT,
+  PAGINATION_SIZING_OPTIONS,
 } from "../../utils/Constants";
 import { API } from "../../services/server";
 import EditReceiveShipmentDialog from "../../receive_shipment/EditReceivedShipmentDialog";
 import { snackbarVariants, usePackShipSnackbar } from "../../common/Snackbar";
+import { useLocalStorage } from "../../utils/localStorage";
+import { onPageSizeChange } from "../../utils/TablePageSizeHandler";
 
 pdfMake.vfs = pdfFonts.pdfMake.vfs;
 
@@ -71,6 +74,12 @@ const ReceivingHistoryTable = ({
 
   const [receivedData, setReceivedData] = useState({});
 
+  const [numRowsPerPage, setNumRowsPerPage] = useLocalStorage(
+    "receivingHistoryNumRows",
+    window.innerHeight > 1440 ? 25 : 10
+  );
+  const [page, setPage] = useState(0);
+
   const enqueueSnackbar = usePackShipSnackbar();
 
   useEffect(() => {
@@ -104,8 +113,7 @@ const ReceivingHistoryTable = ({
             }
           );
           setContextMenu(null);
-        }}
-      >
+        }}>
         View
       </MenuItem>,
       <MenuItem
@@ -122,8 +130,7 @@ const ReceivingHistoryTable = ({
             }
           );
           setContextMenu(null);
-        }}
-      >
+        }}>
         Edit
       </MenuItem>,
       <MenuItem
@@ -134,8 +141,7 @@ const ReceivingHistoryTable = ({
             reloadData();
           });
           setContextMenu(null);
-        }}
-      >
+        }}>
         Undo Receipt
       </MenuItem>,
     ],
@@ -182,6 +188,45 @@ const ReceivingHistoryTable = ({
     }
   };
 
+  const handlePageChange = useCallback((event, newPage) => {
+    setPage(newPage);
+  }, []);
+
+  const generateTablePagination = useCallback(() => {
+    return (
+      <table>
+        <tbody>
+          <tr>
+            <TablePagination
+              count={filteredHist.length}
+              rowsPerPageOptions={PAGINATION_SIZING_OPTIONS}
+              rowsPerPage={numRowsPerPage}
+              onRowsPerPageChange={(event) => {
+                const pageValue = parseInt(event.target.value, 10);
+                onPageSizeChange(
+                  pageValue,
+                  page,
+                  filteredHist.length,
+                  setPage,
+                  setNumRowsPerPage
+                );
+              }}
+              onPageChange={handlePageChange}
+              page={page}
+              sx={{ border: "0px" }}
+            />
+          </tr>
+        </tbody>
+      </table>
+    );
+  }, [
+    page,
+    filteredHist.length,
+    numRowsPerPage,
+    setNumRowsPerPage,
+    handlePageChange,
+  ]);
+
   return (
     <div className={classes.root}>
       <DataGrid
@@ -192,10 +237,17 @@ const ReceivingHistoryTable = ({
         }}
         className={classes.table}
         disableSelectionOnClick={true}
-        rows={historyLoading ? [] : filteredHist}
+        rows={
+          historyLoading
+            ? []
+            : filteredHist.slice(
+                page * numRowsPerPage,
+                page * numRowsPerPage + numRowsPerPage
+              )
+        }
         rowHeight={65}
         columns={columns}
-        rowsPerPageOptions={[10]}
+        rowsPerPageOptions={PAGINATION_SIZING_OPTIONS}
         checkboxSelection={false}
         editMode="row"
         pageSize={10}
@@ -206,6 +258,19 @@ const ReceivingHistoryTable = ({
         loading={historyLoading}
         components={{
           LoadingOverlay: () => <PackShipProgress />,
+          Footer: () => (
+            <Grid
+              container
+              item
+              xs={12}
+              justifyContent="flex-end"
+              sx={{
+                backgroundColor: "primary.light",
+                borderTop: "1px solid rgba(224, 224, 224, 1)",
+              }}>
+              {generateTablePagination()}
+            </Grid>
+          ),
         }}
         componentsProps={{
           row: {
