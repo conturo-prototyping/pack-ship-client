@@ -62,21 +62,36 @@ const CreateShipmentDialog = ({
     if (destination !== DestinationTypes.CUSTOMER)
       setCurrentState(ShippingDialogStates.ShippingAddressPage);
     else setCurrentState(ShippingDialogStates.PickupDropOffPage);
-    setShippingInfo({ ...shippingInfo, deliveryMethod: "PICKUP" });
+    setShippingInfo({
+      ...shippingInfo,
+      deliveryMethod: "PICKUP",
+      checkedCustomer: undefined,
+      customerAccount: undefined,
+    });
   };
 
   const onDropOffClick = () => {
     if (destination !== DestinationTypes.CUSTOMER)
       setCurrentState(ShippingDialogStates.ShippingAddressPage);
     else setCurrentState(ShippingDialogStates.PickupDropOffPage);
-    setShippingInfo({ ...shippingInfo, deliveryMethod: "DROPOFF" });
+    setShippingInfo({
+      ...shippingInfo,
+      deliveryMethod: "DROPOFF",
+      checkedCustomer: undefined,
+      customerAccount: undefined,
+    });
   };
 
   const onCarrierClick = () => {
     if (destination !== DestinationTypes.CUSTOMER)
       setCurrentState(ShippingDialogStates.ShippingAddressPage);
     else setCurrentState(ShippingDialogStates.CarrierPage);
-    setShippingInfo({ ...shippingInfo, deliveryMethod: "CARRIER" });
+    setShippingInfo({
+      ...shippingInfo,
+      deliveryMethod: "CARRIER",
+      checkedCustomer: customer.defaultCarrierAccount !== undefined,
+      customerAccount: customer.defaultCarrierAccount ?? "",
+    });
   };
 
   const onShippingAddressChange = (shippingAddress) => {
@@ -304,8 +319,7 @@ const CreateShipmentDialog = ({
       }`}
       open={open}
       onClose={onClose}
-      actions={renderDialogActions()}
-    >
+      actions={renderDialogActions()}>
       {renderContents()}
     </PackingDialog>
   );

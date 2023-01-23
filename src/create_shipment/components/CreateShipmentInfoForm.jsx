@@ -31,12 +31,14 @@ const CreateCarrierShipmentInfoForm = ({
       deliveryMethod: shippingInfo.deliveryMethod,
       carrier: CARRIERS[0],
       checkedCustomer: shippingInfo.checkedCustomer,
+      customerAccount: shippingInfo.customerAccount,
     };
   }, [
     shippingInfo.manifest,
     shippingInfo.customer,
     shippingInfo.deliveryMethod,
     shippingInfo.checkedCustomer,
+    shippingInfo.customerAccount,
   ]);
 
   useEffect(() => {
@@ -127,10 +129,6 @@ const CreateCarrierShipmentInfoForm = ({
                 onChange={(checked) => {
                   setLocalShippingInfo({
                     ...localShippingInfo,
-                    checkedCustomer: checked,
-                  });
-                  setShippingInfo({
-                    ...shippingInfo,
                     checkedCustomer: checked,
                   });
                 }}
