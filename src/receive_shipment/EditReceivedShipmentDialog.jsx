@@ -137,8 +137,7 @@ const EditReceiveShipmentDialog = ({
       onBackdropClick={onClose}
       onSubmit={() => onSubmit(filledForm, parts?._id, receivedOn)}
       submitDisabled={!isSubmittable()}
-      actions={actions ? actions : generateActions}
-    >
+      actions={actions ? actions : generateActions}>
       <ReceiveShipmentTable
         rowData={rowData}
         filledForm={filledForm}

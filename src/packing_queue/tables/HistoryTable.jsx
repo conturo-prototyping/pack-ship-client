@@ -16,7 +16,9 @@ import {
   PACKING_SLIP_TOP_MARGIN,
   PACKING_SLIP_BOTTOM_MARGIN,
   NAV_BAR_HEIGHT,
+  PAGINATION_SIZING_OPTIONS,
 } from "../../utils/Constants";
+import { onPageSizeChange } from "../../utils/TablePageSizeHandler";
 
 pdfMake.vfs = pdfFonts.pdfMake.vfs;
 
@@ -82,6 +84,7 @@ const HistoryTable = ({
   partNumber,
   pageNumber,
   onPageChange,
+  setHistResultsPerPage,
 }) => {
   const classes = useStyle();
 
@@ -383,6 +386,9 @@ const HistoryTable = ({
           border: "none",
           height: `calc(100vh - ${PACKING_SLIP_BOTTOM_MARGIN} - ${PACKING_SLIP_TOP_MARGIN} - ${NAV_BAR_HEIGHT} - 5rem)`,
           minHeight: "20rem",
+          ".MuiDataGrid-footerContainer": {
+            backgroundColor: "primary.light",
+          },
         }}
         className={classes.table}
         disableSelectionOnClick={true}
@@ -391,7 +397,16 @@ const HistoryTable = ({
         page={pageNumber}
         columns={columns}
         pageSize={histResultsPerPage}
-        rowsPerPageOptions={[10]}
+        rowsPerPageOptions={PAGINATION_SIZING_OPTIONS}
+        onPageSizeChange={(newPageSize) => {
+          onPageSizeChange(
+            newPageSize,
+            pageNumber,
+            filteredHist.length,
+            onPageChange,
+            setHistResultsPerPage
+          );
+        }}
         checkboxSelection={false}
         editMode="row"
         sortingMode="server"

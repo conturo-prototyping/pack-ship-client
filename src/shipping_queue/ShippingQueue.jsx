@@ -71,7 +71,11 @@ const ShippingQueue = () => {
   const [filteredShippingHist, setFilteredShippingHist] = useState([]);
   const [orderNumber, setOrderNumber] = useState("");
   const [partNumber, setPartNumber] = useState("");
-  const histResultsPerPage = 10;
+  const [histResultsPerPage, setHistResultsPerPage] = useLocalStorage(
+    "shippingHistNumRows",
+    window.innerHeight > 1440 ? 25 : 10
+  );
+
   const [sortShippingHistModel, setSortShippingHistModel] = useLocalStorage(
     "sortShippingHistModel",
     [
@@ -173,8 +177,7 @@ const ShippingQueue = () => {
         className={classes.topBarGrid}
         container
         justifyContent="start"
-        spacing={2}
-      >
+        spacing={2}>
         <Grid container item xs={12} spacing={2}>
           {currentTab === TabNames.Queue ? (
             <Grid
@@ -182,8 +185,7 @@ const ShippingQueue = () => {
               item
               xs={12}
               spacing={2}
-              sx={{ marginBottom: "1rem!important" }}
-            >
+              sx={{ marginBottom: "1rem!important" }}>
               <Grid container item xs={"auto"}>
                 <CommonButton
                   label="Create Shipment"
@@ -196,7 +198,12 @@ const ShippingQueue = () => {
                 />
               </Grid>
               <Grid container item justifyContent="start" xs={6}>
-                <Search onSearch={onQueueSearch} autoFocus />
+                <Search
+                  onSearch={onQueueSearch}
+                  autoFocus
+                  searchString={queueSearchText}
+                  setSearchString={setQueueSearchText}
+                />
               </Grid>
             </Grid>
           ) : (
@@ -214,7 +221,7 @@ const ShippingQueue = () => {
         <Grid item xs={12}>
           <PackShipTabs
             onTabChange={onTabChange}
-            queueTotal={shippingQueue?.length}
+            queueTotal={filteredShippingQueue?.length}
             queueTab={
               <ShippingQueueTable
                 shippingQueue={shippingQueue}
@@ -244,6 +251,7 @@ const ShippingQueue = () => {
                 orderNumber={orderNumber}
                 partNumber={partNumber}
                 historyLoading={historyLoading}
+                setHistResultsPerPage={setHistResultsPerPage}
               />
             }
           />

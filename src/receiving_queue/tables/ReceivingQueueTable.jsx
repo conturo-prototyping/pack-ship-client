@@ -7,12 +7,14 @@ import {
   PACKING_SLIP_TOP_MARGIN,
   PACKING_SLIP_BOTTOM_MARGIN,
   NAV_BAR_HEIGHT,
+  PAGINATION_SIZING_OPTIONS,
 } from "../../utils/Constants";
-import { API } from "../../services/server";
 import ReceivingQueueDropdown from "../ReceivingQueueDropdown";
 import { styled } from "@mui/system";
 import { getCheckboxColumn } from "../../components/CheckboxColumn";
 import { PackShipProgress } from "../../common/CircularProgress";
+import { useLocalStorage } from "../../utils/localStorage";
+import { onPageSizeChange } from "../../utils/TablePageSizeHandler";
 
 const useStyle = makeStyles((theme) => ({
   root: {
@@ -62,24 +64,20 @@ const ReceivingQueueTable = ({
   setSortModel,
   selectedShipmentIds,
   setSelectedShipmentIds,
-  setReceivingQueue,
   setFilteredReceivingQueue,
   searchText,
+  isLoading,
+  reloadQueueData,
 }) => {
   const classes = useStyle();
   const [queueData, setQueueData] = useState(tableData);
-  //TODO: Use later for selections
-  // eslint-disable-next-line
-  const [selectedCustomerId, setSelectedCustomerId] = useState(null);
-  //TODO: Use later for selections
-  // eslint-disable-next-line
   const [isSelectAllOn, setIsSelectAll] = useState(false);
   const [isMounted, setIsMounted] = useState(false);
-  //TODO: Set later for when data is coming in.
-  // eslint-disable-next-line
-  const [isLoading, setIsLoading] = useState(false);
 
-  const numRowsPerPage = 10;
+  const [numRowsPerPage, setNumRowsPerPage] = useLocalStorage(
+    "receivingQueueNumRows",
+    window.innerHeight > 1440 ? 25 : 10
+  );
 
   useEffect(() => {
     setIsMounted(true);
@@ -87,56 +85,8 @@ const ReceivingQueueTable = ({
   }, []);
 
   useEffect(() => {
-    async function fetchData() {
-      const data = await Promise.all([API.getReceivingQueue()]);
-      return { queue: data[0] };
-    }
-
-    if (isMounted) {
-      setIsLoading(true);
-      fetchData()
-        .then((data) => {
-          if (isMounted) {
-            // Gather the queue data for the table
-            let queueTableData = [];
-
-            data?.queue.consumablePOQueue.forEach((e) => {
-              queueTableData.push({
-                id: e._id,
-                manifest: e.po,
-                source: e.source,
-                label: e.label,
-                poType: e.sourcePoType,
-              });
-            });
-
-            data?.queue.workOrderPOQueue.forEach((e) => {
-              queueTableData.push({
-                id: e._id,
-                manifest: e.po,
-                source: e.po[0].lines[0]?.packingSlip.destination,
-                label: e.label,
-                poType: e.sourcePoType,
-              });
-            });
-
-            // The set state order is important
-            queueTableData = sortDataByModel(sortModel, queueTableData);
-            setReceivingQueue(queueTableData);
-            setFilteredReceivingQueue(queueTableData);
-          }
-        })
-        .finally(() => {
-          setIsLoading(false);
-        });
-    }
-    // eslint-disable-next-line
-  }, [
-    setFilteredReceivingQueue,
-    setSelectedShipmentIds,
-    setReceivingQueue,
-    isMounted,
-  ]);
+    if (isMounted) reloadQueueData(true);
+  }, [reloadQueueData, isMounted]);
 
   const handleSelection = useCallback(
     (selection, tableData) => {
@@ -182,7 +132,10 @@ const ReceivingQueueTable = ({
         isSelectAllOn,
         tableData,
         onSelectAllClick,
-        onQueueRowClick
+        onQueueRowClick,
+        false,
+        searchText,
+        false
       ),
       {
         field: "label",
@@ -208,6 +161,7 @@ const ReceivingQueueTable = ({
       onQueueRowClick,
       tableData,
       onSelectAllClick,
+      searchText,
     ]
   );
 
@@ -243,7 +197,7 @@ const ReceivingQueueTable = ({
           .flat()
           .map((e) => [e.item?.OrderNumber, e.item?.PartNumber])
           .flat()
-          .map((e) => e.toLowerCase().includes(searchText?.toLowerCase()))
+          .map((e) => e?.toLowerCase().includes(searchText?.toLowerCase()))
           .some((e) => e) ||
         selectedShipmentIds.includes(order?.id) // Ensure selected rows are included
     );
@@ -252,11 +206,10 @@ const ReceivingQueueTable = ({
   }, [searchText, setFilteredReceivingQueue]);
 
   useEffect(() => {
-    setQueueData(tableData);
+    setQueueData(sortDataByModel(sortModel, tableData));
+    // eslint-disable-next-line
   }, [tableData]);
 
-  //TODO: Set later for when data is coming in.
-  // eslint-disable-next-line
   const [page, setPage] = useState(0);
 
   const handlePageChange = (event, newPage) => {
@@ -270,9 +223,19 @@ const ReceivingQueueTable = ({
           <tr>
             <TablePagination
               count={queueData?.length}
-              rowsPerPageOptions={[numRowsPerPage]}
+              rowsPerPageOptions={PAGINATION_SIZING_OPTIONS}
               rowsPerPage={numRowsPerPage}
               onPageChange={handlePageChange}
+              onRowsPerPageChange={(event) => {
+                const pageValue = parseInt(event.target.value, 10);
+                onPageSizeChange(
+                  pageValue,
+                  page,
+                  queueData.length,
+                  setPage,
+                  setNumRowsPerPage
+                );
+              }}
               page={page}
               sx={{ border: "0px" }}
             />
@@ -280,7 +243,7 @@ const ReceivingQueueTable = ({
         </tbody>
       </table>
     );
-  }, [page, queueData?.length]);
+  }, [page, queueData?.length, numRowsPerPage, setNumRowsPerPage]);
 
   return (
     <div className={classes.root}>
@@ -294,16 +257,15 @@ const ReceivingQueueTable = ({
         rows={
           isLoading
             ? []
-            : queueData.slice(
+            : queueData?.slice(
                 page * numRowsPerPage,
                 page * numRowsPerPage + numRowsPerPage
               )
         }
         columns={columns}
         pageSize={numRowsPerPage}
-        rowsPerPageOptions={[numRowsPerPage]}
+        rowsPerPageOptions={PAGINATION_SIZING_OPTIONS}
         columnBuffer={0}
-        disableColumnMenu
         disableColumnSelector
         disableDensitySelector
         checkboxSelection={false}
@@ -321,7 +283,14 @@ const ReceivingQueueTable = ({
           LoadingOverlay: () => <PackShipProgress />,
           Footer: () =>
             selectedShipmentIds.length > 0 ? (
-              <Grid container item alignItems="center" spacing={2}>
+              <Grid
+                container
+                item
+                alignItems="center"
+                sx={{
+                  backgroundColor: "primary.light",
+                  borderTop: "1px solid rgba(224, 224, 224, 1)",
+                }}>
                 <Grid container item xs={6} justifyContent="flex-start">
                   <Typography sx={{ padding: "8px" }}>
                     {selectedShipmentIds.length} rows selected
@@ -332,7 +301,15 @@ const ReceivingQueueTable = ({
                 </Grid>
               </Grid>
             ) : (
-              <Grid container item xs={12} justifyContent="flex-end">
+              <Grid
+                container
+                item
+                xs={12}
+                justifyContent="flex-end"
+                sx={{
+                  backgroundColor: "primary.light",
+                  borderTop: "1px solid rgba(224, 224, 224, 1)",
+                }}>
                 {generateTablePagination()}
               </Grid>
             ),

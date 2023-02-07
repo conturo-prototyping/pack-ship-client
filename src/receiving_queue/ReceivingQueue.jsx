@@ -45,12 +45,11 @@ const ReceivingQueue = () => {
 
   const [searchString, setSearchString] = useState("");
 
-  //isMounted will be used later to make sure data isn't misrepresented
-  // eslint-disable-next-line
   const [isMounted, setIsMounted] = useState(false);
   const enqueueSnackbar = usePackShipSnackbar();
 
   // Queue Table Data
+  const [isQueueLoading, setIsQueueLoading] = useState(false);
   const [receivingQueue, setReceivingQueue] = useState([]);
   const [filteredReceivingQueue, setFilteredReceivingQueue] = useState([]);
   const [selectedShipmentIds, setSelectedShipmentIds] = useState([]);
@@ -94,6 +93,56 @@ const ReceivingQueue = () => {
     setReceiveShipmentWindowOpen(false);
   }
 
+  const reloadQueueData = useCallback(
+    async (isMounted) => {
+      async function fetchData() {
+        const data = await Promise.all([API.getReceivingQueue()]);
+        return { queue: data[0] };
+      }
+
+      if (isMounted) {
+        setIsQueueLoading(true);
+        fetchData()
+          .then((data) => {
+            if (isMounted) {
+              // Gather the queue data for the table
+              let queueTableData = [];
+
+              data?.queue.consumablePOQueue.forEach((e) => {
+                queueTableData.push({
+                  id: e._id,
+                  manifest: e.po,
+                  source: e.source,
+                  label: e.label,
+                  poType: e.sourcePoType,
+                });
+              });
+
+              data?.queue.workOrderPOQueue.forEach((e) => {
+                queueTableData.push({
+                  id: e._id,
+                  manifest: e.po,
+                  source: e.po[0].lines[0]?.packingSlip.destination,
+                  label: e.label,
+                  poType: e.sourcePoType,
+                });
+              });
+
+              // The set state order is important
+              // queueTableData = sortDataByModel(sortModel, queueTableData);
+              setReceivingQueue(queueTableData);
+              setFilteredReceivingQueue(queueTableData);
+            }
+          })
+          .finally(() => {
+            setIsQueueLoading(false);
+          });
+      }
+    },
+    // eslint-disable-next-line
+    [setFilteredReceivingQueue, setSelectedShipmentIds, setReceivingQueue]
+  );
+
   const onReceiveShipmentSubmit = useCallback(
     (filledForm, id) => {
       const items = filledForm.map((e) => {
@@ -115,9 +164,12 @@ const ReceivingQueue = () => {
         })
         .catch((e) => {
           enqueueSnackbar(e.message, snackbarVariants.error);
+        })
+        .finally(() => {
+          reloadQueueData(isMounted);
         });
     },
-    [enqueueSnackbar]
+    [enqueueSnackbar, reloadQueueData, isMounted]
   );
 
   function onTabChange(event, newValue) {
@@ -166,8 +218,7 @@ const ReceivingQueue = () => {
         className={classes.topBarGrid}
         container
         justifyContent="start"
-        spacing={2}
-      >
+        spacing={2}>
         <Grid container item xs={12} spacing={2}>
           {currentTab === TabNames.Queue ? (
             <Grid
@@ -175,8 +226,7 @@ const ReceivingQueue = () => {
               item
               xs={12}
               spacing={2}
-              sx={{ marginBottom: "1rem!important" }}
-            >
+              sx={{ marginBottom: "1rem!important" }}>
               <Grid container item xs={10} spacing={2}>
                 <Grid container item xs={"auto"}>
                   <CommonButton
@@ -200,6 +250,8 @@ const ReceivingQueue = () => {
                       setSearchString(e);
                     }}
                     autoFocus
+                    searchString={searchString}
+                    setSearchString={setSearchString}
                   />
                 </Grid>
               </Grid>
@@ -219,10 +271,10 @@ const ReceivingQueue = () => {
               item
               justifyContent="start"
               xs={6}
-              sx={{ marginBottom: "1rem!important" }}
-            >
+              sx={{ marginBottom: "1rem!important" }}>
               <Search
                 onSearch={async (e) => {
+                  setSearchString(e);
                   if (e) {
                     setFilteredHist(
                       allHist.filter((data) =>
@@ -234,6 +286,13 @@ const ReceivingQueue = () => {
                   }
                 }}
                 autoFocus
+                searchString={searchString}
+                setSearchString={async (e) => {
+                  if (!e) {
+                    await fetchReceivingHistory();
+                  }
+                  setSearchString(e);
+                }}
               />
             </Grid>
           )}
@@ -242,7 +301,7 @@ const ReceivingQueue = () => {
         <Grid item xs={12}>
           <PackShipTabs
             onTabChange={onTabChange}
-            queueTotal={receivingQueue?.length}
+            queueTotal={filteredReceivingQueue?.length}
             queueTab={
               <ReceivingQueueTable
                 receivingQueue={receivingQueue}
@@ -251,9 +310,10 @@ const ReceivingQueue = () => {
                 setSortModel={setSortRecQueueModel}
                 selectedShipmentIds={selectedShipmentIds}
                 setSelectedShipmentIds={setSelectedShipmentIds}
-                setReceivingQueue={setReceivingQueue}
                 setFilteredReceivingQueue={setFilteredReceivingQueue}
                 searchText={searchString}
+                isLoading={isQueueLoading}
+                reloadQueueData={reloadQueueData}
               />
             }
             historyTab={
@@ -306,6 +366,8 @@ const ReceivingQueue = () => {
                 setCancelReason("");
                 setCancelShipmentOpen(false);
                 setIsCancelError(false);
+                reloadQueueData(isMounted);
+                setSelectedShipmentIds([]);
               });
           }
         }}
