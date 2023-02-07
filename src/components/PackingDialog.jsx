@@ -17,6 +17,7 @@ const PackingDialog = ({
   open,
   progressText = "Ok",
   fullWidth = true,
+  maxWidth = "xl",
   actions,
   children,
   submitDisabled = false,
@@ -24,7 +25,7 @@ const PackingDialog = ({
   return (
     <Dialog
       fullWidth={fullWidth}
-      maxWidth="xl"
+      maxWidth={maxWidth}
       open={open}
       onClose={onClose}
       onBackdropClick={onClose}>
@@ -33,15 +34,15 @@ const PackingDialog = ({
         onSubmit={(e) => {
           e.preventDefault();
         }}>
-        <DialogTitle sx={{ m: 0, p: 2 }}>
+        <DialogTitle sx={{ m: 1, p: 2, paddingTop: "1.5rem" }}>
           <Typography align="center" fontWeight="bold" fontSize={20}>
             {titleText}
           </Typography>
           <IconButton
             sx={{
               position: "absolute",
-              right: 8,
-              top: 8,
+              right: 5,
+              top: 5,
             }}
             onClick={onClose}>
             <CloseIcon />

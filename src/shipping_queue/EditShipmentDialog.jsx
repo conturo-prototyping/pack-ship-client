@@ -36,15 +36,15 @@ const EditShipmentTableDialog = ({
           choices={params.row.possibleSlips}
           onChange={onNewRowChange}
           value={params.row}
-          valueKey="packingSlipId"
-          menuOptionFn={(e) => `${e.packingSlipId}`}
+          valueKey="label"
+          menuOptionFn={(e) => `${e.label}`}
         />
       );
     } else if (!params.id.includes("add-row-id")) {
       return (
         <PackingSlipDrowdown
           params={params}
-          packingSlipId={params.row.packingSlipId}
+          label={params.row.label}
           manifest={shipment.manifest}
         />
       );
@@ -53,7 +53,7 @@ const EditShipmentTableDialog = ({
 
   const columns = [
     {
-      field: "packingSlipId",
+      field: "label",
       renderCell: (params) => {
         return renderDropdown(params);
       },
@@ -68,9 +68,9 @@ const EditShipmentTableDialog = ({
     <div className={classes.root}>
       <PopupDialog
         open={isOpen}
-        titleText={
-          `${viewOnly ? "" : "Edit Shipment / "}${shipment?.shipmentId} (${ shipment?.manifest?.[0]?.destination })`
-        }
+        titleText={`${viewOnly ? "" : "Edit Shipment / "}${
+          shipment?.label
+        } (${shipment?.manifest?.[0]?.destination})`}
         onClose={onClose}
         onSubmit={onSubmit}
         actions={

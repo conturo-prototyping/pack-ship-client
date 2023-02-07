@@ -15,7 +15,10 @@ import pdfMake from "pdfmake/build/pdfmake";
 import {
   PACKING_SLIP_TOP_MARGIN,
   PACKING_SLIP_BOTTOM_MARGIN,
+  NAV_BAR_HEIGHT,
+  PAGINATION_SIZING_OPTIONS,
 } from "../../utils/Constants";
+import { onPageSizeChange } from "../../utils/TablePageSizeHandler";
 
 const useStyle = makeStyles((theme) => ({
   root: {
@@ -73,13 +76,15 @@ const ShippingHistoryTable = ({
   orderNumber,
   partNumber,
   historyLoading,
+  setHistResultsPerPage,
 }) => {
   const classes = useStyle();
 
   const [isMounted, setIsMounted] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
 
-  const [historyMenuPosition, setHistoryMenuPosition] = useState(null);
+  const [contextMenu, setContextMenu] = useState(null);
+
   const [clickedHistShipment, setClickedHistShipment] = useState();
 
   // Edit Shipment Dialog
@@ -99,19 +104,9 @@ const ShippingHistoryTable = ({
     setIsMounted(true);
   }, []);
 
-  const onHistoryRowClick = useCallback((params, event, __) => {
-    API.getShipment(params.id).then((data) => {
-      if (data) {
-        setClickedHistShipment(data.shipment);
-      }
-    });
-
-    setHistoryMenuPosition({ left: event.pageX, top: event.pageY });
-  }, []);
-
   const onEditShipmentClose = useCallback(() => {
     // close context menu
-    setHistoryMenuPosition(null);
+    setContextMenu(null);
     // close edit dialog
     setIsEditShipmentOpen(false);
     // reset whether to check form for errors
@@ -164,7 +159,7 @@ const ShippingHistoryTable = ({
           await reloadData();
 
           //close context menu
-          setHistoryMenuPosition(null);
+          setContextMenu(null);
 
           setCanErrorCheck(false);
           enqueueSnackbar(
@@ -299,29 +294,29 @@ const ShippingHistoryTable = ({
     [fetchSearch, sortModel, orderNumber, partNumber]
   );
 
-  const createShipmentPdfDoc = useCallback( async () => {
+  const createShipmentPdfDoc = useCallback(async () => {
     await API.downloadShipmentPDF(clickedHistShipment)
-      .then( (data) => {
+      .then((data) => {
         pdfMake.createPdf(data.docDefinition).open();
-        enqueueSnackbar("Shipment paperwork downloaded", snackbarVariants.success);
+        enqueueSnackbar(
+          "Shipment paperwork downloaded",
+          snackbarVariants.success
+        );
         return data;
       })
-      .catch( e => {
+      .catch((e) => {
         console.error(e);
         enqueueSnackbar(e.message, snackbarVariants.error);
-      })
-  },[clickedHistShipment, enqueueSnackbar]);
-
-
-
+      });
+  }, [clickedHistShipment, enqueueSnackbar]);
 
   const columns = [
     {
-      field: "shipmentId",
+      field: "label",
       flex: 1,
       sortingOrder: ["desc", "asc"],
       renderHeader: (params) => {
-        return <Typography sx={{ fontWeight: 900 }}>Shipment ID</Typography>;
+        return <Typography sx={{ fontWeight: 900 }}>Shipment Label</Typography>;
       },
     },
     {
@@ -356,18 +351,16 @@ const ShippingHistoryTable = ({
       onClick={() => {
         setIsEditShipmentOpen(true);
         setIsEditShipmentViewOnly(true);
-      }}
-    >
+      }}>
       View
     </MenuItem>,
     // <MenuItem key="download-menu-item">Download</MenuItem>,
-    <MenuItem 
-      key={"Download"} 
-      onClick={ async () => {
+    <MenuItem
+      key={"Download"}
+      onClick={async () => {
         await createShipmentPdfDoc();
-        setHistoryMenuPosition(null);
-      }}
-    >
+        setContextMenu(null);
+      }}>
       Download
     </MenuItem>,
     <MenuItem
@@ -375,20 +368,35 @@ const ShippingHistoryTable = ({
       onClick={() => {
         setIsEditShipmentOpen(true);
         setIsEditShipmentViewOnly(false);
-      }}
-    >
+      }}>
       Edit
     </MenuItem>,
     <MenuItem
       key="delete-menu-item"
       onClick={() => {
-        setHistoryMenuPosition(null);
+        setContextMenu(null);
         setConfirmShippingDeleteDialogOpen(true);
-      }}
-    >
+      }}>
       Delete
     </MenuItem>,
   ];
+
+  const handleContextMenu = (event) => {
+    event.preventDefault();
+    const selectedRowId = event.currentTarget.getAttribute("data-id");
+    if (selectedRowId) {
+      setContextMenu(
+        contextMenu === null
+          ? { mouseX: event.clientX, mouseY: event.clientY }
+          : null
+      );
+      API.getShipment(selectedRowId).then((data) => {
+        if (data) {
+          setClickedHistShipment(data.shipment);
+        }
+      });
+    }
+  };
 
   return (
     <div className={classes.root}>
@@ -398,8 +406,11 @@ const ShippingHistoryTable = ({
         rowCount={histTotalCount}
         sx={{
           border: "none",
-          height: `calc(100vh - ${PACKING_SLIP_BOTTOM_MARGIN} - ${PACKING_SLIP_TOP_MARGIN} - 15rem)`,
+          height: `calc(100vh - ${PACKING_SLIP_BOTTOM_MARGIN} - ${PACKING_SLIP_TOP_MARGIN} - ${NAV_BAR_HEIGHT} - 5rem)`,
           minHeight: "20rem",
+          ".MuiDataGrid-footerContainer": {
+            backgroundColor: "primary.light",
+          },
         }}
         className={classes.table}
         disableSelectionOnClick={true}
@@ -407,11 +418,19 @@ const ShippingHistoryTable = ({
         rowHeight={65}
         columns={columns}
         pageSize={histResultsPerPage}
-        rowsPerPageOptions={[10]}
+        rowsPerPageOptions={PAGINATION_SIZING_OPTIONS}
+        onPageSizeChange={(newPageSize) => {
+          onPageSizeChange(
+            newPageSize,
+            page,
+            filteredShippingHist.length,
+            onPageChange,
+            setHistResultsPerPage
+          );
+        }}
         checkboxSelection={false}
         editMode="row"
         sortingMode="server"
-        onRowClick={onHistoryRowClick}
         sortModel={sortModel}
         onSortModelChange={async (model) => {
           setSortModel(model);
@@ -428,12 +447,14 @@ const ShippingHistoryTable = ({
         components={{
           LoadingOverlay: () => <PackShipProgress />,
         }}
+        componentsProps={{
+          row: {
+            onContextMenu: handleContextMenu,
+          },
+        }}
       />
 
-      <ContextMenu
-        menuPosition={historyMenuPosition}
-        setMenuPosition={setHistoryMenuPosition}
-      >
+      <ContextMenu contextMenu={contextMenu} setContextMenu={setContextMenu}>
         {historyRowMenuOptions}
       </ContextMenu>
 
@@ -514,10 +535,9 @@ const ShippingHistoryTable = ({
             .catch((e) => {
               enqueueSnackbar(e.mesage, snackbarVariants.error);
             });
-        }}
-      >
+        }}>
         <Typography sx={{ fontWeight: 900 }}>
-          {clickedHistShipment?.shipmentId}
+          {clickedHistShipment?.label}
         </Typography>
       </ConfirmDialog>
     </div>

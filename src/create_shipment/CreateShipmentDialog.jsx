@@ -5,13 +5,21 @@ import ShippingDialogStates from "./constants/ShippingDialogConstants";
 import CreateCarrierShipmentInfoForm from "./components/CreateShipmentInfoForm";
 import PickupDropOffForm from "./components/PickupDropOffForm";
 import CommonButton from "../common/Button";
-import { DialogActions, Grid } from "@mui/material";
+import {
+  Checkbox,
+  DialogActions,
+  FormControlLabel,
+  FormGroup,
+  Grid,
+  Typography,
+} from "@mui/material";
 import { API } from "../services/server";
 import { useEffect } from "react";
 import { isShippingInfoValid } from "../utils/Validators";
 import { usePackShipSnackbar, snackbarVariants } from "../common/Snackbar";
 import ShippingAddressForm from "./components/ShippingAddressForm";
 import { DestinationTypes } from "../utils/Constants";
+import PackShipDatePicker from "../components/PackShipDatePicker";
 
 const CreateShipmentDialog = ({
   customer,
@@ -30,9 +38,13 @@ const CreateShipmentDialog = ({
     customer: "",
     deliveryMethod: "",
     checkedCustomer: false,
+    isDueBack: false,
+    isDueBackOn: null,
   });
   const [canErrorCheck, setCanErrorCheck] = useState(false);
   const [reset, setReset] = useState(false);
+  const [displayDateHelper, setDisplayDateHelper] = useState(false);
+
   const enqueueSnackbar = usePackShipSnackbar();
 
   useEffect(() => {
@@ -54,6 +66,8 @@ const CreateShipmentDialog = ({
       customer: customer?._id,
       deliveryMethod: "",
       checkedCustomer: false,
+      isDueBack: false,
+      isDueBackOn: null,
     });
     setCanErrorCheck(false);
   }, [open, customer?._id, packingSlipIds]);
@@ -110,7 +124,12 @@ const CreateShipmentDialog = ({
   };
 
   const onNextClick = () => {
-    setCurrentState(ShippingDialogStates.SelectMethodPage);
+    if (shippingInfo.isDueBack && !shippingInfo.isDueBackOn?.isValid()) {
+      setDisplayDateHelper(true);
+    } else {
+      setCurrentState(ShippingDialogStates.SelectMethodPage);
+      setDisplayDateHelper(false);
+    }
   };
 
   const onResetClick = () => {
@@ -123,6 +142,7 @@ const CreateShipmentDialog = ({
       setCurrentState(ShippingDialogStates.ShippingAddressPage);
     else setCurrentState(ShippingDialogStates.SelectMethodPage);
     setCustomerName("");
+    setDisplayDateHelper(false);
     if (reset) onResetClick();
   };
 
@@ -134,6 +154,22 @@ const CreateShipmentDialog = ({
       specialShippingAddress: undefined,
     });
     onResetClick();
+  };
+
+  const onIsDueBackClick = (checked) => {
+    if (checked) {
+      setShippingInfo({
+        ...shippingInfo,
+        isDueBack: checked,
+      });
+    } else {
+      setShippingInfo({
+        ...shippingInfo,
+        isDueBack: checked,
+        isDueBackOn: null,
+      });
+      setDisplayDateHelper(false);
+    }
   };
 
   const onSubmit = async () => {
@@ -149,15 +185,20 @@ const CreateShipmentDialog = ({
         shippingInfo.deliverySpeed,
         shippingInfo.checkedCustomer ? shippingInfo.customerAccount : false,
         customerName,
-        shippingInfo.specialShippingAddress
+        shippingInfo.specialShippingAddress,
+        shippingInfo.isDueBack,
+        shippingInfo.isDueBackOn
       )
         .then(() => {
           setCustomerName("");
+          setDisplayDateHelper(false);
           setShippingInfo({
             manifest: [],
             customer: "",
             deliveryMethod: "",
             checkedCustomer: false,
+            isDueBack: false,
+            isDueBackOn: null,
           });
           reloadData();
           onClose();
@@ -298,8 +339,90 @@ const CreateShipmentDialog = ({
       default:
         return (
           <DialogActions>
-            <CommonButton onClick={onClose} label="Cancel" color="secondary" />
-            <CommonButton autoFocus onClick={onNextClick} label={"Next"} />
+            <Grid
+              style={{
+                paddingLeft: "20px",
+                paddingBottom: "20px",
+                paddingRight: "20px",
+              }}
+              container
+              item
+              direction="row"
+              spacing={1}
+              justifyContent="space-evenly"
+            >
+              <Grid
+                xs={4}
+                container
+                item
+                direction="row"
+                spacing={1}
+                justifyContent="left"
+              >
+                <Grid xs={6} item>
+                  <FormGroup>
+                    <FormControlLabel
+                      control={
+                        <Checkbox
+                          defaultChecked={false}
+                          defaultValue={false}
+                          value={shippingInfo.isDueBack}
+                          onChange={(_, checked) => onIsDueBackClick(checked)}
+                        />
+                      }
+                      label={
+                        <Typography style={{ fontWeight: "bold" }}>
+                          Is Due Back?
+                        </Typography>
+                      }
+                    />
+                  </FormGroup>
+                </Grid>
+                <Grid item xs={6}>
+                  <PackShipDatePicker
+                    disabled={!shippingInfo.isDueBack}
+                    value={shippingInfo.isDueBackOn}
+                    disablePast={true}
+                    label="Due Back Date"
+                    onChange={(newValue) => {
+                      setShippingInfo({
+                        ...shippingInfo,
+                        isDueBackOn: newValue,
+                      });
+                      setDisplayDateHelper(!newValue?.isValid());
+                    }}
+                    displayDateHelper={displayDateHelper}
+                  />
+                </Grid>
+              </Grid>
+
+              <Grid
+                xs={8}
+                container
+                item
+                direction="row"
+                spacing={1}
+                justifyContent="right"
+              >
+                <Grid item>
+                  <CommonButton
+                    onClick={() => {
+                      onClose();
+                      setDisplayDateHelper(false);
+                    }}
+                    label="Cancel"
+                    color="secondary"
+                  />
+                </Grid>
+                <Grid item>
+                  <CommonButton
+                    autoFocus
+                    onClick={onNextClick}
+                    label={"Next"}
+                  />
+                </Grid>
+              </Grid>
+            </Grid>
           </DialogActions>
         );
     }

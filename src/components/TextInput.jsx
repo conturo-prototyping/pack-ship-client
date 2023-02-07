@@ -12,9 +12,11 @@ const TextInput = ({
   variant = null,
   multiline = 1,
   autoFocus = false,
+  fullWidth = false,
 }) => {
   return (
     <TextField
+      fullWidth={fullWidth}
       multiline={multiline !== 1}
       rows={multiline}
       onKeyDown={onKeyDown}

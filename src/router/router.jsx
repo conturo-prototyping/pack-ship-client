@@ -1,4 +1,4 @@
-import React, { useContext, useEffect, useState } from "react";
+import React, { useContext, useEffect, useState, useCallback } from "react";
 import {
   Navigate,
   Routes,
@@ -14,9 +14,12 @@ import GoogleButton from "react-google-button";
 import axios from "axios";
 import { LoginSuccess } from "../components/LoginSuccess";
 import { PackShipProgress } from "../common/CircularProgress";
+import NavigationBar from "./NavigationBar";
+import ReceivingQueue from "../receiving_queue/ReceivingQueue";
 
 export const ROUTE_PACKING_SLIP = "/packing-slips";
 export const ROUTE_SHIPMENTS = "/shipments";
+export const ROUTE_RECEIVING = "/receiving";
 
 const Router = () => {
   const location = useLocation();
@@ -26,6 +29,7 @@ const Router = () => {
   const [isUserAuthenticated, setIsUserAuthenticated] = useState(false);
   const [, setAuthUser] = useState(null);
   const [loading, setLoading] = useState(true);
+  const [tabValue, setTabValue] = useState(0);
 
   const fetchAuthUser = async () => {
     await axios
@@ -60,11 +64,18 @@ const Router = () => {
   useEffect(() => {
     switch (location.pathname) {
       case ROUTE_SHIPMENTS:
+        setTabValue(1);
         setTheme(themes.SHIPMENT);
+        break;
+
+      case ROUTE_RECEIVING:
+        setTabValue(2);
+        setTheme(themes.RECEIVING);
         break;
 
       case ROUTE_PACKING_SLIP:
       default:
+        setTabValue(0);
         setTheme(themes.PACKING);
     }
   }, [location, setTheme]);
@@ -99,8 +110,46 @@ const Router = () => {
     }
   };
 
+  const onTabChange = useCallback((event, newValue) => {
+    setTabValue(newValue);
+  }, []);
+
   return loading ? (
     <PackShipProgress />
+  ) : isUserAuthenticated ? (
+    <>
+      <NavigationBar value={tabValue} onChange={onTabChange} />
+      <Routes>
+        <Route exact path="/loginSuccess" element={<LoginSuccess />} />
+        <Route
+          exact
+          path={ROUTE_PACKING_SLIP}
+          element={
+            <PrivateRoute>
+              <PackingQueue />
+            </PrivateRoute>
+          }
+        />
+        <Route
+          exact
+          path={ROUTE_SHIPMENTS}
+          element={
+            <PrivateRoute>
+              <ShippingQueue />
+            </PrivateRoute>
+          }
+        />
+        <Route
+          exact
+          path={ROUTE_RECEIVING}
+          element={
+            <PrivateRoute>
+              <ReceivingQueue />
+            </PrivateRoute>
+          }
+        />
+      </Routes>
+    </>
   ) : (
     <Routes>
       <Route path="" element={<Navigate to="/login" />} />
@@ -114,26 +163,6 @@ const Router = () => {
       </Route>
 
       <Route exact path="/loginSuccess" element={<LoginSuccess />} />
-
-      <Route
-        exact
-        path={ROUTE_PACKING_SLIP}
-        element={
-          <PrivateRoute>
-            <PackingQueue />
-          </PrivateRoute>
-        }
-      />
-
-      <Route
-        exact
-        path={ROUTE_SHIPMENTS}
-        element={
-          <PrivateRoute>
-            <ShippingQueue />
-          </PrivateRoute>
-        }
-      />
     </Routes>
   );
 };

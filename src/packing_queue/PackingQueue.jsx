@@ -3,10 +3,8 @@ import Search from "../components/Search";
 import PackShipTabs from "../components/Tabs";
 import CheckboxForm from "../components/CheckboxForm";
 import { API } from "../services/server";
-import { Box, Button, Grid } from "@mui/material";
+import { Box, Grid } from "@mui/material";
 import makeStyles from "@mui/styles/makeStyles";
-import { Link } from "react-router-dom";
-import { ROUTE_SHIPMENTS } from "../router/router";
 import CommonButton from "../common/Button";
 import PackingSlipDialog from "../packing_slip/PackingSlipDialog";
 import PackingQueueTable from "./tables/PackingQueueTable";
@@ -18,9 +16,10 @@ import { getSortFromModel } from "./utils/sortModelFunctions";
 import { snackbarVariants, usePackShipSnackbar } from "../common/Snackbar";
 import {
   PACKING_SLIP_TOP_MARGIN,
-  PACKING_SLIP_BOTTOM_MARGIN,
   PACKING_SLIP_RIGHT_MARGIN,
   PACKING_SLIP_LEFT_MARGIN,
+  TOP_LEFT_ACTION_BUTTON_WIDTH,
+  TOP_LEFT_ACTION_BUTTON_HEIGHT,
 } from "../utils/Constants";
 import { DestinationTypes } from "../utils/Constants";
 
@@ -35,12 +34,6 @@ const useStyle = makeStyles((theme) => ({
     height: "5rem",
     paddingTop: PACKING_SLIP_TOP_MARGIN,
     marginBottom: "1rem!important",
-  },
-  bottomBarGrid: {
-    boxSizing: "border-box",
-    marginTop: "1rem!important",
-    marginBottom: PACKING_SLIP_BOTTOM_MARGIN,
-    height: "3rem",
   },
 }));
 
@@ -57,9 +50,11 @@ const PackingQueue = () => {
   const [historyLoading, setHistoryLoading] = useState(false);
   const [histTotalCount, setHistTotalCount] = useState(0);
   const [histPageNum, setHistPageNum] = useState(0);
-  const histResultsPerPage = 10;
+  const [histResultsPerPage, setHistResultsPerPage] = useLocalStorage(
+    "packingHistNumRows",
+    window.innerHeight > 1440 ? 25 : 10
+  );
 
-  // const [isShowUnfinishedBatches, setIsShowUnfinishedBatches] = useState(true);
   const [isFulfilledBatchesOn, setIsFulfilledBatchesOn] = useState(true);
   const [selectedOrderIds, setSelectedOrderIds] = useState([]);
   const [selectedOrderNumber, setSelectedOrderNumber] = useState(null);
@@ -81,7 +76,7 @@ const PackingQueue = () => {
     "sortPackHistoryModel",
     [
       { field: "orderId", sort: "asc" },
-      { field: "packingSlipId", sort: "asc" },
+      { field: "label", sort: "asc" },
       { field: "dateCreated", sort: "asc" },
     ]
   );
@@ -230,6 +225,22 @@ const PackingQueue = () => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [filteredPackingQueue]);
 
+  useEffect(() => {
+    fetchSearch(
+      getSortFromModel(sortPackHistoryModel),
+      histPageNum,
+      orderNumber,
+      partNumber
+    );
+  }, [
+    histResultsPerPage,
+    fetchSearch,
+    histPageNum,
+    orderNumber,
+    partNumber,
+    sortPackHistoryModel,
+  ]);
+
   return (
     <Box className={classes.box}>
       <Grid
@@ -261,10 +272,19 @@ const PackingQueue = () => {
                   label="Make Packing Slip"
                   disabled={selectedOrderIds.length === 0 || tabValue !== 0}
                   onClick={onPackingSlipClick}
+                  sx={{
+                    minWidth: TOP_LEFT_ACTION_BUTTON_WIDTH,
+                    maxHeight: TOP_LEFT_ACTION_BUTTON_HEIGHT,
+                  }}
                 />
               </Grid>
               <Grid container item justifyContent="start" xs={6}>
-                <Search onSearch={onSearch} autoFocus />
+                <Search
+                  onSearch={onSearch}
+                  autoFocus
+                  searchString={searchString}
+                  setSearchString={setSearchString}
+                />
               </Grid>
               <Grid container item xs justifyContent="flex-end">
                 <CheckboxForm
@@ -322,7 +342,7 @@ const PackingQueue = () => {
               setIsFulfilledBatchesOn(true);
               setSelectedOrderIds([]);
             }}
-            queueTotal={packingQueue?.length}
+            queueTotal={filteredPackingQueue?.length}
             queueTab={
               <PackingQueueTable
                 tableData={filteredPackingQueue}
@@ -353,6 +373,7 @@ const PackingQueue = () => {
                 partNumber={partNumber}
                 pageNumber={histPageNum}
                 onPageChange={onHistPageChange}
+                setHistResultsPerPage={setHistResultsPerPage}
               />
             }
           />
@@ -365,7 +386,7 @@ const PackingQueue = () => {
           orderNum={selectedOrderNumber}
           title={`Create Packing Slip for ${selectedOrderNumber}`}
           parts={filteredPackingQueue
-            .filter((e) => selectedOrderIds.includes(e.id))
+            ?.filter((e) => selectedOrderIds.includes(e.id))
             .map((e) => {
               return {
                 ...e,
@@ -378,22 +399,6 @@ const PackingQueue = () => {
           }}
           destination={destination}
         />
-
-        <Grid
-          className={classes.bottomBarGrid}
-          container
-          item
-          xs
-          justifyContent="flex-end">
-          <Button
-            component={Link}
-            to={ROUTE_SHIPMENTS}
-            variant="contained"
-            color="secondary"
-            sx={{ marginRight: "0px" }}>
-            Go to Shipping
-          </Button>
-        </Grid>
       </Grid>
     </Box>
   );

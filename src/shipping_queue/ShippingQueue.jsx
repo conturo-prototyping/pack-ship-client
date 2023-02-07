@@ -2,10 +2,8 @@ import React, { useCallback, useEffect, useState } from "react";
 import Search from "../components/Search";
 import PackShipTabs from "../components/Tabs";
 import { API } from "../services/server";
-import { Box, Button, Grid } from "@mui/material";
+import { Box, Grid } from "@mui/material";
 import makeStyles from "@mui/styles/makeStyles";
-import { Link } from "react-router-dom";
-import { ROUTE_PACKING_SLIP } from "../router/router";
 import CommonButton from "../common/Button";
 import ShippingQueueTable from "./tables/ShippingQueueTable";
 import ShippingDialogStates from "../create_shipment/constants/ShippingDialogConstants";
@@ -19,6 +17,8 @@ import {
   PACKING_SLIP_BOTTOM_MARGIN,
   PACKING_SLIP_RIGHT_MARGIN,
   PACKING_SLIP_LEFT_MARGIN,
+  TOP_LEFT_ACTION_BUTTON_WIDTH,
+  TOP_LEFT_ACTION_BUTTON_HEIGHT,
 } from "../utils/Constants";
 
 const useStyle = makeStyles((theme) => ({
@@ -33,11 +33,6 @@ const useStyle = makeStyles((theme) => ({
     height: "5rem",
     paddingTop: PACKING_SLIP_TOP_MARGIN,
     marginBottom: "1rem!important",
-  },
-  bottomBarGrid: {
-    boxSizing: "border-box",
-    marginTop: "1rem!important",
-    height: "3rem",
   },
 }));
 
@@ -67,7 +62,7 @@ const ShippingQueue = () => {
     "sortShippingQueueModel",
     [
       { field: "orderNumber", sort: "asc" },
-      { field: "packingSlipId", sort: "asc" },
+      { field: "label", sort: "asc" },
     ]
   );
   const [queueSearchText, setQueueSearchText] = useState("");
@@ -76,11 +71,15 @@ const ShippingQueue = () => {
   const [filteredShippingHist, setFilteredShippingHist] = useState([]);
   const [orderNumber, setOrderNumber] = useState("");
   const [partNumber, setPartNumber] = useState("");
-  const histResultsPerPage = 10;
+  const [histResultsPerPage, setHistResultsPerPage] = useLocalStorage(
+    "shippingHistNumRows",
+    window.innerHeight > 1440 ? 25 : 10
+  );
+
   const [sortShippingHistModel, setSortShippingHistModel] = useLocalStorage(
     "sortShippingHistModel",
     [
-      { field: "shipmentId", sort: "asc" },
+      { field: "label", sort: "asc" },
       { field: "trackingNumber", sort: "asc" },
       { field: "dateCreated", sort: "asc" },
     ]
@@ -192,10 +191,19 @@ const ShippingQueue = () => {
                   label="Create Shipment"
                   disabled={selectedOrderIds.length === 0}
                   onClick={onCreateShipmentClick}
+                  sx={{
+                    minWidth: TOP_LEFT_ACTION_BUTTON_WIDTH,
+                    maxHeight: TOP_LEFT_ACTION_BUTTON_HEIGHT,
+                  }}
                 />
               </Grid>
               <Grid container item justifyContent="start" xs={6}>
-                <Search onSearch={onQueueSearch} autoFocus />
+                <Search
+                  onSearch={onQueueSearch}
+                  autoFocus
+                  searchString={queueSearchText}
+                  setSearchString={setQueueSearchText}
+                />
               </Grid>
             </Grid>
           ) : (
@@ -213,7 +221,7 @@ const ShippingQueue = () => {
         <Grid item xs={12}>
           <PackShipTabs
             onTabChange={onTabChange}
-            queueTotal={shippingQueue?.length}
+            queueTotal={filteredShippingQueue?.length}
             queueTab={
               <ShippingQueueTable
                 shippingQueue={shippingQueue}
@@ -243,25 +251,10 @@ const ShippingQueue = () => {
                 orderNumber={orderNumber}
                 partNumber={partNumber}
                 historyLoading={historyLoading}
+                setHistResultsPerPage={setHistResultsPerPage}
               />
             }
           />
-        </Grid>
-
-        <Grid
-          className={classes.bottomBarGrid}
-          container
-          item
-          xs
-          justifyContent="flex-end">
-          <Button
-            component={Link}
-            to={ROUTE_PACKING_SLIP}
-            variant="contained"
-            color="secondary"
-            sx={{ marginRight: "0px" }}>
-            Go to Packing
-          </Button>
         </Grid>
       </Grid>
     </Box>

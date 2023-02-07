@@ -4,14 +4,13 @@ const SORT = {
 };
 
 const FIELD = {
-  label: "SLIPNUM",
   dateCreated: "DATE",
-  orderId: "ORDER",
+  label: "LABEL",
 };
 
 export const getSortFromModel = (sortModel) => {
   if (sortModel.length === 0) {
-    return { sortBy: "ORDER", sortOrder: 1 };
+    return { sortBy: "LABEL", sortOrder: 1 };
   }
 
   sortModel = sortModel[0];
@@ -19,5 +18,5 @@ export const getSortFromModel = (sortModel) => {
     return { sortBy: FIELD[sortModel.field], sortOrder: SORT[sortModel.sort] };
   }
 
-  return { sortBy: "ORDER", sortOrder: 1 };
+  return { sortBy: "LABEL", sortOrder: 1 };
 };

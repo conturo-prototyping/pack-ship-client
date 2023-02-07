@@ -4,7 +4,7 @@ export const extractHistoryDetails = (history) => {
 
     return {
       id: e._id,
-      shipmentId: e.shipmentId,
+      label: e.label,
       trackingNumber: e.trackingNumber,
       dateCreated: dc.toLocaleString(),
       dateCreatedValue: dc.getTime(),

@@ -9,11 +9,10 @@ export const API = {
   async downloadPDF(packingSlipId, orderNumber, dateCreated) {
     try {
       const response = await instance.post("/packingSlips/pdf", {
-        packingSlipId, // this is the item._id not the item.packingSlipId the user interacts with (dumb name....)
+        packingSlipId,
         orderNumber,
         dateCreated,
       });
-      console.log("pdf downloaded");
       return response.data;
     } catch (error) {
       console.error("downloadPDF", error);
@@ -239,6 +238,27 @@ export const API = {
     }
   },
 
+  async createIncomingDelivery(
+    internalPurchaseOrderNumber,
+    dueBackDate,
+    sourceShipmentId
+  ) {
+    try {
+      const response = await instance.put("/incomingDeliveries", {
+        internalPurchaseOrderNumber,
+        dueBackDate,
+        sourceShipmentId,
+      });
+
+      return response.data;
+    } catch (error) {
+      console.error("createIncomingDelivery", error);
+      throw new Error(
+        error?.response?.data ?? "An error occurred creating incoming delivery"
+      );
+    }
+  },
+
   async createShipment(
     manifest,
     customer,
@@ -249,7 +269,9 @@ export const API = {
     deliverySpeed = undefined,
     customerAccount = undefined,
     customerHandoffName = undefined,
-    shippingAddress = undefined
+    shippingAddress = undefined,
+    isDueBack = undefined,
+    isDueBackOn = undefined
   ) {
     try {
       const response = await instance.put("/shipments", {
@@ -263,6 +285,8 @@ export const API = {
         customerAccount,
         customerHandoffName,
         shippingAddress,
+        isDueBack,
+        isDueBackOn: isDueBackOn?.$d.toLocaleDateString(),
       });
 
       return response.data;
@@ -286,6 +310,122 @@ export const API = {
       console.error("patchPackingSlip", error);
       throw new Error(
         error?.response?.data ?? "An error occurred patching packing slip"
+      );
+    }
+  },
+
+  async getReceivingQueue() {
+    try {
+      const response = await instance.get("/incomingDeliveries/queue");
+      return response.data;
+    } catch (error) {
+      console.error("getShippingQueue", error);
+      throw new Error(
+        error?.response?.data ?? "An error occurred getting shipping queue"
+      );
+    }
+  },
+
+  async getReceivingHistory() {
+    try {
+      const response = await instance.get("/incomingDeliveries/allReceived");
+      return response.data;
+    } catch (error) {
+      console.error("getReceivingHistory", error);
+      throw new Error(
+        error?.response?.data ?? "An error occurred getting receiving history"
+      );
+    }
+  },
+
+  async submitIncomingDelivery(_id, sourcePOType, sourcePOId, linesReceived) {
+    try {
+      const response = await instance.post("/incomingDeliveries/receive", {
+        _id,
+        sourcePOType,
+        sourcePOId,
+        linesReceived,
+      });
+      return response.data;
+    } catch (error) {
+      console.error("submitIncomingDelivery", error);
+      throw new Error(
+        error?.response?.data ?? "An error occurred downloading PDF"
+      );
+    }
+  },
+
+  async cancelIncomingDelivery(_id, reason) {
+    try {
+      const response = await instance.put("/incomingDeliveries/cancel", {
+        _id,
+        reason,
+      });
+      return response.data;
+    } catch (error) {
+      console.error("cancelIncomingDelivery", error);
+      throw new Error(
+        error?.response?.data ?? "An error occurred canceling incoming delivery"
+      );
+    }
+  },
+
+  async getOneReceivingHistoryElement(deliveryId) {
+    try {
+      const response = await instance.get(`/incomingDeliveries/${deliveryId}`);
+      return response.data;
+    } catch (error) {
+      console.error("getOneReceivingHistoryElement", error);
+      throw new Error(
+        error?.response?.data ?? "An error occurred receiving history element"
+      );
+    }
+  },
+
+  async undoReceiving(deliveryId) {
+    try {
+      const response = await instance.post(`/incomingDeliveries/undoReceive`, {
+        deliveryId,
+      });
+      return response.data;
+    } catch (error) {
+      console.error("undoReceiving", error);
+      throw new Error(
+        error?.response?.data ?? "An error occurred undoing receiving"
+      );
+    }
+  },
+
+  async patchIncomingDelivery(deliveryId, edited) {
+    try {
+      const response = await instance.patch(
+        `/incomingDeliveries/${deliveryId}`,
+        {
+          ...edited,
+        }
+      );
+      return response.data;
+    } catch (error) {
+      console.error("patchIncomingDelivery", error);
+      throw new Error(
+        error?.response?.data ?? "An error occurred updated delivery"
+      );
+    }
+  },
+
+  async undoReciept(deliveryId) {
+    try {
+      const response = await instance.patch(
+        `/incomingDeliveries/${deliveryId}/undoReceipt`,
+        {
+          deliveryId,
+        }
+      );
+      return response.data;
+    } catch (error) {
+      console.error("undoReciept", error);
+      throw new Error(
+        error?.response?.data ?? "An error occurred undoing receipt"
       );
     }
   },

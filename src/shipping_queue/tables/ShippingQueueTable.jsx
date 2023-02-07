@@ -12,7 +12,11 @@ import { PackShipProgress } from "../../common/CircularProgress";
 import {
   PACKING_SLIP_TOP_MARGIN,
   PACKING_SLIP_BOTTOM_MARGIN,
+  NAV_BAR_HEIGHT,
+  PAGINATION_SIZING_OPTIONS,
 } from "../../utils/Constants";
+import { useLocalStorage } from "../../utils/localStorage";
+import { onPageSizeChange } from "../../utils/TablePageSizeHandler";
 
 const useStyle = makeStyles((theme) => ({
   root: {
@@ -72,7 +76,10 @@ const ShippingQueueTable = ({
   const [isMounted, setIsMounted] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
 
-  const numRowsPerPage = 10;
+  const [numRowsPerPage, setNumRowsPerPage] = useLocalStorage(
+    "shippingQueueNumRows",
+    window.innerHeight > 1440 ? 25 : 10
+  );
 
   const isDisabled = useCallback(
     (params) => {
@@ -109,7 +116,7 @@ const ShippingQueueTable = ({
               queueTableData.push({
                 id: e._id,
                 orderNumber: e.orderNumber,
-                packingSlipId: e.packingSlipId,
+                label: e.label,
                 customer: e.customer,
                 items: e.items,
                 destination: e.destination,
@@ -199,7 +206,7 @@ const ShippingQueueTable = ({
       if (value) {
         if (selectedOrderIds.length > 0) {
           // Something is selected, so we need to select the remaining
-          // that matach selectedOrderNumber
+          // that matach selectedCustomerId and destination
           setSelectedOrderIds(
             tableData
               .filter(
@@ -213,7 +220,7 @@ const ShippingQueueTable = ({
           );
         } else if (selectedOrderIds.length === 0) {
           // Nothing selected yet, so select the first row and all that match
-          // the first row order number
+          // the first row selectedCustomerId and destination
 
           setSelectedOrderIds(
             tableData
@@ -255,7 +262,7 @@ const ShippingQueueTable = ({
         },
       },
       {
-        field: "packingSlipId",
+        field: "label",
         renderCell: (params) => {
           return <ShipQueuePackSlipDrowdown params={params} />;
         },
@@ -340,9 +347,19 @@ const ShippingQueueTable = ({
           <tr>
             <TablePagination
               count={queueData.length}
-              rowsPerPageOptions={[numRowsPerPage]}
+              rowsPerPageOptions={PAGINATION_SIZING_OPTIONS}
               rowsPerPage={numRowsPerPage}
               onPageChange={handlePageChange}
+              onRowsPerPageChange={(event) => {
+                const pageValue = parseInt(event.target.value, 10);
+                onPageSizeChange(
+                  pageValue,
+                  page,
+                  queueData.length,
+                  setPage,
+                  setNumRowsPerPage
+                );
+              }}
               page={page}
               sx={{ border: "0px" }}
             />
@@ -350,14 +367,14 @@ const ShippingQueueTable = ({
         </tbody>
       </table>
     );
-  }, [page, queueData.length]);
+  }, [page, queueData.length, numRowsPerPage, setNumRowsPerPage]);
 
   return (
     <div className={classes.root}>
       <ShippingQueueDataGrid
         sx={{
           border: "none",
-          height: `calc(100vh - ${PACKING_SLIP_BOTTOM_MARGIN} - ${PACKING_SLIP_TOP_MARGIN} - 15rem)`,
+          height: `calc(100vh - ${PACKING_SLIP_BOTTOM_MARGIN} - ${PACKING_SLIP_TOP_MARGIN} - ${NAV_BAR_HEIGHT} - 5rem)`,
           minHeight: "20rem",
         }}
         className={classes.table}
@@ -380,9 +397,8 @@ const ShippingQueueTable = ({
         rowHeight={65}
         columns={columns}
         pageSize={numRowsPerPage}
-        rowsPerPageOptions={[numRowsPerPage]}
+        rowsPerPageOptions={PAGINATION_SIZING_OPTIONS}
         columnBuffer={0}
-        disableColumnMenu
         disableColumnSelector
         disableDensitySelector
         checkboxSelection={false}
@@ -399,7 +415,13 @@ const ShippingQueueTable = ({
           LoadingOverlay: () => <PackShipProgress />,
           Footer: () =>
             selectedOrderIds.length > 0 ? (
-              <Grid container alignItems="center" spacing={2}>
+              <Grid
+                container
+                alignItems="center"
+                sx={{
+                  backgroundColor: "primary.light",
+                  borderTop: "1px solid rgba(224, 224, 224, 1)",
+                }}>
                 <Grid container item xs={6} justifyContent="flex-start">
                   <Typography sx={{ padding: "8px" }}>
                     {selectedOrderIds.length} rows selected
@@ -410,7 +432,15 @@ const ShippingQueueTable = ({
                 </Grid>
               </Grid>
             ) : (
-              <Grid container item xs={12} justifyContent="flex-end">
+              <Grid
+                container
+                item
+                xs={12}
+                justifyContent="flex-end"
+                sx={{
+                  backgroundColor: "primary.light",
+                  borderTop: "1px solid rgba(224, 224, 224, 1)",
+                }}>
                 {generateTablePagination()}
               </Grid>
             ),
