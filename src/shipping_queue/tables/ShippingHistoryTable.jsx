@@ -533,7 +533,7 @@ const ShippingHistoryTable = ({
               );
             })
             .catch((e) => {
-              enqueueSnackbar(e.mesage, snackbarVariants.error);
+              enqueueSnackbar(e.message, snackbarVariants.error);
             });
         }}>
         <Typography sx={{ fontWeight: 900 }}>
