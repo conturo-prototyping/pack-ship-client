@@ -40,6 +40,7 @@ const CreateShipmentDialog = ({
     checkedCustomer: false,
     isDueBack: false,
     isDueBackOn: null,
+    carrier: "",
   });
   const [canErrorCheck, setCanErrorCheck] = useState(false);
   const [reset, setReset] = useState(false);
@@ -97,14 +98,19 @@ const CreateShipmentDialog = ({
   };
 
   const onCarrierClick = () => {
-    if (destination !== DestinationTypes.CUSTOMER)
+    if (destination !== DestinationTypes.CUSTOMER) {
       setCurrentState(ShippingDialogStates.ShippingAddressPage);
-    else setCurrentState(ShippingDialogStates.CarrierPage);
+    }
+    else {
+      setCurrentState(ShippingDialogStates.CarrierPage);
+    }
+
     setShippingInfo({
       ...shippingInfo,
       deliveryMethod: "CARRIER",
       checkedCustomer: customer.defaultCarrierAccount !== undefined,
       customerAccount: customer.defaultCarrierAccount ?? "",
+      carrier: customer.defaultCarrier ?? ""
     });
   };
 

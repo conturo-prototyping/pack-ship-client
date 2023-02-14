@@ -29,7 +29,8 @@ const CreateCarrierShipmentInfoForm = ({
       manifest: shippingInfo.manifest,
       customer: shippingInfo.customer,
       deliveryMethod: shippingInfo.deliveryMethod,
-      carrier: CARRIERS[0],
+      // carrier: CARRIERS[0],
+      carrier: shippingInfo.carrier,
       checkedCustomer: shippingInfo.checkedCustomer,
       customerAccount: shippingInfo.customerAccount,
     };
@@ -39,6 +40,7 @@ const CreateCarrierShipmentInfoForm = ({
     shippingInfo.deliveryMethod,
     shippingInfo.checkedCustomer,
     shippingInfo.customerAccount,
+    shippingInfo.carrier,
   ]);
 
   useEffect(() => {
