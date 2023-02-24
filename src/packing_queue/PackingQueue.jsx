@@ -9,6 +9,7 @@ import CommonButton from "../common/Button";
 import PackingSlipDialog from "../packing_slip/PackingSlipDialog";
 import PackingQueueTable from "./tables/PackingQueueTable";
 import HistoryTable from "./tables/HistoryTable";
+import PendingTable from "./tables/PendingTable";
 import { useLocalStorage } from "../utils/localStorage";
 import { OrderPartNumberSearch } from "../components/OrderAndPartSearchBar";
 import { extractHistoryDetails } from "./utils/historyDetails";
@@ -43,10 +44,15 @@ const PackingQueue = () => {
   const [isMounted, setIsMounted] = useState(false);
 
   const enqueueSnackbar = usePackShipSnackbar();
-  const [searchString, setSearchString] = useState("");
+
   const [tabValue, setTabValue] = useState(0);
+
+  // SEARCHING
+  const [searchString, setSearchString] = useState("");
   const [orderNumber, setOrderNumber] = useState("");
   const [partNumber, setPartNumber] = useState("");
+
+  // HISTORY
   const [historyLoading, setHistoryLoading] = useState(false);
   const [histTotalCount, setHistTotalCount] = useState(0);
   const [histPageNum, setHistPageNum] = useState(0);
@@ -54,24 +60,7 @@ const PackingQueue = () => {
     "packingHistNumRows",
     window.innerHeight > 1440 ? 25 : 10
   );
-
-  const [isFulfilledBatchesOn, setIsFulfilledBatchesOn] = useState(true);
-  const [selectedOrderIds, setSelectedOrderIds] = useState([]);
-  const [selectedOrderNumber, setSelectedOrderNumber] = useState(null);
-  const [packingQueue, setPackingQueue] = useState([]);
-  const [filteredPackingQueue, setFilteredPackingQueue] = useState([]);
   const [filteredHist, setFilteredHist] = useState([]);
-  const [packingSlipOpen, setPackingSlipOpen] = useState(false);
-  const [destination, setDestination] = useState("CUSTOMER");
-  const [sortPackQueueModel, setSortPackQueueModel] = useLocalStorage(
-    "sortPackQueueModel",
-    [
-      { field: "orderNumber", sort: "asc" },
-      { field: "part", sort: "asc" },
-      { field: "batchQty", sort: "asc" },
-      { field: "fulfilledQty", sort: "asc" },
-    ]
-  );
   const [sortPackHistoryModel, setSortPackHistoryModel] = useLocalStorage(
     "sortPackHistoryModel",
     [
@@ -81,9 +70,41 @@ const PackingQueue = () => {
     ]
   );
 
+  // QUEUE
+  const [isFulfilledBatchesOn, setIsFulfilledBatchesOn] = useState(true);
+  const [selectedOrderIds, setSelectedOrderIds] = useState([]);
+  const [selectedOrderNumber, setSelectedOrderNumber] = useState(null);
+  const [packingQueue, setPackingQueue] = useState([]);
+  const [filteredPackingQueue, setFilteredPackingQueue] = useState([]);
+  const [sortPackQueueModel, setSortPackQueueModel] = useLocalStorage(
+    "sortPackQueueModel",
+    [
+      { field: "orderNumber", sort: "asc" },
+      { field: "part", sort: "asc" },
+      { field: "batchQty", sort: "asc" },
+      { field: "fulfilledQty", sort: "asc" },
+    ]
+  );
+
+  // DIALOGS
+  const [packingSlipOpen, setPackingSlipOpen] = useState(false);
+  const [destination, setDestination] = useState("CUSTOMER");
+
+  // PENDING
+  const [sortPackPendingModel, setSortPackPendingModel] = useLocalStorage(
+    "sortPackPendingModel",
+    [
+      { field: "orderId", sort: "asc" },
+      { field: "label", sort: "asc" },
+      { field: "dateCreated", sort: "asc" },
+    ]
+  );
+  const [filteredPending, setFilteredPending] = useState([]);
+  const [pendingLoading, setPendingLoading] = useState(false);
+
   const fetchSearch = useCallback(
     async (sort, pageNumber, oNum, pNum) => {
-      if (isMounted && tabValue === 1) setHistoryLoading(true);
+      if (isMounted && tabValue === 2) setHistoryLoading(true);
       await API.searchPackingSlipsHistory(
         sort.sortBy,
         sort.sortOrder,
@@ -108,6 +129,24 @@ const PackingQueue = () => {
     // eslint-disable-next-line
     [histResultsPerPage, isMounted, tabValue]
   );
+
+  const fetchPendingData = useCallback(async () => {
+    if (isMounted && tabValue === 1) {
+      setPendingLoading(true);
+      await API.getPendingPackingQueue()
+        .then((data) => {
+          if (data) {
+            if (isMounted) {
+              let tableData = extractHistoryDetails(data?.packingSlips);
+              setFilteredPending(tableData);
+            }
+          }
+        })
+        .finally(() => {
+          setPendingLoading(false);
+        });
+    }
+  }, [tabValue, isMounted]);
 
   useEffect(() => {
     setIsMounted(true);
@@ -203,6 +242,32 @@ const PackingQueue = () => {
     await fetchSearch(getSortFromModel(sortPackHistoryModel), 0, "", "");
   }
 
+  const onPendingClearClick = async () => {
+    setOrderNumber("");
+    setPartNumber("");
+    await fetchPendingData();
+  };
+
+  async function onPendingSearchClick() {
+    setFilteredPending(
+      filteredPending.filter((order) => {
+        let retVal = false;
+
+        if (orderNumber !== "" && orderNumber !== undefined)
+          retVal = order.orderNumber
+            .toLowerCase()
+            .includes(orderNumber.toLowerCase());
+
+        if (partNumber !== "" && partNumber !== undefined)
+          retVal |= order.items.some((e) =>
+            e.item.partNumber.toLowerCase().includes(partNumber.toLowerCase())
+          );
+
+        return retVal;
+      })
+    );
+  }
+
   const onHistPageChange = useCallback(
     async (pageNumber) => {
       setHistPageNum(pageNumber);
@@ -249,12 +314,23 @@ const PackingQueue = () => {
         justifyContent="start"
         spacing={2}>
         <Grid container item xs={12} spacing={2}>
-          {tabValue === 1 && (
+          {tabValue === 2 && (
             <OrderPartNumberSearch
               partNumber={partNumber}
               orderNumber={orderNumber}
               onClearClick={onHistoryClearClick}
               onSearchClick={onHistorySearchClick}
+              setOrderNumber={setOrderNumber}
+              setPartNumber={setPartNumber}
+            />
+          )}
+
+          {tabValue === 1 && (
+            <OrderPartNumberSearch
+              partNumber={partNumber}
+              orderNumber={orderNumber}
+              onClearClick={onPendingClearClick}
+              onSearchClick={onPendingSearchClick}
               setOrderNumber={setOrderNumber}
               setPartNumber={setPartNumber}
             />
@@ -374,6 +450,16 @@ const PackingQueue = () => {
                 pageNumber={histPageNum}
                 onPageChange={onHistPageChange}
                 setHistResultsPerPage={setHistResultsPerPage}
+              />
+            }
+            pendingTab={
+              <PendingTable
+                sortModel={sortPackPendingModel}
+                setSortModel={setSortPackPendingModel}
+                pageNumber={histPageNum}
+                filteredPending={filteredPending}
+                isLoading={pendingLoading}
+                fetchData={fetchPendingData}
               />
             }
           />

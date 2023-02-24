@@ -429,4 +429,17 @@ export const API = {
       );
     }
   },
+
+  async getPendingPackingQueue() {
+    try {
+      const response = await instance.get("/packingSlips/pending");
+      return response.data;
+    } catch (error) {
+      console.error("getPendingPackingQueue", error);
+      throw new Error(
+        error?.response?.data ??
+          "An error occurred getting packing slip pending queue"
+      );
+    }
+  },
 };

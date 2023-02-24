@@ -60,6 +60,7 @@ export default function PackShipTabs({
   queueTotal,
   queueTab,
   historyTab,
+  pendingTab = undefined,
 }) {
   return (
     <Box
@@ -70,10 +71,12 @@ export default function PackShipTabs({
       <TabsUnstyled defaultValue={0}>
         <Tabs value={false} onChange={onTabChange}>
           <Tab value={0}>Queue ({queueTotal})</Tab>
-          <Tab value={1}>History</Tab>
+          {pendingTab ? <Tab value={1}>Pending</Tab> : <div />}
+          <Tab value={2}>History</Tab>
         </Tabs>
         <TabPanel value={0}>{queueTab}</TabPanel>
-        <TabPanel value={1}>{historyTab}</TabPanel>
+        {pendingTab ? <TabPanel value={1}>{pendingTab}</TabPanel> : <div />}
+        <TabPanel value={2}>{historyTab}</TabPanel>
       </TabsUnstyled>
     </Box>
   );
