@@ -20,6 +20,7 @@ import {
   TOP_LEFT_ACTION_BUTTON_WIDTH,
   TOP_LEFT_ACTION_BUTTON_HEIGHT,
 } from "../utils/Constants";
+import ShippingPendingTable from "./tables/ShippingPendingTable";
 
 const useStyle = makeStyles((theme) => ({
   box: {
@@ -38,6 +39,7 @@ const useStyle = makeStyles((theme) => ({
 
 export const TabNames = {
   Queue: "Queue",
+  Pending: "Pending",
   History: "History",
 };
 
@@ -46,6 +48,7 @@ const ShippingQueue = () => {
 
   const [isMounted, setIsMounted] = useState(false);
   const [historyLoading, setHistoryLoading] = useState(false);
+  const [pendingLoading, setPendingLoading] = useState(false);
 
   // Common tab states
   const [currentTab, setCurrentTab] = useState(TabNames.Queue);
@@ -65,7 +68,19 @@ const ShippingQueue = () => {
       { field: "label", sort: "asc" },
     ]
   );
-  const [queueSearchText, setQueueSearchText] = useState("");
+  const [searchText, setSearchText] = useState("");
+
+  // Shipping Queue States
+  const [pendingShipments, setPendingShipments] = useState([]);
+  const [filteredPendingShipments, setFilteredPendingShipments] = useState([]);
+  const [selectedPendingOrder, setSelectedPendingOrder] = useState([]);
+  const [confirmShipmentOpen, setConfirmShipmentOpen] = useState(false);
+
+  const [sortPendingShipmentModel, setSortPendingShipmentModel] =
+    useLocalStorage("sortPendingShipmentModel", [
+      { field: "orderNumber", sort: "asc" },
+      { field: "label", sort: "asc" },
+    ]);
 
   // Shipping History States
   const [filteredShippingHist, setFilteredShippingHist] = useState([]);
@@ -75,6 +90,7 @@ const ShippingQueue = () => {
     "shippingHistNumRows",
     window.innerHeight > 1440 ? 25 : 10
   );
+  const [historyPage, setHistoryPage] = useState(0);
 
   const [sortShippingHistModel, setSortShippingHistModel] = useLocalStorage(
     "sortShippingHistModel",
@@ -86,22 +102,61 @@ const ShippingQueue = () => {
   );
   const [histTotalCount, setHistTotalCount] = useState(0);
 
-  function onCreateShipmentClick() {
-    setCreateShipmentOpen(true);
-  }
-
   function onCreateShipmentClose() {
     setCreateShipmentOpen(false);
     setCurrentDialogState(ShippingDialogStates.CreateShipmentTable);
   }
 
-  function onQueueSearch(value) {
-    setQueueSearchText(value);
-  }
-
   function onTabChange(event, newValue) {
     setCurrentTab(Object.keys(TabNames)[newValue]);
+    setSearchText("");
   }
+
+  const reloadPendingShipments = useCallback(async () => {
+    async function fetchData() {
+      const data = await Promise.all([API.getPendingShipments()]);
+      return { queue: data[0] };
+    }
+
+    if (isMounted) {
+      setPendingLoading(true);
+      fetchData()
+        .then((data) => {
+          if (isMounted) {
+            // Gather the queue data for the table
+            let pendingTableData = [];
+            data?.queue?.shipments.forEach((e) => {
+              const dc = new Date(e.dateCreated);
+              pendingTableData.push({
+                id: e._id,
+                orderNumber: e.orderNumber,
+                customer: e.customer,
+                customerHandoffName: e.customerHandoffName,
+                trackingNumber: e.trackingNumber,
+                dateCreated: dc.toLocaleString(),
+                destination: e.destination,
+                label: e.label,
+                deliveryMethod: e.deliveryMethod,
+                items: e.items,
+              });
+            });
+
+            // The set state order is important
+            setSelectedOrderIds([]);
+            setPendingShipments(pendingTableData);
+            setFilteredPendingShipments(pendingTableData);
+          }
+        })
+        .finally(() => {
+          setPendingLoading(false);
+        });
+    }
+    // eslint-disable-next-line
+  }, [setFilteredPendingShipments, isMounted]);
+
+  useEffect(() => {
+    if (isMounted) reloadPendingShipments();
+  }, [reloadPendingShipments, isMounted]);
 
   const fetchHistorySearch = useCallback(
     async (sort, pageNumber, oNum, pNum) => {
@@ -126,6 +181,30 @@ const ShippingQueue = () => {
     // eslint-disable-next-line
     [histResultsPerPage, isMounted, currentTab]
   );
+
+  const reloadShipmentHistory = useCallback(async () => {
+    if (isMounted) {
+      setHistoryLoading(true);
+      await Promise.all([
+        fetchHistorySearch(
+          getSortFromModel(sortShippingHistModel),
+          historyPage + 1,
+          orderNumber,
+          partNumber
+        ),
+        reloadPendingShipments(),
+      ]);
+      setHistoryLoading(false);
+    }
+  }, [
+    fetchHistorySearch,
+    reloadPendingShipments,
+    sortShippingHistModel,
+    historyPage,
+    orderNumber,
+    partNumber,
+    isMounted,
+  ]);
 
   useEffect(() => {
     setIsMounted(true);
@@ -177,32 +256,46 @@ const ShippingQueue = () => {
         className={classes.topBarGrid}
         container
         justifyContent="start"
-        spacing={2}>
+        spacing={2}
+      >
         <Grid container item xs={12} spacing={2}>
-          {currentTab === TabNames.Queue ? (
+          {[TabNames.Queue, TabNames.Pending].includes(currentTab) ? (
             <Grid
               container
               item
               xs={12}
               spacing={2}
-              sx={{ marginBottom: "1rem!important" }}>
+              sx={{ marginBottom: "1rem!important" }}
+            >
               <Grid container item xs={"auto"}>
-                <CommonButton
-                  label="Create Shipment"
-                  disabled={selectedOrderIds.length === 0}
-                  onClick={onCreateShipmentClick}
-                  sx={{
-                    minWidth: TOP_LEFT_ACTION_BUTTON_WIDTH,
-                    maxHeight: TOP_LEFT_ACTION_BUTTON_HEIGHT,
-                  }}
-                />
+                {currentTab === TabNames.Queue ? (
+                  <CommonButton
+                    label="Create Shipment"
+                    disabled={selectedOrderIds.length === 0}
+                    onClick={() => setCreateShipmentOpen(true)}
+                    sx={{
+                      minWidth: TOP_LEFT_ACTION_BUTTON_WIDTH,
+                      maxHeight: TOP_LEFT_ACTION_BUTTON_HEIGHT,
+                    }}
+                  />
+                ) : (
+                  <CommonButton
+                    label="Confirm Shipment"
+                    disabled={selectedPendingOrder.length === 0}
+                    onClick={() => setConfirmShipmentOpen(true)}
+                    sx={{
+                      minWidth: TOP_LEFT_ACTION_BUTTON_WIDTH,
+                      maxHeight: TOP_LEFT_ACTION_BUTTON_HEIGHT,
+                    }}
+                  />
+                )}
               </Grid>
               <Grid container item justifyContent="start" xs={6}>
                 <Search
-                  onSearch={onQueueSearch}
+                  onSearch={setSearchText}
                   autoFocus
-                  searchString={queueSearchText}
-                  setSearchString={setQueueSearchText}
+                  searchString={searchText}
+                  setSearchString={setSearchText}
                 />
               </Grid>
             </Grid>
@@ -222,6 +315,7 @@ const ShippingQueue = () => {
           <PackShipTabs
             onTabChange={onTabChange}
             queueTotal={filteredShippingQueue?.length}
+            pendingTotal={filteredPendingShipments?.length}
             queueTab={
               <ShippingQueueTable
                 shippingQueue={shippingQueue}
@@ -236,7 +330,29 @@ const ShippingQueue = () => {
                 createShipmentOpen={createShipmentOpen}
                 currentDialogState={currentDialogState}
                 setCurrentDialogState={setCurrentDialogState}
-                searchText={queueSearchText}
+                searchText={searchText}
+                reloadPendingShipments={reloadPendingShipments}
+              />
+            }
+            pendingTab={
+              <ShippingPendingTable
+                pendingShipments={pendingShipments}
+                tableData={filteredPendingShipments}
+                setSortModel={setSortPendingShipmentModel}
+                sortModel={sortPendingShipmentModel}
+                selectedPendingOrder={selectedPendingOrder}
+                setSelectedOrderIds={setSelectedPendingOrder}
+                onConfirmShipmentClose={() => {
+                  /*TODO*/
+                }}
+                setPendingShipments={setPendingShipments}
+                setFilteredPendingShipments={setFilteredPendingShipments}
+                confirmShipmentOpen={confirmShipmentOpen}
+                currentDialogState={currentDialogState}
+                setCurrentDialogState={setCurrentDialogState}
+                searchText={searchText}
+                isLoading={pendingLoading}
+                reloadData={reloadPendingShipments}
               />
             }
             historyTab={
@@ -252,6 +368,9 @@ const ShippingQueue = () => {
                 partNumber={partNumber}
                 historyLoading={historyLoading}
                 setHistResultsPerPage={setHistResultsPerPage}
+                reloadData={reloadShipmentHistory}
+                page={historyPage}
+                setPage={setHistoryPage}
               />
             }
           />

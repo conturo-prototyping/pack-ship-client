@@ -95,17 +95,13 @@ const ReceivingQueueTable = ({
         // remove it
         newSelection = selectedShipmentIds.filter((e) => e !== selection);
         // if something is deselected then selectAll is false
-        setIsSelectAll(false);
       } else {
         // add it
         newSelection[0] = selection;
-
-        setSelectedShipmentIds(newSelection);
-        setIsSelectAll(newSelection.length >= 1);
       }
       return newSelection;
     },
-    [selectedShipmentIds, setSelectedShipmentIds]
+    [selectedShipmentIds]
   );
 
   const onQueueRowClick = useCallback(
@@ -212,10 +208,6 @@ const ReceivingQueueTable = ({
 
   const [page, setPage] = useState(0);
 
-  const handlePageChange = (event, newPage) => {
-    setPage(newPage);
-  };
-
   const generateTablePagination = useCallback(() => {
     return (
       <table>
@@ -225,7 +217,9 @@ const ReceivingQueueTable = ({
               count={queueData?.length}
               rowsPerPageOptions={PAGINATION_SIZING_OPTIONS}
               rowsPerPage={numRowsPerPage}
-              onPageChange={handlePageChange}
+              onPageChange={(_event, newPage) => {
+                setPage(newPage);
+              }}
               onRowsPerPageChange={(event) => {
                 const pageValue = parseInt(event.target.value, 10);
                 onPageSizeChange(
@@ -290,7 +284,8 @@ const ReceivingQueueTable = ({
                 sx={{
                   backgroundColor: "primary.light",
                   borderTop: "1px solid rgba(224, 224, 224, 1)",
-                }}>
+                }}
+              >
                 <Grid container item xs={6} justifyContent="flex-start">
                   <Typography sx={{ padding: "8px" }}>
                     {selectedShipmentIds.length} rows selected
@@ -309,7 +304,8 @@ const ReceivingQueueTable = ({
                 sx={{
                   backgroundColor: "primary.light",
                   borderTop: "1px solid rgba(224, 224, 224, 1)",
-                }}>
+                }}
+              >
                 {generateTablePagination()}
               </Grid>
             ),
