@@ -3,7 +3,6 @@ import PackingDialog from "../components/PackingDialog";
 import CreateShipmentTable from "./components/CreateShipmentTable";
 import ShippingDialogStates from "./constants/ShippingDialogConstants";
 import CreateCarrierShipmentInfoForm from "./components/CreateShipmentInfoForm";
-import PickupDropOffForm from "./components/PickupDropOffForm";
 import CommonButton from "../common/Button";
 import {
   Checkbox,
@@ -76,7 +75,6 @@ const CreateShipmentDialog = ({
   const onPickupClick = () => {
     if (destination !== DestinationTypes.CUSTOMER)
       setCurrentState(ShippingDialogStates.ShippingAddressPage);
-    else setCurrentState(ShippingDialogStates.PickupDropOffPage);
     setShippingInfo({
       ...shippingInfo,
       deliveryMethod: "PICKUP",
@@ -88,7 +86,6 @@ const CreateShipmentDialog = ({
   const onDropOffClick = () => {
     if (destination !== DestinationTypes.CUSTOMER)
       setCurrentState(ShippingDialogStates.ShippingAddressPage);
-    else setCurrentState(ShippingDialogStates.PickupDropOffPage);
     setShippingInfo({
       ...shippingInfo,
       deliveryMethod: "DROPOFF",
@@ -100,8 +97,7 @@ const CreateShipmentDialog = ({
   const onCarrierClick = () => {
     if (destination !== DestinationTypes.CUSTOMER) {
       setCurrentState(ShippingDialogStates.ShippingAddressPage);
-    }
-    else {
+    } else {
       setCurrentState(ShippingDialogStates.CarrierPage);
     }
 
@@ -110,7 +106,7 @@ const CreateShipmentDialog = ({
       deliveryMethod: "CARRIER",
       checkedCustomer: customer.defaultCarrierAccount !== undefined,
       customerAccount: customer.defaultCarrierAccount ?? "",
-      carrier: customer.defaultCarrier ?? ""
+      carrier: customer.defaultCarrier ?? "",
     });
   };
 
@@ -122,11 +118,8 @@ const CreateShipmentDialog = ({
   };
 
   const onShippingAddressNextClick = () => {
-    setCurrentState(
-      shippingInfo.deliveryMethod === "CARRIER"
-        ? ShippingDialogStates.CarrierPage
-        : ShippingDialogStates.PickupDropOffPage
-    );
+    if (shippingInfo.deliveryMethod === "CARRIER")
+      setCurrentState(ShippingDialogStates.CarrierPage);
   };
 
   const onNextClick = () => {
@@ -234,13 +227,6 @@ const CreateShipmentDialog = ({
             destination={destination}
           />
         );
-      case ShippingDialogStates.PickupDropOffPage:
-        return (
-          <PickupDropOffForm
-            customerName={customerName}
-            setCustomerName={setCustomerName}
-          />
-        );
       case ShippingDialogStates.ShippingAddressPage:
         return (
           <ShippingAddressForm
@@ -308,24 +294,6 @@ const CreateShipmentDialog = ({
             </Grid>
           </DialogActions>
         );
-      case ShippingDialogStates.PickupDropOffPage:
-        return (
-          <DialogActions>
-            <CommonButton
-              onClick={() => {
-                onBackClick(destination !== DestinationTypes.VENDOR);
-              }}
-              label="Back"
-              color="secondary"
-            />
-            <CommonButton
-              autoFocus
-              onClick={onSubmit}
-              label={"Ok"}
-              type="button"
-            />
-          </DialogActions>
-        );
       case ShippingDialogStates.ShippingAddressPage:
         return (
           <DialogActions>
@@ -334,11 +302,21 @@ const CreateShipmentDialog = ({
               label="Back"
               color="secondary"
             />
-            <CommonButton
-              autoFocus
-              onClick={onShippingAddressNextClick}
-              label={"Next"}
-            />
+            {shippingInfo.deliveryMethod === "CARRIER" ? (
+              <CommonButton
+                autoFocus
+                onClick={onShippingAddressNextClick}
+                label={"Next"}
+                type="button"
+              />
+            ) : (
+              <CommonButton
+                autoFocus
+                onClick={onSubmit}
+                label={"Ok"}
+                type="button"
+              />
+            )}
           </DialogActions>
         );
       case ShippingDialogStates.CreateShipmentTable:
@@ -448,7 +426,8 @@ const CreateShipmentDialog = ({
       }`}
       open={open}
       onClose={onClose}
-      actions={renderDialogActions()}>
+      actions={renderDialogActions()}
+    >
       {renderContents()}
     </PackingDialog>
   );

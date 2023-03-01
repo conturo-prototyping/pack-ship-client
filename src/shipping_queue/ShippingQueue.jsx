@@ -107,6 +107,11 @@ const ShippingQueue = () => {
     setCurrentDialogState(ShippingDialogStates.CreateShipmentTable);
   }
 
+  function onConfirmShipmentClose() {
+    setConfirmShipmentOpen(false);
+    setCurrentDialogState(ShippingDialogStates.CreateShipmentTable);
+  }
+
   function onTabChange(event, newValue) {
     setCurrentTab(Object.keys(TabNames)[newValue]);
     setSearchText("");
@@ -342,9 +347,7 @@ const ShippingQueue = () => {
                 sortModel={sortPendingShipmentModel}
                 selectedPendingOrder={selectedPendingOrder}
                 setSelectedOrderIds={setSelectedPendingOrder}
-                onConfirmShipmentClose={() => {
-                  /*TODO*/
-                }}
+                onConfirmShipmentClose={onConfirmShipmentClose}
                 setPendingShipments={setPendingShipments}
                 setFilteredPendingShipments={setFilteredPendingShipments}
                 confirmShipmentOpen={confirmShipmentOpen}
