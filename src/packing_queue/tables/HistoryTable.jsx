@@ -1,7 +1,5 @@
 import { DataGrid } from "@mui/x-data-grid";
-import React, { useCallback, useEffect, useState, useMemo } from "react";
-import ContextMenu from "../../components/GenericContextMenu";
-import MenuItem from "@mui/material/MenuItem";
+import React, { useCallback, useEffect, useState } from "react";
 import { API } from "../../services/server";
 import makeStyles from "@mui/styles/makeStyles";
 import { Typography } from "@mui/material";
@@ -19,6 +17,7 @@ import {
   PAGINATION_SIZING_OPTIONS,
 } from "../../utils/Constants";
 import { onPageSizeChange } from "../../utils/TablePageSizeHandler";
+import PackingContextMenu from "../menus/PackingContextMenu";
 
 pdfMake.vfs = pdfFonts.pdfMake.vfs;
 
@@ -347,24 +346,6 @@ const HistoryTable = ({
       });
   }, [selectedRow, enqueueSnackbar]);
 
-  const historyRowMenuOptions = useMemo(
-    () => [
-      <MenuItem key={"View"} onClick={openViewPackingSlip}>
-        View
-      </MenuItem>,
-      <MenuItem key={"Download"} onClick={onDownloadPDFClick}>
-        Download
-      </MenuItem>,
-      <MenuItem key={"Edit"} onClick={openEditPackingSlip}>
-        Edit
-      </MenuItem>,
-      <MenuItem key={"Delete"} onClick={openDeleteDialog}>
-        Delete
-      </MenuItem>,
-    ],
-    [onDownloadPDFClick]
-  );
-
   const handleContextMenu = (event) => {
     event.preventDefault();
     const selectedRow = event.currentTarget.getAttribute("data-id");
@@ -431,9 +412,14 @@ const HistoryTable = ({
         }}
       />
 
-      <ContextMenu contextMenu={contextMenu} setContextMenu={setContextMenu}>
-        {historyRowMenuOptions}
-      </ContextMenu>
+      <PackingContextMenu
+        openViewPackingSlip={openViewPackingSlip}
+        onDownloadPDFClick={onDownloadPDFClick}
+        openEditPackingSlip={openEditPackingSlip}
+        openDeleteDialog={openDeleteDialog}
+        contextMenu={contextMenu}
+        setContextMenu={setContextMenu}
+      />
       <EditPackingSlipDialog
         isOpen={isEditPackingSlipOpen.open}
         viewOnly={isEditPackingSlipOpen.viewOnly}

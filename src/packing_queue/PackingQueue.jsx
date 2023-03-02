@@ -51,6 +51,8 @@ const PackingQueue = () => {
   const [searchString, setSearchString] = useState("");
   const [orderNumber, setOrderNumber] = useState("");
   const [partNumber, setPartNumber] = useState("");
+  const [pendingOrderNumber, setPendingOrderNumber] = useState("");
+  const [pendingPartNumber, setPendingPartNumber] = useState("");
 
   // HISTORY
   const [historyLoading, setHistoryLoading] = useState(false);
@@ -131,7 +133,7 @@ const PackingQueue = () => {
   );
 
   const fetchPendingData = useCallback(async () => {
-    if (isMounted && tabValue === 1) {
+    if (isMounted) {
       setPendingLoading(true);
       await API.getPendingPackingQueue()
         .then((data) => {
@@ -146,14 +148,17 @@ const PackingQueue = () => {
           setPendingLoading(false);
         });
     }
-  }, [tabValue, isMounted]);
+  }, [isMounted]);
 
   useEffect(() => {
     setIsMounted(true);
     return () => setIsMounted(false);
-
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
+
+  useEffect(() => {
+    if (isMounted) fetchPendingData();
+  }, [isMounted, fetchPendingData]);
 
   function onPackingSlipClick() {
     setTimeout(() => setPackingSlipOpen(true), 0);
@@ -243,8 +248,8 @@ const PackingQueue = () => {
   }
 
   const onPendingClearClick = async () => {
-    setOrderNumber("");
-    setPartNumber("");
+    setPendingOrderNumber("");
+    setPendingPartNumber("");
     await fetchPendingData();
   };
 
@@ -253,14 +258,16 @@ const PackingQueue = () => {
       filteredPending.filter((order) => {
         let retVal = false;
 
-        if (orderNumber !== "" && orderNumber !== undefined)
+        if (pendingOrderNumber !== "" && pendingOrderNumber !== undefined)
           retVal = order.orderNumber
             .toLowerCase()
-            .includes(orderNumber.toLowerCase());
+            .includes(pendingOrderNumber.toLowerCase());
 
-        if (partNumber !== "" && partNumber !== undefined)
+        if (pendingPartNumber !== "" && pendingPartNumber !== undefined)
           retVal |= order.items.some((e) =>
-            e.item.partNumber.toLowerCase().includes(partNumber.toLowerCase())
+            e.item.partNumber
+              .toLowerCase()
+              .includes(pendingPartNumber.toLowerCase())
           );
 
         return retVal;
@@ -327,12 +334,12 @@ const PackingQueue = () => {
 
           {tabValue === 1 && (
             <OrderPartNumberSearch
-              partNumber={partNumber}
-              orderNumber={orderNumber}
+              partNumber={pendingPartNumber}
+              orderNumber={pendingOrderNumber}
               onClearClick={onPendingClearClick}
               onSearchClick={onPendingSearchClick}
-              setOrderNumber={setOrderNumber}
-              setPartNumber={setPartNumber}
+              setOrderNumber={setPendingOrderNumber}
+              setPartNumber={setPendingPartNumber}
             />
           )}
 
@@ -419,6 +426,7 @@ const PackingQueue = () => {
               setSelectedOrderIds([]);
             }}
             queueTotal={filteredPackingQueue?.length}
+            pendingTotal={filteredPending?.length}
             queueTab={
               <PackingQueueTable
                 tableData={filteredPackingQueue}
