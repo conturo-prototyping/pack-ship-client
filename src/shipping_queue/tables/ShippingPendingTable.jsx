@@ -12,6 +12,7 @@ import {
   PACKING_SLIP_BOTTOM_MARGIN,
   NAV_BAR_HEIGHT,
   PAGINATION_SIZING_OPTIONS,
+  DestinationTypes,
 } from "../../utils/Constants";
 import { getCheckboxColumn } from "../../components/CheckboxColumn";
 import { PackShipProgress } from "../../common/CircularProgress";
@@ -24,6 +25,7 @@ import PickupDropOffForm from "../../create_shipment/components/PickupDropOffFor
 import PackingDialog from "../../components/PackingDialog";
 import CommonButton from "../../common/Button";
 import { API } from "../../services/server";
+import CreateCarrierShipmentInfoForm from "../../create_shipment/components/CreateShipmentInfoForm";
 
 const useStyle = makeStyles((theme) => ({
   table: {
@@ -55,6 +57,7 @@ const ShippingPendingTable = ({
   const [pendingData, setPendingData] = useState(tableData);
   const [handoffName, setHandoffName] = useState("");
   const enqueueSnackbar = usePackShipSnackbar();
+  const [selectedShippingInfo, setSelectedShippingInfo] = useState({});
 
   const [numRowsPerPage, setNumRowsPerPage] = useLocalStorage(
     "shippingQueueNumRows",
@@ -81,6 +84,21 @@ const ShippingPendingTable = ({
     }
     // eslint-disable-next-line
   }, [searchText, setFilteredPendingShipments]);
+
+  useEffect(() => {
+    const shippingInfo = pendingShipments.filter(
+      (e) => e.id === selectedPendingOrder[0]
+    )[0];
+    if (shippingInfo)
+      setSelectedShippingInfo({
+        customer: shippingInfo.customer,
+        deliveryMethod: shippingInfo.deliveryMethod,
+        // carrier: CARRIERS[0],
+        carrier: shippingInfo.carrier,
+        checkedCustomer: shippingInfo.checkedCustomer,
+        customerAccount: shippingInfo.customerAccount,
+      });
+  }, [selectedPendingOrder]);
 
   const handleSelection = useCallback(
     (selection, tableData) => {
@@ -266,8 +284,7 @@ const ShippingPendingTable = ({
                 sx={{
                   backgroundColor: "primary.light",
                   borderTop: "1px solid rgba(224, 224, 224, 1)",
-                }}
-              >
+                }}>
                 <Grid container item xs={6} justifyContent="flex-start">
                   <Typography sx={{ padding: "8px" }}>
                     {selectedPendingOrder.length} rows selected
@@ -286,8 +303,7 @@ const ShippingPendingTable = ({
                 sx={{
                   backgroundColor: "primary.light",
                   borderTop: "1px solid rgba(224, 224, 224, 1)",
-                }}
-              >
+                }}>
                 {generateTablePagination()}
               </Grid>
             ),
@@ -308,40 +324,76 @@ const ShippingPendingTable = ({
         }}
         actions={
           <DialogActions>
-            <CommonButton
-              disabled={!handoffName}
-              autoFocus
-              onClick={async () => {
-                API.patchShipment(selectedPendingOrder, {
-                  customerHandoffName: handoffName,
-                })
-                  .then(async () => {
-                    await reloadData();
-
-                    enqueueSnackbar(
-                      "Shipment confirmed successfully!",
-                      snackbarVariants.success
-                    );
-                  })
-                  .catch((e) => {
-                    enqueueSnackbar(e.message, snackbarVariants.error);
-                  })
-                  .finally(() => {
+            <Grid container>
+              <Grid item xs>
+                <CommonButton
+                  onClick={() => {
                     setHandoffName("");
                     onConfirmShipmentClose();
-                    setSelectedOrderIds([]);
-                  });
-              }}
-              label={"Submit"}
-              type="button"
-            />
+                  }}
+                  label={"Cancel"}
+                  type="button"
+                />
+              </Grid>
+
+              <Grid item>
+                <CommonButton
+                  disabled={
+                    !handoffName &&
+                    !(
+                      selectedShippingInfo.deliverySpeed &&
+                      selectedShippingInfo.trackingNumber &&
+                      selectedShippingInfo.cost
+                    )
+                  }
+                  autoFocus
+                  onClick={async () => {
+                    const updatedData =
+                      selectedShippingInfo?.deliveryMethod !== "CARRIER"
+                        ? {
+                            customerHandoffName: handoffName,
+                          }
+                        : selectedShippingInfo;
+                    API.patchShipment(selectedPendingOrder, updatedData)
+                      .then(async () => {
+                        await reloadData();
+
+                        enqueueSnackbar(
+                          "Shipment confirmed successfully!",
+                          snackbarVariants.success
+                        );
+                      })
+                      .catch((e) => {
+                        enqueueSnackbar(e.message, snackbarVariants.error);
+                      })
+                      .finally(() => {
+                        setHandoffName("");
+                        onConfirmShipmentClose();
+                        setSelectedOrderIds([]);
+                      });
+                  }}
+                  label={"Submit"}
+                  type="button"
+                />
+              </Grid>
+            </Grid>
           </DialogActions>
-        }
-      >
-        <PickupDropOffForm
-          customerName={handoffName}
-          setCustomerName={setHandoffName}
-        ></PickupDropOffForm>
+        }>
+        {selectedShippingInfo?.deliveryMethod !== "CARRIER" ? (
+          <PickupDropOffForm
+            customerName={handoffName}
+            setCustomerName={setHandoffName}
+          />
+        ) : (
+          <CreateCarrierShipmentInfoForm
+            shippingInfo={selectedShippingInfo}
+            setShippingInfo={setSelectedShippingInfo}
+            canErrorCheck={true}
+            reset={false}
+            setReset={() => {}}
+            destination={selectedShippingInfo?.destination}
+          />
+        )}
       </PackingDialog>
     </>
   );

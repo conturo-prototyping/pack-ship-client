@@ -20,13 +20,13 @@ const CreateCarrierShipmentInfoForm = ({
   destination,
 }) => {
   const [localShippingInfo, setLocalShippingInfo] = useState({
-    ...shippingInfo,
     carrier: CARRIERS[0],
+    ...shippingInfo,
   });
 
   const defaultInfo = useMemo(() => {
     return {
-      manifest: shippingInfo.manifest,
+      manifest: shippingInfo.manifest || shippingInfo.items,
       customer: shippingInfo.customer,
       deliveryMethod: shippingInfo.deliveryMethod,
       // carrier: CARRIERS[0],
@@ -36,6 +36,7 @@ const CreateCarrierShipmentInfoForm = ({
     };
   }, [
     shippingInfo.manifest,
+    shippingInfo.items,
     shippingInfo.customer,
     shippingInfo.deliveryMethod,
     shippingInfo.checkedCustomer,
@@ -145,7 +146,7 @@ const CreateCarrierShipmentInfoForm = ({
                 }
                 checkBoxSx={{ padding: 0 }}
                 formControlSx={{ margin: 0 }}
-                checked={localShippingInfo.checkedCustomer}
+                checked={localShippingInfo.checkedCustomer ?? false}
               />
             </Grid>
           </Grid>
