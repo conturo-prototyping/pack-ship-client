@@ -12,7 +12,6 @@ import {
   PACKING_SLIP_BOTTOM_MARGIN,
   NAV_BAR_HEIGHT,
   PAGINATION_SIZING_OPTIONS,
-  DestinationTypes,
 } from "../../utils/Constants";
 import { getCheckboxColumn } from "../../components/CheckboxColumn";
 import { PackShipProgress } from "../../common/CircularProgress";
@@ -98,6 +97,7 @@ const ShippingPendingTable = ({
         checkedCustomer: shippingInfo.checkedCustomer,
         customerAccount: shippingInfo.customerAccount,
       });
+    // eslint-disable-next-line
   }, [selectedPendingOrder]);
 
   const handleSelection = useCallback(
