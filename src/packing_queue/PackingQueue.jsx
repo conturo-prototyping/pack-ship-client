@@ -116,12 +116,10 @@ const PackingQueue = () => {
         pageNumber
       )
         .then((data) => {
-          if (data) {
-            if (isMounted) {
-              let tableData = extractHistoryDetails(data?.packingSlips);
-              setFilteredHist(tableData);
-              setHistTotalCount(data?.totalCount);
-            }
+          if (data && isMounted) {
+            let tableData = extractHistoryDetails(data?.packingSlips);
+            setFilteredHist(tableData);
+            setHistTotalCount(data?.totalCount);
           }
         })
         .finally(() => {
@@ -137,11 +135,9 @@ const PackingQueue = () => {
       setPendingLoading(true);
       await API.getPendingPackingQueue()
         .then((data) => {
-          if (data) {
-            if (isMounted) {
-              let tableData = extractHistoryDetails(data?.packingSlips);
-              setFilteredPending(tableData);
-            }
+          if (data && isMounted) {
+            let tableData = extractHistoryDetails(data?.packingSlips);
+            setFilteredPending(tableData);
           }
         })
         .finally(() => {
@@ -216,6 +212,8 @@ const PackingQueue = () => {
           setFilteredPackingQueue(updatedFilteredPackingQueue);
           setPackingQueue(updatedPackingQueue);
 
+          fetchPendingData();
+
           onPackingSlipClose();
           enqueueSnackbar("Packing slip created!", snackbarVariants.success);
         })
@@ -223,7 +221,7 @@ const PackingQueue = () => {
           enqueueSnackbar(e.message, snackbarVariants.error);
         });
     },
-    [filteredPackingQueue, packingQueue, enqueueSnackbar]
+    [filteredPackingQueue, packingQueue, enqueueSnackbar, fetchPendingData]
   );
 
   function onSearch(value) {
@@ -448,10 +446,10 @@ const PackingQueue = () => {
               <HistoryTable
                 sortModel={sortPackHistoryModel}
                 setSortModel={setSortPackHistoryModel}
-                fetchSearch={fetchSearch}
+                fetchData={fetchSearch}
                 histTotalCount={histTotalCount}
                 historyLoading={historyLoading}
-                filteredHist={filteredHist}
+                filteredData={filteredHist}
                 histResultsPerPage={histResultsPerPage}
                 orderNumber={orderNumber}
                 partNumber={partNumber}
@@ -465,7 +463,7 @@ const PackingQueue = () => {
                 sortModel={sortPackPendingModel}
                 setSortModel={setSortPackPendingModel}
                 pageNumber={histPageNum}
-                filteredPending={filteredPending}
+                filteredData={filteredPending}
                 isLoading={pendingLoading}
                 fetchData={fetchPendingData}
               />
