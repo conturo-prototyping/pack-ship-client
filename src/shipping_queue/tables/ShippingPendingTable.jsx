@@ -1,6 +1,11 @@
 import React, { useCallback, useState, useEffect, useMemo } from "react";
 import makeStyles from "@mui/styles/makeStyles";
-import { Typography, TablePagination, Grid } from "@mui/material";
+import {
+  Typography,
+  TablePagination,
+  Grid,
+  DialogActions,
+} from "@mui/material";
 import { createColumnFilters } from "../../utils/TableFilters";
 import {
   PACKING_SLIP_TOP_MARGIN,
@@ -14,6 +19,11 @@ import { useLocalStorage } from "../../utils/localStorage";
 import { onPageSizeChange } from "../../utils/TablePageSizeHandler";
 import withContextMenu from "./ContextMenuTable";
 import withStyledTable from "./StyledTable";
+import { snackbarVariants, usePackShipSnackbar } from "../../common/Snackbar";
+import PickupDropOffForm from "../../create_shipment/components/PickupDropOffForm";
+import PackingDialog from "../../components/PackingDialog";
+import CommonButton from "../../common/Button";
+import { API } from "../../services/server";
 
 const useStyle = makeStyles((theme) => ({
   table: {
@@ -33,13 +43,18 @@ const ShippingPendingTable = ({
   selectedPendingOrder,
   setSelectedOrderIds,
   setFilteredPendingShipments,
+  onConfirmShipmentClose,
+  confirmShipmentOpen,
   searchText,
   isLoading,
+  reloadData,
   handleContextMenu,
   StyledDataGrid,
 }) => {
   const classes = useStyle();
   const [pendingData, setPendingData] = useState(tableData);
+  const [handoffName, setHandoffName] = useState("");
+  const enqueueSnackbar = usePackShipSnackbar();
 
   const [numRowsPerPage, setNumRowsPerPage] = useLocalStorage(
     "shippingPendingNumRows",
@@ -207,81 +222,128 @@ const ShippingPendingTable = ({
   }, [page, pendingData?.length, numRowsPerPage, setNumRowsPerPage]);
 
   return (
-    <StyledDataGrid
-      sx={{
-        border: "none",
-        height: `calc(100vh - ${PACKING_SLIP_BOTTOM_MARGIN} - ${PACKING_SLIP_TOP_MARGIN} - ${NAV_BAR_HEIGHT} - 5rem)`,
-        minHeight: "20rem",
-        ".MuiDataGrid-footerContainer": {
-          backgroundColor: "primary.light",
-        },
-      }}
-      className={classes.table}
-      disableSelectionOnClick={true}
-      rows={
-        isLoading
-          ? []
-          : pendingData.slice(
-              page * numRowsPerPage,
-              page * numRowsPerPage + numRowsPerPage
-            )
-      }
-      rowHeight={65}
-      columns={columns}
-      pageSize={numRowsPerPage}
-      rowsPerPageOptions={PAGINATION_SIZING_OPTIONS}
-      checkboxSelection={false}
-      editMode="row"
-      sortingMode="server"
-      sortModel={sortModel}
-      onSortModelChange={async (model) => {
-        setSortModel(model);
-        setPendingData(sortDataByModel(model, tableData));
-      }}
-      loading={isLoading}
-      components={{
-        LoadingOverlay: () => <PackShipProgress />,
-        Footer: () =>
-          selectedPendingOrder.length > 0 ? (
-            <Grid
-              container
-              item
-              alignItems="center"
-              sx={{
-                backgroundColor: "primary.light",
-                borderTop: "1px solid rgba(224, 224, 224, 1)",
-              }}
-            >
-              <Grid container item xs={6} justifyContent="flex-start">
-                <Typography sx={{ padding: "8px" }}>
-                  {selectedPendingOrder.length} rows selected
-                </Typography>
+    <>
+      <StyledDataGrid
+        sx={{
+          border: "none",
+          height: `calc(100vh - ${PACKING_SLIP_BOTTOM_MARGIN} - ${PACKING_SLIP_TOP_MARGIN} - ${NAV_BAR_HEIGHT} - 5rem)`,
+          minHeight: "20rem",
+          ".MuiDataGrid-footerContainer": {
+            backgroundColor: "primary.light",
+          },
+        }}
+        className={classes.table}
+        disableSelectionOnClick={true}
+        rows={
+          isLoading
+            ? []
+            : pendingData.slice(
+                page * numRowsPerPage,
+                page * numRowsPerPage + numRowsPerPage
+              )
+        }
+        rowHeight={65}
+        columns={columns}
+        pageSize={numRowsPerPage}
+        rowsPerPageOptions={PAGINATION_SIZING_OPTIONS}
+        checkboxSelection={false}
+        editMode="row"
+        sortingMode="server"
+        sortModel={sortModel}
+        onSortModelChange={async (model) => {
+          setSortModel(model);
+          setPendingData(sortDataByModel(model, tableData));
+        }}
+        loading={isLoading}
+        components={{
+          LoadingOverlay: () => <PackShipProgress />,
+          Footer: () =>
+            selectedPendingOrder.length > 0 ? (
+              <Grid
+                container
+                item
+                alignItems="center"
+                sx={{
+                  backgroundColor: "primary.light",
+                  borderTop: "1px solid rgba(224, 224, 224, 1)",
+                }}
+              >
+                <Grid container item xs={6} justifyContent="flex-start">
+                  <Typography sx={{ padding: "8px" }}>
+                    {selectedPendingOrder.length} rows selected
+                  </Typography>
+                </Grid>
+                <Grid container item xs={6} justifyContent="flex-end">
+                  {generateTablePagination()}
+                </Grid>
               </Grid>
-              <Grid container item xs={6} justifyContent="flex-end">
+            ) : (
+              <Grid
+                container
+                item
+                xs={12}
+                justifyContent="flex-end"
+                sx={{
+                  backgroundColor: "primary.light",
+                  borderTop: "1px solid rgba(224, 224, 224, 1)",
+                }}
+              >
                 {generateTablePagination()}
               </Grid>
-            </Grid>
-          ) : (
-            <Grid
-              container
-              item
-              xs={12}
-              justifyContent="flex-end"
-              sx={{
-                backgroundColor: "primary.light",
-                borderTop: "1px solid rgba(224, 224, 224, 1)",
+            ),
+        }}
+        componentsProps={{
+          row: {
+            onContextMenu: handleContextMenu,
+          },
+        }}
+      />
+      <PackingDialog
+        fullWidth={false}
+        titleText={"Customer Name"}
+        open={confirmShipmentOpen}
+        onClose={() => {
+          setHandoffName("");
+          onConfirmShipmentClose();
+        }}
+        actions={
+          <DialogActions>
+            <CommonButton
+              disabled={!handoffName}
+              autoFocus
+              onClick={async () => {
+                API.patchShipment(selectedPendingOrder, {
+                  customerHandoffName: handoffName,
+                })
+                  .then(async () => {
+                    await reloadData();
+
+                    enqueueSnackbar(
+                      "Shipment confirmed successfully!",
+                      snackbarVariants.success
+                    );
+                  })
+                  .catch((e) => {
+                    enqueueSnackbar(e.message, snackbarVariants.error);
+                  })
+                  .finally(() => {
+                    setHandoffName("");
+                    onConfirmShipmentClose();
+                    setSelectedOrderIds([]);
+                  });
               }}
-            >
-              {generateTablePagination()}
-            </Grid>
-          ),
-      }}
-      componentsProps={{
-        row: {
-          onContextMenu: handleContextMenu,
-        },
-      }}
-    />
+              label={"Submit"}
+              type="button"
+            />
+          </DialogActions>
+        }
+      >
+        <PickupDropOffForm
+          customerName={handoffName}
+          setCustomerName={setHandoffName}
+        ></PickupDropOffForm>
+      </PackingDialog>
+    </>
   );
 };
 
