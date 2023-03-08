@@ -42,7 +42,7 @@ const ShippingPendingTable = ({
   const [pendingData, setPendingData] = useState(tableData);
 
   const [numRowsPerPage, setNumRowsPerPage] = useLocalStorage(
-    "shippingQueueNumRows",
+    "shippingPendingNumRows",
     window.innerHeight > 1440 ? 25 : 10
   );
 
