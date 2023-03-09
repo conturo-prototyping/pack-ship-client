@@ -29,14 +29,15 @@ const PackingContextMenuTable = (OriginalTable) => {
 
     const onHistoryPackingSlipAdd = useCallback(
       (pageNum) => {
-        API.getPendingPackingQueue().then((data) => {
+        API.getPackingQueue().then((data) => {
           let newSelectedRow = { ...selectedRow };
 
-          const possibleChoices = data.filter(
+          const possibleChoices = data?.filter(
             (e) =>
               e.orderNumber === selectedRow.orderNumber &&
               !selectedRow.items.some((t) => t.item._id === e._id)
           );
+
           if (data?.length > 0 && possibleChoices.length > 0) {
             newSelectedRow.items = newSelectedRow.items.map((e) => {
               if (e.item.isNew) {
@@ -96,7 +97,7 @@ const PackingContextMenuTable = (OriginalTable) => {
         API.getPackingQueue().then((data) => {
           updatedPackingSlip.items = updatedPackingSlip.items.map((e) => {
             if (e.item.isNew) {
-              const newPossibleChoices = data.filter(
+              const newPossibleChoices = data?.filter(
                 (m) =>
                   m.customer === selectedRow.customer._id &&
                   (!updatedPackingSlip.items.some(

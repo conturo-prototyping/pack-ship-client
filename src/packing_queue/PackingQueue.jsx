@@ -117,7 +117,7 @@ const PackingQueue = () => {
       )
         .then((data) => {
           if (data && isMounted) {
-            let tableData = extractHistoryDetails(data?.packingSlips);
+            const tableData = extractHistoryDetails(data?.packingSlips);
             setFilteredHist(tableData);
             setHistTotalCount(data?.totalCount);
           }
@@ -136,7 +136,7 @@ const PackingQueue = () => {
       await API.getPendingPackingQueue()
         .then((data) => {
           if (data && isMounted) {
-            let tableData = extractHistoryDetails(data?.packingSlips);
+            const tableData = extractHistoryDetails(data?.packingSlips);
             setFilteredPending(tableData);
           }
         })
@@ -149,7 +149,6 @@ const PackingQueue = () => {
   useEffect(() => {
     setIsMounted(true);
     return () => setIsMounted(false);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   useEffect(() => {
