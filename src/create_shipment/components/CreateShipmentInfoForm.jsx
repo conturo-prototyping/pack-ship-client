@@ -18,6 +18,7 @@ const CreateCarrierShipmentInfoForm = ({
   reset,
   setReset,
   destination,
+  disablePendingFields,
 }) => {
   const [localShippingInfo, setLocalShippingInfo] = useState({
     carrier: CARRIERS[0],
@@ -114,7 +115,7 @@ const CreateCarrierShipmentInfoForm = ({
           />
         </Grid>
       </Grid>
-      {destination !== DestinationTypes.CUSTOMER ? (
+      {destination !== DestinationTypes.CUSTOMER || disablePendingFields ? (
         <div />
       ) : (
         <Grid container item alignItems="center" spacing={2}>
@@ -169,57 +170,63 @@ const CreateCarrierShipmentInfoForm = ({
           </Grid>
         </Grid>
       )}
-      <Grid container item alignItems="center" spacing={2}>
-        <Grid container item xs={5} justifyContent="flex-end">
-          <Typography align="right" sx={{ fontWeight: 700 }}>
-            Tracking:
-          </Typography>
-        </Grid>
-        <Grid item xs>
-          <TextField
-            required
-            value={localShippingInfo.trackingNumber ?? ""}
-            onChange={(event) => {
-              setLocalShippingInfo({
-                ...localShippingInfo,
-                trackingNumber: event.target.value,
-              });
-            }}
-            onBlur={() => {
-              setShippingInfo(localShippingInfo);
-            }}
-            sx={{ width: "75%" }}
-          />
-        </Grid>
-      </Grid>
-      <Grid container item alignItems="center" spacing={2}>
-        <Grid container item xs={5} justifyContent="flex-end">
-          <Typography align="right" sx={{ fontWeight: 700 }}>
-            Cost:
-          </Typography>
-        </Grid>
-        <Grid item xs>
-          <TextField
-            required
-            value={localShippingInfo.cost ?? ""}
-            InputProps={{
-              startAdornment: (
-                <InputAdornment position="start">{"$"}</InputAdornment>
-              ),
-            }}
-            onChange={(event) => {
-              setLocalShippingInfo({
-                ...localShippingInfo,
-                cost: event.target.value,
-              });
-            }}
-            onBlur={() => {
-              setShippingInfo(localShippingInfo);
-            }}
-            sx={{ width: "75%" }}
-          />
-        </Grid>
-      </Grid>
+      {disablePendingFields ? (
+        <div />
+      ) : (
+        <>
+          <Grid container item alignItems="center" spacing={2}>
+            <Grid container item xs={5} justifyContent="flex-end">
+              <Typography align="right" sx={{ fontWeight: 700 }}>
+                Tracking:
+              </Typography>
+            </Grid>
+            <Grid item xs>
+              <TextField
+                required
+                value={localShippingInfo.trackingNumber ?? ""}
+                onChange={(event) => {
+                  setLocalShippingInfo({
+                    ...localShippingInfo,
+                    trackingNumber: event.target.value,
+                  });
+                }}
+                onBlur={() => {
+                  setShippingInfo(localShippingInfo);
+                }}
+                sx={{ width: "75%" }}
+              />
+            </Grid>
+          </Grid>
+          <Grid container item alignItems="center" spacing={2}>
+            <Grid container item xs={5} justifyContent="flex-end">
+              <Typography align="right" sx={{ fontWeight: 700 }}>
+                Cost:
+              </Typography>
+            </Grid>
+            <Grid item xs>
+              <TextField
+                required
+                value={localShippingInfo.cost ?? ""}
+                InputProps={{
+                  startAdornment: (
+                    <InputAdornment position="start">{"$"}</InputAdornment>
+                  ),
+                }}
+                onChange={(event) => {
+                  setLocalShippingInfo({
+                    ...localShippingInfo,
+                    cost: event.target.value,
+                  });
+                }}
+                onBlur={() => {
+                  setShippingInfo(localShippingInfo);
+                }}
+                sx={{ width: "75%" }}
+              />
+            </Grid>
+          </Grid>
+        </>
+      )}
     </Box>
   );
 };

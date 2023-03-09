@@ -96,6 +96,7 @@ const ShippingPendingTable = ({
         carrier: shippingInfo.carrier,
         checkedCustomer: shippingInfo.checkedCustomer,
         customerAccount: shippingInfo.customerAccount,
+        destination: shippingInfo.destination,
       });
     // eslint-disable-next-line
   }, [selectedPendingOrder]);
