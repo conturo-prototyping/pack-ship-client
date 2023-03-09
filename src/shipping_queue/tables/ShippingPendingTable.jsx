@@ -93,7 +93,6 @@ const ShippingPendingTable = ({
         customer: shippingInfo.customer,
         deliveryMethod: shippingInfo.deliveryMethod,
         deliverySpeed: shippingInfo.deliverySpeed,
-        // carrier: CARRIERS[0],
         carrier: shippingInfo.carrier,
         checkedCustomer: shippingInfo.checkedCustomer,
         customerAccount: shippingInfo.customerAccount,
