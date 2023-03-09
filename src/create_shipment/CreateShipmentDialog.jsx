@@ -225,6 +225,7 @@ const CreateShipmentDialog = ({
             reset={reset}
             setReset={setReset}
             destination={destination}
+            disablePendingFields
           />
         );
       case ShippingDialogStates.ShippingAddressPage:
@@ -333,16 +334,14 @@ const CreateShipmentDialog = ({
               item
               direction="row"
               spacing={1}
-              justifyContent="space-evenly"
-            >
+              justifyContent="space-evenly">
               <Grid
                 xs={4}
                 container
                 item
                 direction="row"
                 spacing={1}
-                justifyContent="left"
-              >
+                justifyContent="left">
                 <Grid xs={6} item>
                   <FormGroup>
                     <FormControlLabel
@@ -386,8 +385,7 @@ const CreateShipmentDialog = ({
                 item
                 direction="row"
                 spacing={1}
-                justifyContent="right"
-              >
+                justifyContent="right">
                 <Grid item>
                   <CommonButton
                     onClick={() => {
@@ -426,8 +424,7 @@ const CreateShipmentDialog = ({
       }`}
       open={open}
       onClose={onClose}
-      actions={renderDialogActions()}
-    >
+      actions={renderDialogActions()}>
       {renderContents()}
     </PackingDialog>
   );

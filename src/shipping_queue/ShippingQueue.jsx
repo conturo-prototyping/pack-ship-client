@@ -133,6 +133,7 @@ const ShippingQueue = () => {
             data?.queue?.shipments.forEach((e) => {
               const dc = new Date(e.dateCreated);
               pendingTableData.push({
+                ...e,
                 id: e._id,
                 orderNumber: e.orderNumber,
                 customer: e.customer,
@@ -261,8 +262,7 @@ const ShippingQueue = () => {
         className={classes.topBarGrid}
         container
         justifyContent="start"
-        spacing={2}
-      >
+        spacing={2}>
         <Grid container item xs={12} spacing={2}>
           {[TabNames.Queue, TabNames.Pending].includes(currentTab) ? (
             <Grid
@@ -270,8 +270,7 @@ const ShippingQueue = () => {
               item
               xs={12}
               spacing={2}
-              sx={{ marginBottom: "1rem!important" }}
-            >
+              sx={{ marginBottom: "1rem!important" }}>
               <Grid container item xs={"auto"}>
                 {currentTab === TabNames.Queue ? (
                   <CommonButton
