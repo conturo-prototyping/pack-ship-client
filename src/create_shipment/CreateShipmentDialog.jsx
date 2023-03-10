@@ -40,6 +40,7 @@ const CreateShipmentDialog = ({
     isDueBack: false,
     isDueBackOn: null,
     carrier: "",
+    specialShippingAddress: "",
   });
   const [canErrorCheck, setCanErrorCheck] = useState(false);
   const [reset, setReset] = useState(false);
@@ -68,30 +69,39 @@ const CreateShipmentDialog = ({
       checkedCustomer: false,
       isDueBack: false,
       isDueBackOn: null,
+      specialShippingAddress: "",
     });
     setCanErrorCheck(false);
   }, [open, customer?._id, packingSlipIds]);
 
-  const onPickupClick = () => {
-    if (destination !== DestinationTypes.CUSTOMER)
-      setCurrentState(ShippingDialogStates.ShippingAddressPage);
-    setShippingInfo({
+  const onPickupClick = async () => {
+    const newShippingInfo = {
       ...shippingInfo,
       deliveryMethod: "PICKUP",
       checkedCustomer: undefined,
       customerAccount: undefined,
-    });
-  };
-
-  const onDropOffClick = () => {
+    };
+    setShippingInfo(newShippingInfo);
     if (destination !== DestinationTypes.CUSTOMER)
       setCurrentState(ShippingDialogStates.ShippingAddressPage);
-    setShippingInfo({
+    else {
+      onSubmit(newShippingInfo);
+    }
+  };
+
+  const onDropOffClick = async () => {
+    const newShippingInfo = {
       ...shippingInfo,
       deliveryMethod: "DROPOFF",
       checkedCustomer: undefined,
       customerAccount: undefined,
-    });
+    };
+    setShippingInfo(newShippingInfo);
+    if (destination !== DestinationTypes.CUSTOMER)
+      setCurrentState(ShippingDialogStates.ShippingAddressPage);
+    else {
+      onSubmit(newShippingInfo);
+    }
   };
 
   const onCarrierClick = () => {
@@ -118,8 +128,17 @@ const CreateShipmentDialog = ({
   };
 
   const onShippingAddressNextClick = () => {
-    if (shippingInfo.deliveryMethod === "CARRIER")
-      setCurrentState(ShippingDialogStates.CarrierPage);
+    if (shippingInfo.deliveryMethod === "CARRIER") {
+      if (
+        shippingInfo?.specialShippingAddress === undefined ||
+        shippingInfo?.specialShippingAddress === ""
+      ) {
+        setCanErrorCheck(true);
+      } else {
+        setCanErrorCheck(false);
+        setCurrentState(ShippingDialogStates.CarrierPage);
+      }
+    }
   };
 
   const onNextClick = () => {
@@ -171,22 +190,24 @@ const CreateShipmentDialog = ({
     }
   };
 
-  const onSubmit = async () => {
+  const onSubmit = async (localShippingInfo) => {
     setCanErrorCheck(true);
-    if (isShippingInfoValid(shippingInfo)) {
+    if (isShippingInfoValid(localShippingInfo, destination)) {
       API.createShipment(
-        shippingInfo.manifest,
-        shippingInfo.customer,
-        shippingInfo.deliveryMethod,
-        shippingInfo.trackingNumber,
-        shippingInfo.cost,
-        shippingInfo.carrier,
-        shippingInfo.deliverySpeed,
-        shippingInfo.checkedCustomer ? shippingInfo.customerAccount : false,
+        localShippingInfo.manifest,
+        localShippingInfo.customer,
+        localShippingInfo.deliveryMethod,
+        localShippingInfo.trackingNumber,
+        localShippingInfo.cost,
+        localShippingInfo.carrier,
+        localShippingInfo.deliverySpeed,
+        localShippingInfo.checkedCustomer
+          ? localShippingInfo.customerAccount
+          : false,
         customerName,
-        shippingInfo.specialShippingAddress,
-        shippingInfo.isDueBack,
-        shippingInfo.isDueBackOn
+        localShippingInfo.specialShippingAddress,
+        localShippingInfo.isDueBack,
+        localShippingInfo.isDueBackOn
       )
         .then(() => {
           setCustomerName("");
@@ -198,6 +219,7 @@ const CreateShipmentDialog = ({
             checkedCustomer: false,
             isDueBack: false,
             isDueBackOn: null,
+            specialShippingAddress: "",
           });
           reloadData();
           onClose();
@@ -232,6 +254,7 @@ const CreateShipmentDialog = ({
           <ShippingAddressForm
             shippingAddress={shippingInfo.specialShippingAddress ?? ""}
             setShippingAddress={onShippingAddressChange}
+            canErrorCheck={canErrorCheck}
           />
         );
       case ShippingDialogStates.CreateShipmentTable:
@@ -285,7 +308,9 @@ const CreateShipmentDialog = ({
                 <Grid item>
                   <CommonButton
                     autoFocus
-                    onClick={onSubmit}
+                    onClick={async () => {
+                      await onSubmit(shippingInfo);
+                    }}
                     label={"OK"}
                     type="button"
                   />
@@ -312,7 +337,9 @@ const CreateShipmentDialog = ({
             ) : (
               <CommonButton
                 autoFocus
-                onClick={onSubmit}
+                onClick={async () => {
+                  await onSubmit(shippingInfo);
+                }}
                 label={"Ok"}
                 type="button"
               />
