@@ -215,6 +215,7 @@ const CreateCarrierShipmentInfoForm = ({
             onBlur={() => {
               setShippingInfo(localShippingInfo);
             }}
+            disabled={localShippingInfo.checkedCustomer}
             sx={{ width: "75%" }}
           />
         </Grid>
