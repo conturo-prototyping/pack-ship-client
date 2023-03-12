@@ -407,6 +407,7 @@ const cantEditShippingDetails = {
   deliverySpeed: true,
   trackingNumber: true,
   cost: true,
+  customerHandoffName: true
 };
 
 export default withContextMenu(

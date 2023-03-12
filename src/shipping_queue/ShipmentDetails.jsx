@@ -19,6 +19,7 @@ const ShipmentDetails = ({
     deliverySpeed: true,
     trackingNumber: true,
     cost: true,
+    customerHandoffName: true,
   },
 }) => {
   return (
@@ -137,7 +138,9 @@ const ShipmentDetails = ({
                     <TitleTextInput
                       title="Received By:"
                       value={shipment?.customerHandoffName}
-                      viewOnly={viewOnly}
+                      viewOnly={
+                        viewOnly || cantEditShippingDetails.customerHandoffName
+                      }
                       onChange={onCustomerNameChange}
                     />
                   </React.Fragment>
