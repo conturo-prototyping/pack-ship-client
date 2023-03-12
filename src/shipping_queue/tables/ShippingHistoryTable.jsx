@@ -153,4 +153,13 @@ const ShippingHistoryTable = ({
   );
 };
 
-export default withContextMenu(withStyledTable(ShippingHistoryTable));
+const cantEditShippingDetails = {
+  deliverySpeed: false,
+  trackingNumber: false,
+  cost: false,
+};
+
+export default withContextMenu(
+  withStyledTable(ShippingHistoryTable),
+  cantEditShippingDetails
+);

@@ -285,7 +285,8 @@ const ShippingPendingTable = ({
                 sx={{
                   backgroundColor: "primary.light",
                   borderTop: "1px solid rgba(224, 224, 224, 1)",
-                }}>
+                }}
+              >
                 <Grid container item xs={6} justifyContent="flex-start">
                   <Typography sx={{ padding: "8px" }}>
                     {selectedPendingOrder.length} rows selected
@@ -304,7 +305,8 @@ const ShippingPendingTable = ({
                 sx={{
                   backgroundColor: "primary.light",
                   borderTop: "1px solid rgba(224, 224, 224, 1)",
-                }}>
+                }}
+              >
                 {generateTablePagination()}
               </Grid>
             ),
@@ -379,7 +381,8 @@ const ShippingPendingTable = ({
               </Grid>
             </Grid>
           </DialogActions>
-        }>
+        }
+      >
         {selectedShippingInfo?.deliveryMethod !== "CARRIER" ? (
           <PickupDropOffForm
             customerName={handoffName}
@@ -400,4 +403,13 @@ const ShippingPendingTable = ({
   );
 };
 
-export default withContextMenu(withStyledTable(ShippingPendingTable));
+const cantEditShippingDetails = {
+  deliverySpeed: true,
+  trackingNumber: true,
+  cost: true,
+};
+
+export default withContextMenu(
+  withStyledTable(ShippingPendingTable),
+  cantEditShippingDetails
+);

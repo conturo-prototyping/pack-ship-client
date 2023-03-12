@@ -8,7 +8,7 @@ import { snackbarVariants, usePackShipSnackbar } from "../../common/Snackbar";
 import pdfMake from "pdfmake/build/pdfmake";
 import ShippingContextMenu from "../ShippingContextMenu";
 
-const ContextMenuTable = (OriginalTable) => {
+const ContextMenuTable = (OriginalTable, cantEditShippingDetails) => {
   function NewComponent(props) {
     const { reloadData } = props;
     const [contextMenu, setContextMenu] = useState(null);
@@ -231,6 +231,7 @@ const ContextMenuTable = (OriginalTable) => {
           onClose={onEditShipmentClose}
           onSubmit={onEditShipmentSubmit}
           viewOnly={isEditShipmentViewOnly}
+          cantEditShippingDetails={cantEditShippingDetails}
           onDelete={(params) => {
             setConfirmDeleteDialogOpen(true);
             setPackingSlipToDelete(params.row);
