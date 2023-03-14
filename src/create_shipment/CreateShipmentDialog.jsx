@@ -3,7 +3,6 @@ import PackingDialog from "../components/PackingDialog";
 import CreateShipmentTable from "./components/CreateShipmentTable";
 import ShippingDialogStates from "./constants/ShippingDialogConstants";
 import CreateCarrierShipmentInfoForm from "./components/CreateShipmentInfoForm";
-import PickupDropOffForm from "./components/PickupDropOffForm";
 import CommonButton from "../common/Button";
 import {
   Checkbox,
@@ -41,6 +40,7 @@ const CreateShipmentDialog = ({
     isDueBack: false,
     isDueBackOn: null,
     carrier: "",
+    specialShippingAddress: "",
   });
   const [canErrorCheck, setCanErrorCheck] = useState(false);
   const [reset, setReset] = useState(false);
@@ -69,39 +69,45 @@ const CreateShipmentDialog = ({
       checkedCustomer: false,
       isDueBack: false,
       isDueBackOn: null,
+      specialShippingAddress: "",
     });
     setCanErrorCheck(false);
   }, [open, customer?._id, packingSlipIds]);
 
-  const onPickupClick = () => {
-    if (destination !== DestinationTypes.CUSTOMER)
-      setCurrentState(ShippingDialogStates.ShippingAddressPage);
-    else setCurrentState(ShippingDialogStates.PickupDropOffPage);
-    setShippingInfo({
+  const onPickupClick = async () => {
+    const newShippingInfo = {
       ...shippingInfo,
       deliveryMethod: "PICKUP",
       checkedCustomer: undefined,
       customerAccount: undefined,
-    });
-  };
-
-  const onDropOffClick = () => {
+    };
+    setShippingInfo(newShippingInfo);
     if (destination !== DestinationTypes.CUSTOMER)
       setCurrentState(ShippingDialogStates.ShippingAddressPage);
-    else setCurrentState(ShippingDialogStates.PickupDropOffPage);
-    setShippingInfo({
+    else {
+      onSubmit(newShippingInfo);
+    }
+  };
+
+  const onDropOffClick = async () => {
+    const newShippingInfo = {
       ...shippingInfo,
       deliveryMethod: "DROPOFF",
       checkedCustomer: undefined,
       customerAccount: undefined,
-    });
+    };
+    setShippingInfo(newShippingInfo);
+    if (destination !== DestinationTypes.CUSTOMER)
+      setCurrentState(ShippingDialogStates.ShippingAddressPage);
+    else {
+      onSubmit(newShippingInfo);
+    }
   };
 
   const onCarrierClick = () => {
     if (destination !== DestinationTypes.CUSTOMER) {
       setCurrentState(ShippingDialogStates.ShippingAddressPage);
-    }
-    else {
+    } else {
       setCurrentState(ShippingDialogStates.CarrierPage);
     }
 
@@ -110,7 +116,7 @@ const CreateShipmentDialog = ({
       deliveryMethod: "CARRIER",
       checkedCustomer: customer.defaultCarrierAccount !== undefined,
       customerAccount: customer.defaultCarrierAccount ?? "",
-      carrier: customer.defaultCarrier ?? ""
+      carrier: customer.defaultCarrier ?? "",
     });
   };
 
@@ -122,11 +128,17 @@ const CreateShipmentDialog = ({
   };
 
   const onShippingAddressNextClick = () => {
-    setCurrentState(
-      shippingInfo.deliveryMethod === "CARRIER"
-        ? ShippingDialogStates.CarrierPage
-        : ShippingDialogStates.PickupDropOffPage
-    );
+    if (shippingInfo.deliveryMethod === "CARRIER") {
+      if (
+        shippingInfo?.specialShippingAddress === undefined ||
+        shippingInfo?.specialShippingAddress === ""
+      ) {
+        setCanErrorCheck(true);
+      } else {
+        setCanErrorCheck(false);
+        setCurrentState(ShippingDialogStates.CarrierPage);
+      }
+    }
   };
 
   const onNextClick = () => {
@@ -178,22 +190,24 @@ const CreateShipmentDialog = ({
     }
   };
 
-  const onSubmit = async () => {
+  const onSubmit = async (localShippingInfo) => {
     setCanErrorCheck(true);
-    if (isShippingInfoValid(shippingInfo)) {
+    if (isShippingInfoValid(localShippingInfo, destination)) {
       API.createShipment(
-        shippingInfo.manifest,
-        shippingInfo.customer,
-        shippingInfo.deliveryMethod,
-        shippingInfo.trackingNumber,
-        shippingInfo.cost,
-        shippingInfo.carrier,
-        shippingInfo.deliverySpeed,
-        shippingInfo.checkedCustomer ? shippingInfo.customerAccount : false,
+        localShippingInfo.manifest,
+        localShippingInfo.customer,
+        localShippingInfo.deliveryMethod,
+        localShippingInfo.trackingNumber,
+        localShippingInfo.cost,
+        localShippingInfo.carrier,
+        localShippingInfo.deliverySpeed,
+        localShippingInfo.checkedCustomer
+          ? localShippingInfo.customerAccount
+          : false,
         customerName,
-        shippingInfo.specialShippingAddress,
-        shippingInfo.isDueBack,
-        shippingInfo.isDueBackOn
+        localShippingInfo.specialShippingAddress,
+        localShippingInfo.isDueBack,
+        localShippingInfo.isDueBackOn
       )
         .then(() => {
           setCustomerName("");
@@ -205,6 +219,7 @@ const CreateShipmentDialog = ({
             checkedCustomer: false,
             isDueBack: false,
             isDueBackOn: null,
+            specialShippingAddress: "",
           });
           reloadData();
           onClose();
@@ -232,13 +247,7 @@ const CreateShipmentDialog = ({
             reset={reset}
             setReset={setReset}
             destination={destination}
-          />
-        );
-      case ShippingDialogStates.PickupDropOffPage:
-        return (
-          <PickupDropOffForm
-            customerName={customerName}
-            setCustomerName={setCustomerName}
+            disablePendingFields
           />
         );
       case ShippingDialogStates.ShippingAddressPage:
@@ -246,6 +255,7 @@ const CreateShipmentDialog = ({
           <ShippingAddressForm
             shippingAddress={shippingInfo.specialShippingAddress ?? ""}
             setShippingAddress={onShippingAddressChange}
+            canErrorCheck={canErrorCheck}
           />
         );
       case ShippingDialogStates.CreateShipmentTable:
@@ -299,31 +309,15 @@ const CreateShipmentDialog = ({
                 <Grid item>
                   <CommonButton
                     autoFocus
-                    onClick={onSubmit}
+                    onClick={async () => {
+                      await onSubmit(shippingInfo);
+                    }}
                     label={"OK"}
                     type="button"
                   />
                 </Grid>
               </Grid>
             </Grid>
-          </DialogActions>
-        );
-      case ShippingDialogStates.PickupDropOffPage:
-        return (
-          <DialogActions>
-            <CommonButton
-              onClick={() => {
-                onBackClick(destination !== DestinationTypes.VENDOR);
-              }}
-              label="Back"
-              color="secondary"
-            />
-            <CommonButton
-              autoFocus
-              onClick={onSubmit}
-              label={"Ok"}
-              type="button"
-            />
           </DialogActions>
         );
       case ShippingDialogStates.ShippingAddressPage:
@@ -334,11 +328,23 @@ const CreateShipmentDialog = ({
               label="Back"
               color="secondary"
             />
-            <CommonButton
-              autoFocus
-              onClick={onShippingAddressNextClick}
-              label={"Next"}
-            />
+            {shippingInfo.deliveryMethod === "CARRIER" ? (
+              <CommonButton
+                autoFocus
+                onClick={onShippingAddressNextClick}
+                label={"Next"}
+                type="button"
+              />
+            ) : (
+              <CommonButton
+                autoFocus
+                onClick={async () => {
+                  await onSubmit(shippingInfo);
+                }}
+                label={"Ok"}
+                type="button"
+              />
+            )}
           </DialogActions>
         );
       case ShippingDialogStates.CreateShipmentTable:
@@ -355,16 +361,14 @@ const CreateShipmentDialog = ({
               item
               direction="row"
               spacing={1}
-              justifyContent="space-evenly"
-            >
+              justifyContent="space-evenly">
               <Grid
                 xs={4}
                 container
                 item
                 direction="row"
                 spacing={1}
-                justifyContent="left"
-              >
+                justifyContent="left">
                 <Grid xs={6} item>
                   <FormGroup>
                     <FormControlLabel
@@ -408,8 +412,7 @@ const CreateShipmentDialog = ({
                 item
                 direction="row"
                 spacing={1}
-                justifyContent="right"
-              >
+                justifyContent="right">
                 <Grid item>
                   <CommonButton
                     onClick={() => {
