@@ -124,7 +124,8 @@ const CreateCarrierShipmentInfoForm = ({
               <Typography
                 minWidth="max-content"
                 align="right"
-                sx={{ fontWeight: 700 }}>
+                sx={{ fontWeight: 700 }}
+              >
                 Customer Account:
               </Typography>
             </Grid>
@@ -141,7 +142,8 @@ const CreateCarrierShipmentInfoForm = ({
                     minWidth="max-content"
                     justifyContent="flex-end"
                     sx={{ fontSize: 14 }}
-                    align="right">
+                    align="right"
+                  >
                     Charge Customer?
                   </Typography>
                 }
@@ -221,6 +223,7 @@ const CreateCarrierShipmentInfoForm = ({
                 onBlur={() => {
                   setShippingInfo(localShippingInfo);
                 }}
+                disabled={localShippingInfo.checkedCustomer}
                 sx={{ width: "75%" }}
               />
             </Grid>
