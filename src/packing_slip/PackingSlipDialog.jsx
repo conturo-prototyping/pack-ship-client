@@ -3,6 +3,7 @@ import PackingSlipTable from "./components/PackingSlipTable";
 import DestinationToggle from "./components/DestinationToggle";
 import PackingDialog from "../components/PackingDialog";
 import { DestinationTypes } from "../utils/Constants";
+import { useGridApiRef } from "@mui/x-data-grid-pro";
 
 const PackingSlipDialog = ({
   onSubmit,
@@ -17,13 +18,24 @@ const PackingSlipDialog = ({
   viewOnly = false,
 }) => {
   const [filledForm, setFilledForm] = useState([]);
+  const apiRef = useGridApiRef();
 
   useEffect(() => {
     setFilledForm(parts);
   }, [parts]);
 
   function isSubmittable() {
-    return filledForm.every((e) => e.packQty && e.packQty >= 0);
+    let allHaveRouterUpload = false;
+    if (apiRef.current !== null && Object.keys(apiRef.current).length !== 0) {
+      allHaveRouterUpload = apiRef.current
+        .getAllRowIds()
+        .map((id) => apiRef.current.getRow(id))
+        .every((e) => e.routerUploadReady);
+    }
+    return (
+      filledForm.every((e) => e.packQty && e.packQty >= 0) &&
+      allHaveRouterUpload
+    );
   }
 
   return (
@@ -34,7 +46,8 @@ const PackingSlipDialog = ({
       onBackdropClick={onClose}
       onSubmit={() => onSubmit(filledForm, orderNum, destination)}
       submitDisabled={!isSubmittable()}
-      actions={actions}>
+      actions={actions}
+    >
       <DestinationToggle
         disabled={!!destination}
         destination={destination || DestinationTypes.CUSTOMER}
@@ -42,6 +55,7 @@ const PackingSlipDialog = ({
       />
 
       <PackingSlipTable
+        apiRef={apiRef}
         rowData={parts}
         filledForm={filledForm}
         setFilledForm={setFilledForm}

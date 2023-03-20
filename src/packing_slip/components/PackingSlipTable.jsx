@@ -4,6 +4,8 @@ import HelpTooltip from "../../components/HelpTooltip";
 import { makeStyles } from "@mui/styles";
 import { hasValueError } from "../../utils/validators/number_validator";
 import DialogTable from "../../common/DialogTable";
+import UploadCell from "./UploadCell";
+import { Box } from "@mui/system";
 
 const useStyle = makeStyles((theme) => ({
   fulfilledQtyHeader: {
@@ -14,6 +16,7 @@ const useStyle = makeStyles((theme) => ({
 }));
 
 const PackingSlipTable = ({
+  apiRef,
   rowData,
   filledForm,
   setFilledForm,
@@ -68,6 +71,22 @@ const PackingSlipTable = ({
         return { ...params.props, error: hasError };
       },
     },
+    {
+      field: "routerUploadReady",
+      renderHeader: (params) => {
+        return <Typography sx={{ fontWeight: 900 }}>Router Upload</Typography>;
+      },
+      flex: 1,
+      renderCell: (params) => {
+        return (
+          <UploadCell
+            params={params}
+            setFilledForm={setFilledForm}
+            filledForm={filledForm}
+          ></UploadCell>
+        );
+      },
+    },
   ];
 
   const onEditRowsModelChange = useCallback(
@@ -91,6 +110,7 @@ const PackingSlipTable = ({
 
   return (
     <DialogTable
+      apiRef={apiRef}
       rowData={rowData}
       filledForm={filledForm}
       setFilledForm={setFilledForm}
