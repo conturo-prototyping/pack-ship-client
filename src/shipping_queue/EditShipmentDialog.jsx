@@ -26,6 +26,11 @@ const EditShipmentTableDialog = ({
   onCostChange,
   onNewRowChange,
   viewOnly = true,
+  cantEditShippingDetails = {
+    customerAccount: true,
+    trackingNumber: true,
+    cost: true,
+  },
 }) => {
   const classes = useStyle();
 
@@ -68,9 +73,9 @@ const EditShipmentTableDialog = ({
     <div className={classes.root}>
       <PopupDialog
         open={isOpen}
-        titleText={`${viewOnly ? "" : "Edit Shipment / "}${
-          shipment?.label
-        } (${shipment?.manifest?.[0]?.destination})`}
+        titleText={`${viewOnly ? "" : "Edit Shipment / "}${shipment?.label} (${
+          shipment?.manifest?.[0]?.destination
+        })`}
         onClose={onClose}
         onSubmit={onSubmit}
         actions={
@@ -97,6 +102,7 @@ const EditShipmentTableDialog = ({
           onTrackingChange={onTrackingChange}
           onCostChange={onCostChange}
           viewOnly={viewOnly}
+          cantEditShippingDetails={cantEditShippingDetails}
         />
       </PopupDialog>
     </div>

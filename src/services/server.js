@@ -146,6 +146,18 @@ export const API = {
     }
   },
 
+  async getPendingShipments() {
+    try {
+      const response = await instance.get("/shipments/pending");
+      return response.data;
+    } catch (error) {
+      console.error("getPendingShipment", error);
+      throw new Error(
+        error?.response?.data ?? "An error occurred getting pending shipments"
+      );
+    }
+  },
+
   async deleteShipment(id) {
     try {
       const response = await instance.delete(`/shipments/${id}`);
@@ -426,6 +438,19 @@ export const API = {
       console.error("undoReciept", error);
       throw new Error(
         error?.response?.data ?? "An error occurred undoing receipt"
+      );
+    }
+  },
+
+  async getPendingPackingQueue() {
+    try {
+      const response = await instance.get("/packingSlips/pending");
+      return response.data;
+    } catch (error) {
+      console.error("getPendingPackingQueue", error);
+      throw new Error(
+        error?.response?.data ??
+          "An error occurred getting packing slip pending queue"
       );
     }
   },

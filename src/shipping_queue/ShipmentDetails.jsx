@@ -15,6 +15,12 @@ const ShipmentDetails = ({
   onTrackingChange,
   onCostChange,
   viewOnly = true,
+  cantEditShippingDetails = {
+    deliverySpeed: true,
+    trackingNumber: true,
+    cost: true,
+    customerHandoffName: true,
+  },
 }) => {
   return (
     <div>
@@ -82,7 +88,9 @@ const ShipmentDetails = ({
                       <TitleTextInput
                         title="Delivery Speed:"
                         value={shipment?.deliverySpeed}
-                        viewOnly={viewOnly}
+                        viewOnly={
+                          viewOnly || cantEditShippingDetails.deliverySpeed
+                        }
                         onChange={onDeliverySpeedChange}
                         error={!isDeliverySpeedValid(shipment?.deliverySpeed)}
                         canErrorCheck={canErrorCheck}
@@ -102,13 +110,15 @@ const ShipmentDetails = ({
                       <TitleTextInput
                         title="Tracking:"
                         value={shipment?.trackingNumber}
-                        viewOnly={viewOnly}
+                        viewOnly={
+                          viewOnly || cantEditShippingDetails.trackingNumber
+                        }
                         onChange={onTrackingChange}
                       />
                       <TitleTextInput
                         title="Cost:"
                         value={shipment?.cost}
-                        viewOnly={viewOnly}
+                        viewOnly={viewOnly || cantEditShippingDetails.cost}
                         onChange={onCostChange}
                       />
                     </Grid>
@@ -128,7 +138,9 @@ const ShipmentDetails = ({
                     <TitleTextInput
                       title="Received By:"
                       value={shipment?.customerHandoffName}
-                      viewOnly={viewOnly}
+                      viewOnly={
+                        viewOnly || cantEditShippingDetails.customerHandoffName
+                      }
                       onChange={onCustomerNameChange}
                     />
                   </React.Fragment>

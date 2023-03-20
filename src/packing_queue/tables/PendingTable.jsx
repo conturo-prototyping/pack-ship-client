@@ -1,11 +1,10 @@
 import { DataGrid } from "@mui/x-data-grid";
 import React, { useCallback, useEffect, useState } from "react";
 import makeStyles from "@mui/styles/makeStyles";
-import { Typography } from "@mui/material";
+import { Typography, TablePagination } from "@mui/material";
 import pdfMake from "pdfmake/build/pdfmake";
 import pdfFonts from "pdfmake/build/vfs_fonts";
 import { PackShipProgress } from "../../common/CircularProgress";
-import { getSortFromModel } from "../utils/sortModelFunctions";
 import {
   PACKING_SLIP_TOP_MARGIN,
   PACKING_SLIP_BOTTOM_MARGIN,
@@ -13,6 +12,7 @@ import {
   PAGINATION_SIZING_OPTIONS,
 } from "../../utils/Constants";
 import { onPageSizeChange } from "../../utils/TablePageSizeHandler";
+import { useLocalStorage } from "../../utils/localStorage";
 import withPendingTable from "./PackingContextMenuTable";
 
 pdfMake.vfs = pdfFonts.pdfMake.vfs;
@@ -67,87 +67,103 @@ const columns = [
   },
 ];
 
-const HistoryTable = ({
+const PendingTable = ({
   sortModel,
   setSortModel,
-  fetchData,
-  histTotalCount,
-  historyLoading,
   filteredData,
-  histResultsPerPage,
-  orderNumber,
-  partNumber,
-  pageNumber,
-  onPageChange,
-  setHistResultsPerPage,
+  fetchData,
+  isLoading,
   handleContextMenu,
 }) => {
   const classes = useStyle();
 
   const [isMounted, setIsMounted] = useState(false);
 
+  const [numRowsPerPage, setNumRowsPerPage] = useLocalStorage(
+    "pendingPackingQueueNumRows",
+    window.innerHeight > 1440 ? 25 : 10
+  );
+  const [page, setPage] = useState(0);
+  const [queueData, setQueueData] = useState(filteredData);
+
   useEffect(() => {
     setIsMounted(true);
   }, []);
 
-  const reloadData = useCallback(() => {
-    if (isMounted) {
-      fetchData(getSortFromModel(sortModel), 0, "", "").finally(() => {});
-    }
-    // eslint-disable-next-line
-  }, [isMounted]);
+  useEffect(() => {
+    setQueueData(filteredData);
+  }, [filteredData]);
 
   useEffect(() => {
-    if (isMounted) reloadData();
-  }, [reloadData, isMounted]);
+    if (isMounted) fetchData();
+  }, [fetchData, isMounted]);
+
+  const handlePageChange = (event, newPage) => {
+    setPage(newPage);
+  };
+
+  const generateTablePagination = useCallback(() => {
+    return (
+      <table>
+        <tbody>
+          <tr>
+            <TablePagination
+              count={queueData.length}
+              rowsPerPageOptions={PAGINATION_SIZING_OPTIONS}
+              rowsPerPage={numRowsPerPage}
+              onRowsPerPageChange={(event) => {
+                const pageValue = parseInt(event.target.value, 10);
+                onPageSizeChange(
+                  pageValue,
+                  page,
+                  queueData.length,
+                  setPage,
+                  setNumRowsPerPage
+                );
+              }}
+              onPageChange={handlePageChange}
+              page={page}
+              sx={{ border: "0px" }}
+            />
+          </tr>
+        </tbody>
+      </table>
+    );
+  }, [page, queueData.length, numRowsPerPage, setNumRowsPerPage]);
 
   return (
     <div className={classes.root}>
       <DataGrid
-        paginationMode="server"
-        onPageChange={onPageChange}
-        rowCount={histTotalCount}
         sx={{
           border: "none",
           height: `calc(100vh - ${PACKING_SLIP_BOTTOM_MARGIN} - ${PACKING_SLIP_TOP_MARGIN} - ${NAV_BAR_HEIGHT} - 5rem)`,
           minHeight: "20rem",
-          ".MuiDataGrid-footerContainer": {
-            backgroundColor: "primary.light",
-          },
         }}
         className={classes.table}
-        disableSelectionOnClick={true}
-        rows={historyLoading ? [] : filteredData}
-        rowHeight={65}
-        page={pageNumber}
+        rows={
+          isLoading
+            ? []
+            : filteredData.slice(
+                page * numRowsPerPage,
+                page * numRowsPerPage + numRowsPerPage
+              )
+        }
         columns={columns}
-        pageSize={histResultsPerPage}
+        pageSize={numRowsPerPage}
         rowsPerPageOptions={PAGINATION_SIZING_OPTIONS}
-        onPageSizeChange={(newPageSize) => {
-          onPageSizeChange(
-            newPageSize,
-            pageNumber,
-            filteredData.length,
-            onPageChange,
-            setHistResultsPerPage
-          );
-        }}
+        columnBuffer={0}
+        disableColumnSelector
+        disableDensitySelector
         checkboxSelection={false}
-        editMode="row"
-        sortingMode="server"
+        disableSelectionOnClick={true}
+        loading={isLoading}
         sortModel={sortModel}
-        onSortModelChange={async (model) => {
+        onSortModelChange={(model) => {
           setSortModel(model);
-          await fetchData(
-            getSortFromModel(model),
-            pageNumber,
-            orderNumber,
-            partNumber
-          );
         }}
-        loading={historyLoading}
         components={{
           LoadingOverlay: () => <PackShipProgress />,
+          Footer: () => generateTablePagination(),
         }}
         componentsProps={{
           row: {
@@ -159,4 +175,4 @@ const HistoryTable = ({
   );
 };
 
-export default withPendingTable(HistoryTable);
+export default withPendingTable(PendingTable);
