@@ -1,45 +1,45 @@
-import React from "react";
-import { Card, CardActionArea, CardMedia, IconButton } from "@mui/material";
-import ClearIcon from "@mui/icons-material/Clear";
-import { Box } from "@mui/system";
+import React, { useState } from "react";
+import "react-pdf/dist/esm/Page/AnnotationLayer.css";
+import PDFPreview from "./PDFPreview";
+import ImagePreview from "./ImagePreview";
+import UnknownFilePreview from "./UnknownFilePreview";
 
-const Preview = ({ height, url, onClearClick, onPreviewClick }) => {
-  return (
-    <Card elevation={0} sx={{ padding: "15px" }}>
-      <CardActionArea>
-        {/* <object
-          data={url}
-          //   type="application/pdf"
-          width="100%"
-          height="100%"
-        ></object> */}
-        {/* <Document file={url}>
-          <Page pageNumber={0} />
-        </Document> */}
-        <CardMedia
-          onClick={onPreviewClick}
-          component="img"
+const Preview = ({
+  name,
+  height,
+  url,
+  type,
+  onClearClick,
+  onPreviewClick,
+  onPDFLoadSuccess,
+}) => {
+  const getPreviewForType = (type) => {
+    if (type?.startsWith("image/")) {
+      return (
+        <ImagePreview
+          url={url}
+          onPreviewClick={onPreviewClick}
           height={height}
-          image={url}
-          alt="Preview Unavailable"
-          sx={{ borderRadius: 3 }}
+          onClearClick={onClearClick}
         />
-        {onClearClick && (
-          <Box
-            sx={{
-              position: "absolute",
-              top: "-5%",
-              right: "-5%",
-            }}
-          >
-            <IconButton sx={{ backgroundColor: "red" }} onClick={onClearClick}>
-              <ClearIcon />
-            </IconButton>
-          </Box>
-        )}
-      </CardActionArea>
-    </Card>
-  );
+      );
+    } else if (type === "application/pdf") {
+      return (
+        <PDFPreview
+          url={url}
+          pageNumber={1}
+          onPreviewClick={onPreviewClick}
+          height={height}
+          onClearClick={onClearClick}
+          onLoadSuccess={onPDFLoadSuccess}
+        />
+      );
+    } else {
+      return <UnknownFilePreview name={name} onClearClick={onClearClick} />;
+    }
+  };
+
+  return getPreviewForType(type);
 };
 
 export default Preview;
