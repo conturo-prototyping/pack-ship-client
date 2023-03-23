@@ -5,7 +5,6 @@ import { makeStyles } from "@mui/styles";
 import { hasValueError } from "../../utils/validators/number_validator";
 import DialogTable from "../../common/DialogTable";
 import UploadCell from "./UploadCell";
-import { Box } from "@mui/system";
 
 const useStyle = makeStyles((theme) => ({
   fulfilledQtyHeader: {

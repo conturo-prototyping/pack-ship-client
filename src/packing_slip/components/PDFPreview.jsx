@@ -1,7 +1,4 @@
-import React, { useState } from "react";
-import { Card, CardActionArea, CardMedia, IconButton } from "@mui/material";
-
-import { Box } from "@mui/system";
+import React from "react";
 import { Document, Page } from "react-pdf/dist/esm/entry.webpack5";
 import "react-pdf/dist/esm/Page/AnnotationLayer.css";
 import withStyledDismiss from "./DismissablePreview";
