@@ -3,6 +3,7 @@ import { hasValueError } from "../../utils/validators/number_validator";
 import { Typography } from "@mui/material";
 import PackShipEditableTable from "../../components/EdittableTable";
 import EditTableDropdown from "../../components/EditTableDropdown";
+import UploadCell from "../../packing_slip/components/UploadCell";
 
 const EditPackingSlipTable = ({
   rowData,
@@ -80,6 +81,24 @@ const EditPackingSlipTable = ({
         preProcessEditCellProps: (params) => {
           const hasError = !hasValueError(params.props.value);
           return { ...params.props, error: hasError };
+        },
+      },
+      {
+        field: "routerUploadReady",
+        renderHeader: (params) => {
+          return (
+            <Typography sx={{ fontWeight: 900 }}>Router Upload</Typography>
+          );
+        },
+        flex: 1,
+        renderCell: (params) => {
+          return (
+            <UploadCell
+              params={params}
+              onUploadClick={() => console.log("upload clicked")}
+              viewOnly={viewOnly}
+            />
+          );
         },
       },
     ],

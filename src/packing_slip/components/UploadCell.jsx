@@ -12,7 +12,7 @@ import KeyboardArrowLeftIcon from "@mui/icons-material/KeyboardArrowLeft";
 import { Box } from "@mui/system";
 import PDFPreview from "./PDFPreview";
 
-const UploadCell = ({ params, setFilledForm, filledForm }) => {
+const UploadCell = ({ params, onUploadClick, viewOnly = false }) => {
   const [showPreview, setShowPreview] = useState(false);
   const [selectedPreview, setSelectedPreview] = useState(null);
   const [previewType, setPreviewType] = useState(null);
@@ -27,7 +27,6 @@ const UploadCell = ({ params, setFilledForm, filledForm }) => {
 
   useEffect(() => {
     if (selectedPreview) {
-      console.log(selectedPreview);
       setUrl(URL.createObjectURL(selectedPreview));
       setPreviewType(selectedPreview.type);
     }
@@ -37,28 +36,11 @@ const UploadCell = ({ params, setFilledForm, filledForm }) => {
     setNumPages(numPages);
   }
 
-  const setRouterUploadReady = (isReady) => {
-    params.api.updateRows([{ id: params.id, routerUploadReady: isReady }]);
-
-    setFilledForm(
-      filledForm.map((e) => {
-        if (Object.keys(params).includes(e.id)) {
-          return {
-            ...e,
-            routerUploadReady: isReady,
-          };
-        }
-        return e;
-      })
-    );
-  };
-
-  const onUploadClick = (e) => {
+  const onUploadPress = (e) => {
     e.stopPropagation(); // don't select this row after clicking
 
-    setRouterUploadReady(true);
+    onUploadClick(params, true);
     setSelectedPreview(e.target.files[0]);
-    console.log("mock cell ready to upload file"); //TODO REMOVE
   };
 
   const getDialogContent = () => {
@@ -113,28 +95,34 @@ const UploadCell = ({ params, setFilledForm, filledForm }) => {
           height={200}
           url={url}
           type={previewType}
-          onClearClick={() => {
-            setRouterUploadReady(false);
-          }}
+          onClearClick={
+            !viewOnly
+              ? () => {
+                  onUploadClick(params, false);
+                }
+              : () => {}
+          }
           onPreviewClick={() => setShowPreview(true)}
           onPDFLoadSuccess={onPDFLoadSuccess}
           name={selectedPreview?.name}
         ></Preview>
       ) : (
-        <>
-          <input
-            accept="*"
-            type="file"
-            id="select-image"
-            style={{ display: "none" }}
-            onChange={onUploadClick}
-          />
-          <label htmlFor="select-image">
-            <IconButton component="span" color="primary">
-              <UploadFileIcon />
-            </IconButton>
-          </label>
-        </>
+        !viewOnly && (
+          <>
+            <input
+              accept="*"
+              type="file"
+              id="select-image"
+              style={{ display: "none" }}
+              onChange={onUploadPress}
+            />
+            <label htmlFor="select-image">
+              <IconButton component="span" color="primary">
+                <UploadFileIcon />
+              </IconButton>
+            </label>
+          </>
+        )
       )}
 
       <Dialog

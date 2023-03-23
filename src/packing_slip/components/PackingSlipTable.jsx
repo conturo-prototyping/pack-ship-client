@@ -19,6 +19,7 @@ const PackingSlipTable = ({
   rowData,
   filledForm,
   setFilledForm,
+  onUploadRouterClick,
   viewOnly = false,
 }) => {
   const classes = useStyle();
@@ -80,8 +81,7 @@ const PackingSlipTable = ({
         return (
           <UploadCell
             params={params}
-            setFilledForm={setFilledForm}
-            filledForm={filledForm}
+            onUploadClick={onUploadRouterClick}
           ></UploadCell>
         );
       },

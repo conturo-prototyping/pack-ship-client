@@ -38,6 +38,22 @@ const PackingSlipDialog = ({
     );
   }
 
+  const onUploadRouterClick = (params, isReady) => {
+    params.api.updateRows([{ id: params.id, routerUploadReady: isReady }]);
+
+    setFilledForm(
+      filledForm.map((e) => {
+        if (Object.keys(params).includes(e.id)) {
+          return {
+            ...e,
+            routerUploadReady: isReady,
+          };
+        }
+        return e;
+      })
+    );
+  };
+
   return (
     <PackingDialog
       open={open}
@@ -59,6 +75,7 @@ const PackingSlipDialog = ({
         rowData={parts}
         filledForm={filledForm}
         setFilledForm={setFilledForm}
+        onUploadRouterClick={onUploadRouterClick}
         viewOnly={viewOnly}
       />
     </PackingDialog>
