@@ -258,7 +258,7 @@ const PackingQueueTable = ({
                 partDescription: e.partDescription,
                 destination: e.destination,
                 destinationCode: e.destinationCode,
-                routerUploadReady: false,
+                url: false,
               });
             });
 

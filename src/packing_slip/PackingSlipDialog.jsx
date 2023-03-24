@@ -30,7 +30,7 @@ const PackingSlipDialog = ({
       allHaveRouterUpload = apiRef.current
         .getAllRowIds()
         .map((id) => apiRef.current.getRow(id))
-        .every((e) => e.routerUploadReady);
+        .every((e) => e.url);
     }
     return (
       filledForm.every((e) => e.packQty && e.packQty >= 0) &&
@@ -38,15 +38,15 @@ const PackingSlipDialog = ({
     );
   }
 
-  const onUploadRouterClick = (params, isReady) => {
-    params.api.updateRows([{ id: params.id, routerUploadReady: isReady }]);
+  const onUploadRouterClick = (params, url) => {
+    // params.api.updateRows([{ id: params.id, url: isReady }]);
 
     setFilledForm(
       filledForm.map((e) => {
         if (Object.keys(params).includes(e.id)) {
           return {
             ...e,
-            routerUploadReady: isReady,
+            url: url,
           };
         }
         return e;

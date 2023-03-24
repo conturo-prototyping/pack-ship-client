@@ -4,6 +4,7 @@ import { Typography } from "@mui/material";
 import PackShipEditableTable from "../../components/EdittableTable";
 import EditTableDropdown from "../../components/EditTableDropdown";
 import UploadCell from "../../packing_slip/components/UploadCell";
+import { ADD_ROW_ID } from "../../utils/Constants";
 
 const EditPackingSlipTable = ({
   rowData,
@@ -11,6 +12,7 @@ const EditPackingSlipTable = ({
   onAdd,
   onNewPartRowChange,
   onPackQtyChange,
+  onUploadClick,
   viewOnly,
 }) => {
   const renderPart = useCallback(
@@ -84,7 +86,7 @@ const EditPackingSlipTable = ({
         },
       },
       {
-        field: "routerUploadReady",
+        field: "url",
         renderHeader: (params) => {
           return (
             <Typography sx={{ fontWeight: 900 }}>Router Upload</Typography>
@@ -93,11 +95,13 @@ const EditPackingSlipTable = ({
         flex: 1,
         renderCell: (params) => {
           return (
-            <UploadCell
-              params={params}
-              onUploadClick={() => console.log("upload clicked")}
-              viewOnly={viewOnly}
-            />
+            params.row.id !== ADD_ROW_ID && (
+              <UploadCell
+                params={params}
+                onUploadClick={onUploadClick}
+                viewOnly={viewOnly}
+              />
+            )
           );
         },
       },

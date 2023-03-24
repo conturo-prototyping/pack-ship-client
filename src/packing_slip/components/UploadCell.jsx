@@ -15,7 +15,6 @@ import PDFPreview from "./PDFPreview";
 const UploadCell = ({ params, onUploadClick, viewOnly = false }) => {
   const [showPreview, setShowPreview] = useState(false);
   const [selectedPreview, setSelectedPreview] = useState(null);
-  const [previewType, setPreviewType] = useState(null);
   const [url, setUrl] = useState(null);
 
   const [pdfPageNumber, setPDFPageNumber] = useState(1);
@@ -25,13 +24,6 @@ const UploadCell = ({ params, onUploadClick, viewOnly = false }) => {
     setShowPreview(false);
   }, []);
 
-  useEffect(() => {
-    if (selectedPreview) {
-      setUrl(URL.createObjectURL(selectedPreview));
-      setPreviewType(selectedPreview.type);
-    }
-  }, [selectedPreview]);
-
   function onPDFLoadSuccess({ numPages }) {
     setNumPages(numPages);
   }
@@ -39,25 +31,27 @@ const UploadCell = ({ params, onUploadClick, viewOnly = false }) => {
   const onUploadPress = (e) => {
     e.stopPropagation(); // don't select this row after clicking
 
-    onUploadClick(params, true);
+    const url = URL.createObjectURL(e.target.files[0]);
+    setUrl(url);
+    onUploadClick(params, url);
     setSelectedPreview(e.target.files[0]);
   };
 
   const getDialogContent = () => {
-    if (previewType?.startsWith("image/")) {
+    if (selectedPreview?.type?.startsWith("image/")) {
       return (
         <DialogContent>
-          <Preview height={800} url={url} type={previewType} />
+          <Preview height={800} url={url} type={selectedPreview?.type} />
         </DialogContent>
       );
-    } else if (previewType === "application/pdf") {
+    } else if (selectedPreview?.type === "application/pdf") {
       return (
         <>
           <DialogContent>
             <PDFPreview
               height={800}
               url={url}
-              type={previewType}
+              type={selectedPreview?.type}
               pageNumber={pdfPageNumber}
             />
           </DialogContent>
@@ -90,15 +84,16 @@ const UploadCell = ({ params, onUploadClick, viewOnly = false }) => {
 
   return (
     <>
-      {params.row.routerUploadReady ? (
+      {url ? (
         <Preview
           height={200}
           url={url}
-          type={previewType}
+          type={selectedPreview?.type}
           onClearClick={
             !viewOnly
               ? () => {
                   onUploadClick(params, false);
+                  setUrl(null);
                 }
               : () => {}
           }
