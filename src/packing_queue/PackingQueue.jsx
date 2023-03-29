@@ -125,7 +125,7 @@ const PackingQueue = () => {
   }
 
   const onPackingSlipSubmit = useCallback(
-    (filledForm, orderNum, destination) => {
+    async (filledForm, orderNum, destination) => {
       const items = filledForm.map((e) => {
         return {
           item: e._id,
@@ -133,6 +133,41 @@ const PackingQueue = () => {
           destinationCode: e.destinationCode,
         };
       });
+
+      console.log("OK", filledForm);
+
+      await Promise.all(
+        filledForm.map(async (e) => {
+          const data = await API.getSignedUploadUrl(
+            `${e.customer}/${e.orderNumber}/${e._id}`
+          );
+
+          // let reader = new FileReader();
+          // reader.readAsArrayBuffer(e.uploadFile);
+
+          // let fileByteArray = [];
+
+          // reader.onloadend = (evt) => {
+          //   if (evt.target.readyState == FileReader.DONE) {
+          //     let arrayBuffer = evt.target.result;
+          //     let array = new Uint8Array(arrayBuffer);
+          //     array.forEach((byte) => {
+          //       fileByteArray.push(byte);
+          //     });
+          //   }
+
+          //   console.log(fileByteArray);
+
+          //   // await API.uploadBySignedUrl(data.url, byteArray);
+          // };
+
+          const buffer = await e.uploadFile.arrayBuffer();
+          let byteArray = new Int8Array(buffer);
+
+          console.log(data.url, byteArray);
+          await API.uploadBySignedUrl(data.url, byteArray);
+        })
+      );
 
       API.createPackingSlip(
         items,
@@ -247,8 +282,7 @@ const PackingQueue = () => {
         className={classes.topBarGrid}
         container
         justifyContent="start"
-        spacing={2}
-      >
+        spacing={2}>
         <Grid container item xs={12} spacing={2}>
           {tabValue === 1 && (
             <OrderPartNumberSearch
@@ -267,8 +301,7 @@ const PackingQueue = () => {
               item
               xs={12}
               spacing={2}
-              sx={{ marginBottom: "1rem!important" }}
-            >
+              sx={{ marginBottom: "1rem!important" }}>
               <Grid container item xs={"auto"}>
                 <CommonButton
                   label="Make Packing Slip"

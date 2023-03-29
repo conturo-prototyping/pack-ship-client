@@ -429,4 +429,40 @@ export const API = {
       );
     }
   },
+
+  async getSignedUploadUrl(location) {
+    try {
+      const response = await instance.post(`/storage/upload`, {
+        location,
+      });
+
+      return response.data;
+    } catch (error) {
+      console.error("getSignedUploadUrl", error);
+      throw new Error(
+        error?.response?.data ?? "An error occurred signed upload URL"
+      );
+    }
+  },
+
+  async uploadBySignedUrl(url, file) {
+    try {
+      const response = await axios.put(
+        url,
+        { data: file },
+        {
+          headers: {
+            "content-type": "text/plain",
+          },
+        }
+      );
+
+      return response.data;
+    } catch (error) {
+      console.error("getSignedUploadUrl", error);
+      throw new Error(
+        error?.response?.data ?? "An error occurred signed upload URL"
+      );
+    }
+  },
 };
