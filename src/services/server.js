@@ -182,9 +182,9 @@ export const API = {
     }
   },
 
-  async patchShipment(id, updatedShipment) {
+  async patchShipment(id, updatedShipment, isPending) {
     try {
-      const response = await instance.patch(`/shipments/${id}`, {
+      const response = await instance.patch(`/shipments/${id}${ isPending ? '/pending' : '' }`, {
         ...updatedShipment,
         shippingAddress: updatedShipment.specialShippingAddress,
       });

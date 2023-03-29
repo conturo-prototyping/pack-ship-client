@@ -357,7 +357,7 @@ const ShippingPendingTable = ({
                             customerHandoffName: handoffName,
                           }
                         : selectedShippingInfo;
-                    API.patchShipment(selectedPendingOrder, updatedData)
+                    API.patchShipment(selectedPendingOrder, updatedData, true)
                       .then(async () => {
                         await reloadData();
 
