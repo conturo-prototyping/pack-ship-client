@@ -8,7 +8,7 @@ const ImagePreview = ({ url, height, onPreviewClick }) => {
       onClick={onPreviewClick}
       component="img"
       height={height}
-      image={url}
+      src={url}
       alt="Preview Unavailable"
       sx={{ borderRadius: 3 }}
     />

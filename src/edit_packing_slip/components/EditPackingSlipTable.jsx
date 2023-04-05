@@ -4,6 +4,7 @@ import { Typography } from "@mui/material";
 import PackShipEditableTable from "../../components/EdittableTable";
 import EditTableDropdown from "../../components/EditTableDropdown";
 import UploadCell from "../../packing_slip/components/UploadCell";
+import { API } from "../../services/server";
 
 const EditPackingSlipTable = ({
   rowData,
@@ -97,12 +98,15 @@ const EditPackingSlipTable = ({
               params={params}
               onUploadClick={() => console.log("upload clicked")}
               viewOnly={viewOnly}
+              onCloseClick={async () => {
+                await API.deleteRouterURL(rowData._id, params.id);
+              }}
             />
           );
         },
       },
     ],
-    [viewOnly, renderPart]
+    [viewOnly, renderPart, rowData._id]
   );
 
   const tableData = useMemo(

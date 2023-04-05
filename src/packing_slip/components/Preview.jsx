@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React from "react";
 import "react-pdf/dist/esm/Page/AnnotationLayer.css";
 import PDFPreview from "./PDFPreview";
 import ImagePreview from "./ImagePreview";

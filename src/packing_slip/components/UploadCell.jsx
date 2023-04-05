@@ -12,7 +12,12 @@ import KeyboardArrowLeftIcon from "@mui/icons-material/KeyboardArrowLeft";
 import { Box } from "@mui/system";
 import PDFPreview from "./PDFPreview";
 
-const UploadCell = ({ params, onUploadClick, viewOnly = false }) => {
+const UploadCell = ({
+  params,
+  onUploadClick,
+  viewOnly = false,
+  onCloseClick = undefined,
+}) => {
   const [showPreview, setShowPreview] = useState(false);
   const [selectedPreview, setSelectedPreview] = useState(null);
   const [previewType, setPreviewType] = useState(null);
@@ -23,7 +28,11 @@ const UploadCell = ({ params, onUploadClick, viewOnly = false }) => {
 
   useEffect(() => {
     setShowPreview(false);
-  }, []);
+    if (params.row.downloadUrl) {
+      setPreviewType(params.row.contentType);
+      setUrl(params.row.downloadUrl);
+    }
+  }, [params.row.contentType, params.row.downloadUrl]);
 
   useEffect(() => {
     if (selectedPreview) {
@@ -96,7 +105,9 @@ const UploadCell = ({ params, onUploadClick, viewOnly = false }) => {
           onClearClick={
             !viewOnly
               ? () => {
-                  onUploadClick(params, false);
+                  if (onCloseClick) {
+                    onCloseClick();
+                  } else onUploadClick(params, false);
                 }
               : () => {}
           }
