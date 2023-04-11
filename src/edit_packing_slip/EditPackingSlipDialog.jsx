@@ -13,6 +13,7 @@ const EditPackingSlipDialog = ({
   onDelete,
   onNewPartRowChange,
   onPackQtyChange,
+  onUploadClick,
   cellEditing = false,
   viewOnly = true,
 }) => {
@@ -38,6 +39,7 @@ const EditPackingSlipDialog = ({
         onDelete={onDelete}
         onNewPartRowChange={onNewPartRowChange}
         onPackQtyChange={onPackQtyChange}
+        onUploadClick={onUploadClick}
         viewOnly={viewOnly}
       />
       <Grid container justifyContent="end">

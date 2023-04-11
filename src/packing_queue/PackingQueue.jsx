@@ -333,7 +333,7 @@ const PackingQueue = () => {
                             partDescription: e.partDescription,
                             destination: e.destination,
                             destinationCode: e.destinationCode,
-                            routerUploadReady: false,
+                            url: null, //TODO
                           });
                         });
                         setFilteredPackingQueue(finalData);

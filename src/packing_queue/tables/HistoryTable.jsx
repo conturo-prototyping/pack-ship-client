@@ -253,6 +253,13 @@ const HistoryTable = ({
     [selectedRow]
   );
 
+  const onUploadClick = useCallback(() => {
+    setSelectedRow({
+      ...selectedRow,
+      url: true,
+    });
+  }, [selectedRow]);
+
   function onItemDelete() {
     if (itemToDelete) {
       const itemsWithoutItem = selectedRow.items
@@ -444,6 +451,7 @@ const HistoryTable = ({
         onAdd={onHistoryPackingSlipAdd}
         onNewPartRowChange={onNewPartRowChange}
         onPackQtyChange={onPackQtyChange}
+        onUploadClick={onUploadClick}
         onDelete={(params) => {
           setConfirmDeleteDialogOpen(true);
           setItemToDelete(params.row);

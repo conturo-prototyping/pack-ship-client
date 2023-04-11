@@ -72,7 +72,7 @@ const PackingSlipTable = ({
       },
     },
     {
-      field: "routerUploadReady",
+      field: "url",
       renderHeader: (params) => {
         return <Typography sx={{ fontWeight: 900 }}>Router Upload</Typography>;
       },
