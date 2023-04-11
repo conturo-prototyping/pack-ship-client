@@ -28,7 +28,6 @@ const UploadCell = ({
   useEffect(() => {
     setShowPreview(false);
     if (params.row.downloadUrl) {
-      setPreviewType(params.row.contentType);
       setUrl(params.row.downloadUrl);
     }
   }, [params.row.contentType, params.row.downloadUrl]);
@@ -95,7 +94,7 @@ const UploadCell = ({
         <Preview
           height={200}
           url={url}
-          type={selectedPreview?.type}
+          type={selectedPreview?.type ?? params.row.contentType}
           onClearClick={
             !viewOnly
               ? () => {

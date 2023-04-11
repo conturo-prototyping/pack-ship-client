@@ -46,7 +46,6 @@ const PackingSlipDialog = ({
             ...e,
             routerUploadReady: isReady,
             uploadFile: file,
-            url: url,
           };
         }
         return e;
