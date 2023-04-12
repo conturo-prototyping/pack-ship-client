@@ -21,6 +21,7 @@ const UploadCell = ({
   const [showPreview, setShowPreview] = useState(false);
   const [selectedPreview, setSelectedPreview] = useState(null);
   const [url, setUrl] = useState(null);
+  const [previewType, setPreviewType] = useState();
 
   const [pdfPageNumber, setPDFPageNumber] = useState(1);
   const [numPages, setNumPages] = useState(null);
@@ -31,6 +32,10 @@ const UploadCell = ({
       setUrl(params.row.downloadUrl);
     }
   }, [params.row.contentType, params.row.downloadUrl]);
+
+  useEffect(() => {
+    setPreviewType(selectedPreview?.type ?? params.row.contentType);
+  }, [selectedPreview?.type, params.row.contentType]);
 
   function onPDFLoadSuccess({ numPages }) {
     setNumPages(numPages);
@@ -46,24 +51,20 @@ const UploadCell = ({
   };
 
   const getDialogContent = () => {
-    if (selectedPreview?.type?.startsWith("image/")) {
+    if (previewType?.startsWith("image/")) {
       return (
         <DialogContent>
-          <Preview
-            height={800}
-            url={url}
-            type={selectedPreview?.type ?? params.row.contentType}
-          />
+          <Preview height={800} url={url} type={previewType} />
         </DialogContent>
       );
-    } else if (selectedPreview?.type === "application/pdf") {
+    } else if (previewType === "application/pdf") {
       return (
         <>
           <DialogContent>
             <PDFPreview
               height={800}
               url={url}
-              type={selectedPreview?.type ?? params.row.contentType}
+              type={previewType}
               pageNumber={pdfPageNumber}
             />
           </DialogContent>
@@ -98,7 +99,7 @@ const UploadCell = ({
         <Preview
           height={200}
           url={url}
-          type={selectedPreview?.type ?? params.row.contentType}
+          type={previewType}
           onClearClick={
             !viewOnly
               ? () => {
