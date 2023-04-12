@@ -63,7 +63,7 @@ const UploadCell = ({
             <PDFPreview
               height={800}
               url={url}
-              type={selectedPreview?.type}
+              type={selectedPreview?.type ?? params.row.contentType}
               pageNumber={pdfPageNumber}
             />
           </DialogContent>
