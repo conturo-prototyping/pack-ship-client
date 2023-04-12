@@ -49,7 +49,11 @@ const UploadCell = ({
     if (selectedPreview?.type?.startsWith("image/")) {
       return (
         <DialogContent>
-          <Preview height={800} url={url} type={selectedPreview?.type} />
+          <Preview
+            height={800}
+            url={url}
+            type={selectedPreview?.type ?? params.row.contentType}
+          />
         </DialogContent>
       );
     } else if (selectedPreview?.type === "application/pdf") {
@@ -66,16 +70,14 @@ const UploadCell = ({
 
           <DialogActions>
             <IconButton
-              onClick={() => setPDFPageNumber(Math.max(1, pdfPageNumber - 1))}
-            >
+              onClick={() => setPDFPageNumber(Math.max(1, pdfPageNumber - 1))}>
               <KeyboardArrowLeftIcon />
             </IconButton>
             Page {pdfPageNumber} of {numPages}
             <IconButton
               onClick={() =>
                 setPDFPageNumber(Math.min(numPages, pdfPageNumber + 1))
-              }
-            >
+              }>
               <KeyboardArrowRightIcon />
             </IconButton>
           </DialogActions>
@@ -109,8 +111,7 @@ const UploadCell = ({
           }
           onPreviewClick={() => setShowPreview(true)}
           onPDFLoadSuccess={onPDFLoadSuccess}
-          name={selectedPreview?.name}
-        ></Preview>
+          name={selectedPreview?.name}></Preview>
       ) : (
         !viewOnly && (
           <>
@@ -133,8 +134,7 @@ const UploadCell = ({
       <Dialog
         maxWidth={"lg"}
         open={showPreview}
-        onClose={() => setShowPreview(false)}
-      >
+        onClose={() => setShowPreview(false)}>
         {getDialogContent()}
       </Dialog>
     </>
