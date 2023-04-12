@@ -552,8 +552,7 @@ const PackingQueueTable = ({
                 sx={{
                   backgroundColor: "primary.light",
                   borderTop: "1px solid rgba(224, 224, 224, 1)",
-                }}
-              >
+                }}>
                 <Grid container item xs={6} justifyContent="flex-start">
                   <Typography sx={{ padding: "8px" }}>
                     {selectionOrderIds.length} rows selected
@@ -564,8 +563,7 @@ const PackingQueueTable = ({
                   item
                   xs={6}
                   justifyContent="flex-end"
-                  sx={{ borderTop: "1px solid rgba(224, 224, 224, 1)" }}
-                >
+                  sx={{ borderTop: "1px solid rgba(224, 224, 224, 1)" }}>
                   {generateTablePagination()}
                 </Grid>
               </Grid>
@@ -578,8 +576,7 @@ const PackingQueueTable = ({
                 sx={{
                   backgroundColor: "primary.light",
                   borderTop: "1px solid rgba(224, 224, 224, 1)",
-                }}
-              >
+                }}>
                 {generateTablePagination()}
               </Grid>
             ),

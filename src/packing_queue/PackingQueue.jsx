@@ -22,6 +22,7 @@ import {
   TOP_LEFT_ACTION_BUTTON_HEIGHT,
 } from "../utils/Constants";
 import { DestinationTypes } from "../utils/Constants";
+import { v4 as uuidv4 } from "uuid";
 
 const useStyle = makeStyles((theme) => ({
   box: {
@@ -127,7 +128,10 @@ const PackingQueue = () => {
   const onPackingSlipSubmit = useCallback(
     async (filledForm, orderNum, destination) => {
       const items = filledForm.map((e) => {
-        e.routerUploadFilePath = `${e.customer}/${e.orderNumber}/${e._id}`;
+        e.routerUploadFilePath = `${e.customer}/${e.orderNumber}/${
+          e._id
+        }-${uuidv4()}`;
+
         return {
           item: e._id,
           qty: e.packQty,
