@@ -14,6 +14,8 @@ const EditPackingSlipTable = ({
   onNewPartRowChange,
   onPackQtyChange,
   onUploadClick,
+  onUploadCancelClick,
+  onUploadRouterClick,
   viewOnly,
 }) => {
   const renderPart = useCallback(
@@ -99,10 +101,10 @@ const EditPackingSlipTable = ({
             params.row.id !== ADD_ROW_ID && (
               <UploadCell
                 params={params}
-                onUploadClick={() => console.log("upload clicked")}
+                onUploadClick={onUploadRouterClick}
                 viewOnly={viewOnly}
                 onCloseClick={async () => {
-                  await API.deleteRouterURL(rowData._id, params.id);
+                  await onUploadCancelClick(params.id);
                 }}
               />
             )
