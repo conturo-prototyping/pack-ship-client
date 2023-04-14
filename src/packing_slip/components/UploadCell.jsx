@@ -71,6 +71,7 @@ const UploadCell = ({
 
           <DialogActions>
             <IconButton
+              key={params.id}
               onClick={() => setPDFPageNumber(Math.max(1, pdfPageNumber - 1))}>
               <KeyboardArrowLeftIcon />
             </IconButton>
@@ -97,6 +98,7 @@ const UploadCell = ({
     <>
       {url ? (
         <Preview
+          key={url}
           height={200}
           url={url}
           type={previewType}
@@ -119,11 +121,11 @@ const UploadCell = ({
             <input
               accept="*"
               type="file"
-              id="select-image"
+              id={params.id}
               style={{ display: "none" }}
               onChange={onUploadPress}
             />
-            <label htmlFor="select-image">
+            <label htmlFor={params.id}>
               <IconButton component="span" color="primary">
                 <UploadFileIcon />
               </IconButton>

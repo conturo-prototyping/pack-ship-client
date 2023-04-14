@@ -4,7 +4,6 @@ import { Typography } from "@mui/material";
 import PackShipEditableTable from "../../components/EdittableTable";
 import EditTableDropdown from "../../components/EditTableDropdown";
 import UploadCell from "../../packing_slip/components/UploadCell";
-import { API } from "../../services/server";
 import { ADD_ROW_ID } from "../../utils/Constants";
 
 const EditPackingSlipTable = ({
@@ -112,21 +111,19 @@ const EditPackingSlipTable = ({
         },
       },
     ],
-    [viewOnly, renderPart, rowData._id]
+    [viewOnly, renderPart, onUploadRouterClick, onUploadCancelClick]
   );
 
-  const tableData = useMemo(
-    () =>
-      rowData.items.map((e) => {
-        return {
-          ...e.item,
-          id: e._id || e.item._id,
-          packQty: e.qty,
-          quantity: e.item.batchQty || e.item.quantity,
-        };
-      }),
-    [rowData]
-  );
+  const tableData = useMemo(() => {
+    return rowData.items.map((e) => {
+      return {
+        ...e.item,
+        id: e._id || e.item._id,
+        packQty: e.qty,
+        quantity: e.item.batchQty || e.item.quantity,
+      };
+    });
+  }, [rowData]);
 
   return (
     <PackShipEditableTable

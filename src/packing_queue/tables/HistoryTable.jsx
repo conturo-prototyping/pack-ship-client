@@ -150,10 +150,16 @@ const HistoryTable = ({
             }
             return e;
           });
+
           newSelectedRow.items.push({
-            _id: "",
+            _id: possibleChoices[0]._id,
+            id: possibleChoices[0]._id,
+            rowId: possibleChoices[0]._id,
             pageNum: pageNum,
             item: {
+              _id: possibleChoices[0]._id,
+              id: possibleChoices[0]._id,
+              rowId: possibleChoices[0]._id,
               isNew: true,
               possibleItems: possibleChoices,
               ...possibleChoices[0],
@@ -363,7 +369,10 @@ const HistoryTable = ({
       );
 
       const items = selectedRow.items.map((e) => {
-        if (!e.routerUploadFilePath || (e.routerUploadReady && e.uploadFile)) {
+        if (
+          (!e.routerUploadFilePath || e.item.routerUploadReady) &&
+          e.uploadFile
+        ) {
           e.routerUploadFilePath = `${selectedRow.customer._id}/${
             selectedRow.orderNumber
           }/${e._id}-${uuidv4()}`;
