@@ -13,6 +13,8 @@ const EditPackingSlipTable = ({
   onNewPartRowChange,
   onPackQtyChange,
   onUploadClick,
+  onUploadCancelClick,
+  onUploadRouterClick,
   viewOnly,
 }) => {
   const renderPart = useCallback(
@@ -98,29 +100,30 @@ const EditPackingSlipTable = ({
             params.row.id !== ADD_ROW_ID && (
               <UploadCell
                 params={params}
-                onUploadClick={onUploadClick}
+                onUploadClick={onUploadRouterClick}
                 viewOnly={viewOnly}
+                onCloseClick={async () => {
+                  await onUploadCancelClick(params.id);
+                }}
               />
             )
           );
         },
       },
     ],
-    [viewOnly, renderPart]
+    [viewOnly, renderPart, onUploadRouterClick, onUploadCancelClick]
   );
 
-  const tableData = useMemo(
-    () =>
-      rowData.items.map((e) => {
-        return {
-          ...e.item,
-          id: e._id || e.item._id,
-          packQty: e.qty,
-          quantity: e.item.batchQty || e.item.quantity,
-        };
-      }),
-    [rowData]
-  );
+  const tableData = useMemo(() => {
+    return rowData.items.map((e) => {
+      return {
+        ...e.item,
+        id: e._id || e.item._id,
+        packQty: e.qty,
+        quantity: e.item.batchQty || e.item.quantity,
+      };
+    });
+  }, [rowData]);
 
   return (
     <PackShipEditableTable

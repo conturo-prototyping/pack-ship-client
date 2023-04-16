@@ -8,6 +8,15 @@ export const extractHistoryDetails = (history) => {
       orderId: e.orderNumber,
       dateCreated: dc.toLocaleString(),
       dateCreatedValue: dc.getTime(),
+      items: e.items.map((item) => {
+        return {
+          ...item,
+          item: {
+            ...item.item,
+            routerUploadReady: item.item.downloadUrl !== undefined,
+          },
+        };
+      }),
     };
   });
 };

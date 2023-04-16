@@ -80,9 +80,10 @@ const PackingSlipTable = ({
       renderCell: (params) => {
         return (
           <UploadCell
+            key={params.id}
             params={params}
             onUploadClick={onUploadRouterClick}
-          ></UploadCell>
+          />
         );
       },
     },

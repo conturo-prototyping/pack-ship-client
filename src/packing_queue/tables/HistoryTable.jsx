@@ -19,6 +19,7 @@ import {
   PAGINATION_SIZING_OPTIONS,
 } from "../../utils/Constants";
 import { onPageSizeChange } from "../../utils/TablePageSizeHandler";
+import { v4 as uuidv4 } from "uuid";
 
 pdfMake.vfs = pdfFonts.pdfMake.vfs;
 
@@ -149,10 +150,16 @@ const HistoryTable = ({
             }
             return e;
           });
+
           newSelectedRow.items.push({
-            _id: "",
+            _id: possibleChoices[0]._id,
+            id: possibleChoices[0]._id,
+            rowId: possibleChoices[0]._id,
             pageNum: pageNum,
             item: {
+              _id: possibleChoices[0]._id,
+              id: possibleChoices[0]._id,
+              rowId: possibleChoices[0]._id,
               isNew: true,
               possibleItems: possibleChoices,
               ...possibleChoices[0],
@@ -243,6 +250,48 @@ const HistoryTable = ({
     [selectedRow]
   );
 
+  const onUploadCancelClick = useCallback(
+    (itemId) => {
+      setTimeout(() => {
+        const itemIndex = selectedRow?.items?.findIndex(
+          (e) => e._id === itemId || e.item._id === itemId
+        );
+        let updatedPackingSlip = {
+          ...selectedRow,
+        };
+
+        if (itemIndex !== undefined) {
+          updatedPackingSlip.items[itemIndex] = {
+            ...updatedPackingSlip.items[itemIndex],
+            removeUpload: true,
+          };
+
+          setSelectedRow(updatedPackingSlip);
+        }
+      }, 0);
+    },
+    [selectedRow]
+  );
+
+  const onUploadRouterClick = (params, isReady, file) => {
+    params.api.updateRows([{ id: params.id, routerUploadReady: isReady }]);
+
+    setSelectedRow({
+      ...selectedRow,
+      items: selectedRow.items.map((e) => {
+        if (params.id === e._id) {
+          return {
+            ...e,
+            routerUploadReady: isReady,
+            uploadFile: file,
+            removeUpload: false,
+          };
+        }
+        return e;
+      }),
+    });
+  };
+
   const onDestinationChange = useCallback(
     (newDest) => {
       setSelectedRow({
@@ -307,15 +356,57 @@ const HistoryTable = ({
     setIsEditPackingSlipOpen({ open: false, viewOnly: false });
   };
 
-  const onPackingSlipSubmit = () => {
+  const onPackingSlipSubmit = async () => {
     if (isEditPackingSlipOpen.viewOnly) {
       setIsEditPackingSlipOpen({ open: false, viewOnly: false });
     } else {
-      API.patchPackingSlip(selectedRow.id, {
-        items: selectedRow.items.map((e) => {
+      await Promise.all(
+        selectedRow.items.map(async (e) => {
+          if (e.removeUpload && e.routerUploadFilePath) {
+            return await API.deleteRouterURL(selectedRow._id, e._id);
+          }
+        })
+      );
+
+      const items = selectedRow.items.map((e) => {
+        if (
+          (!e.routerUploadFilePath || e.item.routerUploadReady) &&
+          e.uploadFile
+        ) {
+          e.routerUploadFilePath = `${selectedRow.customer._id}/${
+            selectedRow.orderNumber
+          }/${e._id}-${uuidv4()}`;
+
           return {
-            item: { ...e.item },
+            ...e,
+            routerUploadFilePath: e.routerUploadFilePath,
+            newUpload: true,
+          };
+        }
+        return e;
+      });
+
+      await Promise.all(
+        items.map(async (e) => {
+          if (e.newUpload) {
+            const data = await API.getSignedUploadUrl(e.routerUploadFilePath);
+
+            const buffer = await e.uploadFile.arrayBuffer();
+            let byteArray = new Int8Array(buffer);
+
+            await API.uploadBySignedUrl(data.url, byteArray, e.uploadFile.type);
+          }
+        })
+      );
+
+      API.patchPackingSlip(selectedRow.id, {
+        items: items.map((e) => {
+          return {
+            ...e,
             qty: e.qty || e.item.packQty,
+            routerUploadFilePath: e.removeUpload
+              ? undefined
+              : e.routerUploadFilePath,
           };
         }),
         destination: selectedRow?.destination,
@@ -452,6 +543,8 @@ const HistoryTable = ({
         onNewPartRowChange={onNewPartRowChange}
         onPackQtyChange={onPackQtyChange}
         onUploadClick={onUploadClick}
+        onUploadCancelClick={onUploadCancelClick}
+        onUploadRouterClick={onUploadRouterClick}
         onDelete={(params) => {
           setConfirmDeleteDialogOpen(true);
           setItemToDelete(params.row);

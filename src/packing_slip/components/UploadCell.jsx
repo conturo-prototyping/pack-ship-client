@@ -12,17 +12,30 @@ import KeyboardArrowLeftIcon from "@mui/icons-material/KeyboardArrowLeft";
 import { Box } from "@mui/system";
 import PDFPreview from "./PDFPreview";
 
-const UploadCell = ({ params, onUploadClick, viewOnly = false }) => {
+const UploadCell = ({
+  params,
+  onUploadClick,
+  viewOnly = false,
+  onCloseClick = undefined,
+}) => {
   const [showPreview, setShowPreview] = useState(false);
   const [selectedPreview, setSelectedPreview] = useState(null);
   const [url, setUrl] = useState(null);
+  const [previewType, setPreviewType] = useState();
 
   const [pdfPageNumber, setPDFPageNumber] = useState(1);
   const [numPages, setNumPages] = useState(null);
 
   useEffect(() => {
     setShowPreview(false);
-  }, []);
+    if (params.row.downloadUrl) {
+      setUrl(params.row.downloadUrl);
+    }
+  }, [params.row.contentType, params.row.downloadUrl]);
+
+  useEffect(() => {
+    setPreviewType(selectedPreview?.type ?? params.row.contentType);
+  }, [selectedPreview?.type, params.row.contentType]);
 
   function onPDFLoadSuccess({ numPages }) {
     setNumPages(numPages);
@@ -33,41 +46,40 @@ const UploadCell = ({ params, onUploadClick, viewOnly = false }) => {
 
     const url = URL.createObjectURL(e.target.files[0]);
     setUrl(url);
-    onUploadClick(params, url);
+    onUploadClick(params, true, e.target.files[0]);
     setSelectedPreview(e.target.files[0]);
   };
 
   const getDialogContent = () => {
-    if (selectedPreview?.type?.startsWith("image/")) {
+    if (previewType?.startsWith("image/")) {
       return (
         <DialogContent>
-          <Preview height={800} url={url} type={selectedPreview?.type} />
+          <Preview height={800} url={url} type={previewType} />
         </DialogContent>
       );
-    } else if (selectedPreview?.type === "application/pdf") {
+    } else if (previewType === "application/pdf") {
       return (
         <>
           <DialogContent>
             <PDFPreview
               height={800}
               url={url}
-              type={selectedPreview?.type}
+              type={previewType}
               pageNumber={pdfPageNumber}
             />
           </DialogContent>
 
           <DialogActions>
             <IconButton
-              onClick={() => setPDFPageNumber(Math.max(1, pdfPageNumber - 1))}
-            >
+              key={params.id}
+              onClick={() => setPDFPageNumber(Math.max(1, pdfPageNumber - 1))}>
               <KeyboardArrowLeftIcon />
             </IconButton>
             Page {pdfPageNumber} of {numPages}
             <IconButton
               onClick={() =>
                 setPDFPageNumber(Math.min(numPages, pdfPageNumber + 1))
-              }
-            >
+              }>
               <KeyboardArrowRightIcon />
             </IconButton>
           </DialogActions>
@@ -86,32 +98,34 @@ const UploadCell = ({ params, onUploadClick, viewOnly = false }) => {
     <>
       {url ? (
         <Preview
+          key={url}
           height={200}
           url={url}
-          type={selectedPreview?.type}
+          type={previewType}
           onClearClick={
             !viewOnly
               ? () => {
-                  onUploadClick(params, false);
+                  if (onCloseClick) {
+                    onCloseClick();
+                  } else onUploadClick(params, false);
                   setUrl(null);
                 }
-              : () => {}
+              : undefined
           }
           onPreviewClick={() => setShowPreview(true)}
           onPDFLoadSuccess={onPDFLoadSuccess}
-          name={selectedPreview?.name}
-        ></Preview>
+          name={selectedPreview?.name}></Preview>
       ) : (
         !viewOnly && (
           <>
             <input
               accept="*"
               type="file"
-              id="select-image"
+              id={params.id}
               style={{ display: "none" }}
               onChange={onUploadPress}
             />
-            <label htmlFor="select-image">
+            <label htmlFor={params.id}>
               <IconButton component="span" color="primary">
                 <UploadFileIcon />
               </IconButton>
@@ -123,8 +137,7 @@ const UploadCell = ({ params, onUploadClick, viewOnly = false }) => {
       <Dialog
         maxWidth={"lg"}
         open={showPreview}
-        onClose={() => setShowPreview(false)}
-      >
+        onClose={() => setShowPreview(false)}>
         {getDialogContent()}
       </Dialog>
     </>
