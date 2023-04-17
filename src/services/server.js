@@ -429,4 +429,55 @@ export const API = {
       );
     }
   },
+
+  async getSignedUploadUrl(location) {
+    try {
+      const response = await instance.post(`/storage/upload`, {
+        location,
+      });
+
+      return response.data;
+    } catch (error) {
+      console.error("getSignedUploadUrl", error);
+      throw new Error(
+        error?.response?.data ?? "An error occurred signed upload URL"
+      );
+    }
+  },
+
+  async uploadBySignedUrl(url, file, type) {
+    try {
+      const response = await axios.put(url, file, {
+        headers: {
+          "content-type": type,
+        },
+      });
+
+      return response.data;
+    } catch (error) {
+      console.error("getSignedUploadUrl", error);
+      throw new Error(
+        error?.response?.data ?? "An error occurred signed upload URL"
+      );
+    }
+  },
+
+  async deleteRouterURL(id, itemId) {
+    try {
+      const response = await instance.delete(
+        `/packingSlips/routerUpload/${id}`,
+        {
+          data: {
+            itemId,
+          },
+        }
+      );
+      return response.data;
+    } catch (error) {
+      console.error("deleteRouterUpload", error);
+      throw new Error(
+        error?.response?.data ?? "An error occurred deleting a router upload"
+      );
+    }
+  },
 };

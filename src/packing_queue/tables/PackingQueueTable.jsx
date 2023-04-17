@@ -129,7 +129,7 @@ const PackingQueueTable = ({
       return (
         selectedOrderNumber !== null &&
         (selectedOrderNumber !== params.row.orderNumber ||
-          selectedRows[0].destination !== params.row.destination)
+          selectedRows[0]?.destination !== params.row?.destination)
       );
     },
 
@@ -258,6 +258,7 @@ const PackingQueueTable = ({
                 partDescription: e.partDescription,
                 destination: e.destination,
                 destinationCode: e.destinationCode,
+                url: false,
               });
             });
 

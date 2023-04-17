@@ -3,6 +3,7 @@ import PackingSlipTable from "./components/PackingSlipTable";
 import DestinationToggle from "./components/DestinationToggle";
 import PackingDialog from "../components/PackingDialog";
 import { DestinationTypes } from "../utils/Constants";
+import { useGridApiRef } from "@mui/x-data-grid-pro";
 
 const PackingSlipDialog = ({
   onSubmit,
@@ -17,14 +18,44 @@ const PackingSlipDialog = ({
   viewOnly = false,
 }) => {
   const [filledForm, setFilledForm] = useState([]);
+  const apiRef = useGridApiRef();
 
   useEffect(() => {
     setFilledForm(parts);
   }, [parts]);
 
   function isSubmittable() {
-    return filledForm.every((e) => e.packQty && e.packQty >= 0);
+    let allHaveRouterUpload = false;
+    if (apiRef.current !== null && Object.keys(apiRef.current).length !== 0) {
+      allHaveRouterUpload = apiRef.current
+        .getAllRowIds()
+        .map((id) => apiRef.current.getRow(id))
+        .every((e) => {
+          return e.routerUploadReady;
+        });
+    }
+    return (
+      filledForm.every((e) => e.packQty && e.packQty >= 0) &&
+      allHaveRouterUpload
+    );
   }
+
+  const onUploadRouterClick = (params, isReady, file) => {
+    params.api.updateRows([{ id: params.id, routerUploadReady: isReady }]);
+
+    setFilledForm(
+      filledForm.map((e) => {
+        if (params.id === e.id) {
+          return {
+            ...e,
+            routerUploadReady: isReady,
+            uploadFile: file,
+          };
+        }
+        return e;
+      })
+    );
+  };
 
   return (
     <PackingDialog
@@ -42,9 +73,11 @@ const PackingSlipDialog = ({
       />
 
       <PackingSlipTable
+        apiRef={apiRef}
         rowData={parts}
         filledForm={filledForm}
         setFilledForm={setFilledForm}
+        onUploadRouterClick={onUploadRouterClick}
         viewOnly={viewOnly}
       />
     </PackingDialog>

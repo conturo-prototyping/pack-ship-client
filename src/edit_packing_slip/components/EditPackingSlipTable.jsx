@@ -3,6 +3,8 @@ import { hasValueError } from "../../utils/validators/number_validator";
 import { Typography } from "@mui/material";
 import PackShipEditableTable from "../../components/EdittableTable";
 import EditTableDropdown from "../../components/EditTableDropdown";
+import UploadCell from "../../packing_slip/components/UploadCell";
+import { ADD_ROW_ID } from "../../utils/Constants";
 
 const EditPackingSlipTable = ({
   rowData,
@@ -10,6 +12,9 @@ const EditPackingSlipTable = ({
   onAdd,
   onNewPartRowChange,
   onPackQtyChange,
+  onUploadClick,
+  onUploadCancelClick,
+  onUploadRouterClick,
   viewOnly,
 }) => {
   const renderPart = useCallback(
@@ -82,22 +87,43 @@ const EditPackingSlipTable = ({
           return { ...params.props, error: hasError };
         },
       },
+      {
+        field: "url",
+        renderHeader: (params) => {
+          return (
+            <Typography sx={{ fontWeight: 900 }}>Router Upload</Typography>
+          );
+        },
+        flex: 1,
+        renderCell: (params) => {
+          return (
+            params.row.id !== ADD_ROW_ID && (
+              <UploadCell
+                params={params}
+                onUploadClick={onUploadRouterClick}
+                viewOnly={viewOnly}
+                onCloseClick={async () => {
+                  await onUploadCancelClick(params.id);
+                }}
+              />
+            )
+          );
+        },
+      },
     ],
-    [viewOnly, renderPart]
+    [viewOnly, renderPart, onUploadRouterClick, onUploadCancelClick]
   );
 
-  const tableData = useMemo(
-    () =>
-      rowData.items.map((e) => {
-        return {
-          ...e.item,
-          id: e._id || e.item._id,
-          packQty: e.qty,
-          quantity: e.item.batchQty || e.item.quantity,
-        };
-      }),
-    [rowData]
-  );
+  const tableData = useMemo(() => {
+    return rowData.items.map((e) => {
+      return {
+        ...e.item,
+        id: e._id || e.item._id,
+        packQty: e.qty,
+        quantity: e.item.batchQty || e.item.quantity,
+      };
+    });
+  }, [rowData]);
 
   return (
     <PackShipEditableTable

@@ -22,6 +22,7 @@ import {
   TOP_LEFT_ACTION_BUTTON_HEIGHT,
 } from "../utils/Constants";
 import { DestinationTypes } from "../utils/Constants";
+import { v4 as uuidv4 } from "uuid";
 
 const useStyle = makeStyles((theme) => ({
   box: {
@@ -125,14 +126,30 @@ const PackingQueue = () => {
   }
 
   const onPackingSlipSubmit = useCallback(
-    (filledForm, orderNum, destination) => {
+    async (filledForm, orderNum, destination) => {
       const items = filledForm.map((e) => {
+        e.routerUploadFilePath = `${e.customer}/${e.orderNumber}/${
+          e._id
+        }-${uuidv4()}`;
+
         return {
           item: e._id,
           qty: e.packQty,
           destinationCode: e.destinationCode,
+          routerUploadFilePath: e.routerUploadFilePath,
         };
       });
+
+      await Promise.all(
+        filledForm.map(async (e) => {
+          const data = await API.getSignedUploadUrl(e.routerUploadFilePath);
+
+          const buffer = await e.uploadFile.arrayBuffer();
+          let byteArray = new Int8Array(buffer);
+
+          await API.uploadBySignedUrl(data.url, byteArray, e.uploadFile.type);
+        })
+      );
 
       API.createPackingSlip(
         items,
@@ -320,6 +337,7 @@ const PackingQueue = () => {
                             partDescription: e.partDescription,
                             destination: e.destination,
                             destinationCode: e.destinationCode,
+                            url: null, //TODO
                           });
                         });
                         setFilteredPackingQueue(finalData);
