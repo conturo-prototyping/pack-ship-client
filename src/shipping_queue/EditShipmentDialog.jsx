@@ -6,6 +6,7 @@ import PopupDialog from "../components/PackingDialog";
 import PackingSlipDrowdown from "./PackingSlipDropdown";
 import ShipmentDetails from "./ShipmentDetails";
 import EditTableDropdown from "../components/EditTableDropdown";
+import { ADD_ROW_ID } from "../utils/Constants";
 
 const useStyle = makeStyles((theme) => ({}));
 
@@ -45,7 +46,7 @@ const EditShipmentTableDialog = ({
           menuOptionFn={(e) => `${e.label}`}
         />
       );
-    } else if (!params.id.includes("add-row-id")) {
+    } else if (!params.id.includes(ADD_ROW_ID)) {
       return (
         <PackingSlipDrowdown
           params={params}

@@ -15,3 +15,5 @@ export class DestinationTypes {
   static VENDOR = "VENDOR";
   static CUSTOMER = "CUSTOMER";
 }
+
+export const ADD_ROW_ID = "add-row-id";

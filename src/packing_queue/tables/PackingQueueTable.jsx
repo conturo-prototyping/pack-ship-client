@@ -258,6 +258,7 @@ const PackingQueueTable = ({
                 partDescription: e.partDescription,
                 destination: e.destination,
                 destinationCode: e.destinationCode,
+                url: false,
               });
             });
 
