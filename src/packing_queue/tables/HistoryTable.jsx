@@ -1,11 +1,17 @@
 import { DataGrid } from "@mui/x-data-grid";
-import React, { useCallback, useEffect, useState } from "react";
+import React, { useCallback, useEffect, useState, useMemo } from "react";
+import ContextMenu from "../../components/GenericContextMenu";
+import MenuItem from "@mui/material/MenuItem";
+import { API } from "../../services/server";
 import makeStyles from "@mui/styles/makeStyles";
 import { Typography } from "@mui/material";
+import EditPackingSlipDialog from "../../edit_packing_slip/EditPackingSlipDialog";
+import ConfirmDialog from "../../components/ConfirmDialog";
 import pdfMake from "pdfmake/build/pdfmake";
 import pdfFonts from "pdfmake/build/vfs_fonts";
 import { PackShipProgress } from "../../common/CircularProgress";
 import { getSortFromModel } from "../utils/sortModelFunctions";
+import { snackbarVariants, usePackShipSnackbar } from "../../common/Snackbar";
 import {
   PACKING_SLIP_TOP_MARGIN,
   PACKING_SLIP_BOTTOM_MARGIN,
@@ -13,8 +19,8 @@ import {
   PAGINATION_SIZING_OPTIONS,
 } from "../../utils/Constants";
 import { onPageSizeChange } from "../../utils/TablePageSizeHandler";
-import withPendingTable from "./PackingContextMenuTable";
 import { v4 as uuidv4 } from "uuid";
+import withPendingTable from "./PackingContextMenuTable";
 
 pdfMake.vfs = pdfFonts.pdfMake.vfs;
 
@@ -84,8 +90,22 @@ const HistoryTable = ({
   handleContextMenu,
 }) => {
   const classes = useStyle();
-
   const [isMounted, setIsMounted] = useState(false);
+  const [contextMenu, setContextMenu] = useState(null);
+  const [selectedRow, setSelectedRow] = useState({});
+
+  // Deletions
+  const [confirmDeleteDialogOpen, setConfirmDeleteDialogOpen] = useState(false);
+  const [itemToDelete, setItemToDelete] = useState();
+  const [deleteDialog, setDeleteDialog] = useState(false);
+
+  //Edit/View
+  const [isEditPackingSlipOpen, setIsEditPackingSlipOpen] = useState({
+    open: false,
+    viewOnly: false,
+  });
+
+  const enqueueSnackbar = usePackShipSnackbar();
 
   useEffect(() => {
     setIsMounted(true);
