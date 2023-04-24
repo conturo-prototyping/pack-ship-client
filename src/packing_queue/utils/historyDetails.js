@@ -13,7 +13,7 @@ export const extractHistoryDetails = (history) => {
           ...item,
           item: {
             ...item.item,
-            routerUploadReady: item.item.downloadUrl !== undefined,
+            routerUploadReady: item?.item?.downloadUrl !== undefined,
           },
         };
       }),
