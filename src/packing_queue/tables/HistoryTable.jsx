@@ -442,17 +442,6 @@ const HistoryTable = ({
     [onDownloadPDFClick]
   );
 
-  const handleContextMenu = (event) => {
-    event.preventDefault();
-    const selectedRow = event.currentTarget.getAttribute("data-id");
-    setSelectedRow(filteredHist.find((e) => e._id === selectedRow));
-    setContextMenu(
-      contextMenu === null
-        ? { mouseX: event.clientX, mouseY: event.clientY }
-        : null
-    );
-  };
-
   return (
     <div className={classes.root}>
       <DataGrid
