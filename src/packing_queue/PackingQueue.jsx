@@ -128,9 +128,7 @@ const PackingQueue = () => {
   const onPackingSlipSubmit = useCallback(
     async (filledForm, orderNum, destination) => {
       const items = filledForm.map((e) => {
-        e.routerUploadFilePath = `${e.customer}/${e.orderNumber}/${
-          e._id
-        }-${uuidv4()}`;
+        e.routerUploadFilePath = `${e._id}/shipping/router-${uuidv4()}`;
 
         return {
           item: e._id,
