@@ -131,6 +131,10 @@ const PackingQueue = () => {
     [histResultsPerPage, isMounted, tabValue]
   );
 
+  const preLoadedSearch = useCallback(() => {
+    fetchSearch(sortPackHistoryModel, histPageNum, orderNumber, partNumber);
+  }, [sortPackHistoryModel, fetchSearch, histPageNum, orderNumber, partNumber]);
+
   const fetchPendingData = useCallback(async () => {
     if (isMounted) {
       setPendingLoading(true);
@@ -461,6 +465,7 @@ const PackingQueue = () => {
               <HistoryTable
                 sortModel={sortPackHistoryModel}
                 setSortModel={setSortPackHistoryModel}
+                preloadedFetchData={preLoadedSearch}
                 fetchData={fetchSearch}
                 histTotalCount={histTotalCount}
                 historyLoading={historyLoading}

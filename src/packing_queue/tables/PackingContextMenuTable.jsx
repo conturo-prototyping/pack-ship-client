@@ -8,7 +8,7 @@ import PackingContextMenu from "../menus/PackingContextMenu";
 
 const PackingContextMenuTable = (OriginalTable) => {
   function NewComponent(props) {
-    const { fetchData, filteredData } = props;
+    const { fetchData, filteredData, preloadedFetchData } = props;
 
     const [contextMenu, setContextMenu] = useState(null);
     const [selectedRow, setSelectedRow] = useState({});
@@ -225,7 +225,9 @@ const PackingContextMenuTable = (OriginalTable) => {
         })
           .then(() => {
             setIsEditPackingSlipOpen({ open: false, viewOnly: false });
-            fetchData();
+            if (preloadedFetchData) {
+              preloadedFetchData();
+            } else fetchData();
             enqueueSnackbar("Packing slip edited!", snackbarVariants.success);
           })
           .catch((e) => {
