@@ -481,6 +481,7 @@ const PackingQueue = () => {
                 filteredData={filteredPending}
                 isLoading={pendingLoading}
                 fetchData={fetchPendingData}
+                hasRouterUploads
               />
             }
           />
