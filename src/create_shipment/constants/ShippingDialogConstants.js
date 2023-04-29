@@ -5,4 +5,5 @@ export default class ShippingDialogStates {
   static PickupDropOffPage = 3;
   static ShippingAddressPage = 4;
   static ConfirmShipment = 5;
+  static DisplayQRPage = 6;
 }
