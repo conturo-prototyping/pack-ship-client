@@ -88,16 +88,7 @@ const ShippingPendingTable = ({
     const shippingInfo = pendingShipments.filter(
       (e) => e.id === selectedPendingOrder[0]
     )[0];
-    if (shippingInfo)
-      setSelectedShippingInfo({
-        customer: shippingInfo.customer,
-        deliveryMethod: shippingInfo.deliveryMethod,
-        deliverySpeed: shippingInfo.deliverySpeed,
-        carrier: shippingInfo.carrier,
-        checkedCustomer: shippingInfo.checkedCustomer,
-        customerAccount: shippingInfo.customerAccount,
-        destination: shippingInfo.destination,
-      });
+    if (shippingInfo) setSelectedShippingInfo(shippingInfo);
     // eslint-disable-next-line
   }, [selectedPendingOrder]);
 
@@ -407,7 +398,7 @@ const cantEditShippingDetails = {
   deliverySpeed: true,
   trackingNumber: true,
   cost: true,
-  customerHandoffName: true
+  customerHandoffName: true,
 };
 
 export default withContextMenu(
