@@ -19,7 +19,6 @@ import { usePackShipSnackbar, snackbarVariants } from "../common/Snackbar";
 import ShippingAddressForm from "./components/ShippingAddressForm";
 import { DestinationTypes } from "../utils/Constants";
 import PackShipDatePicker from "../components/PackShipDatePicker";
-import QRCodeForm from "./components/QRCodeForm";
 
 const CreateShipmentDialog = ({
   customer,
@@ -146,7 +145,7 @@ const CreateShipmentDialog = ({
     if (shippingInfo.isDueBack && !shippingInfo.isDueBackOn?.isValid()) {
       setDisplayDateHelper(true);
     } else {
-      setCurrentState(ShippingDialogStates.DisplayQRPage);
+      setCurrentState(ShippingDialogStates.SelectMethodPage);
       setDisplayDateHelper(false);
     }
   };
@@ -173,18 +172,6 @@ const CreateShipmentDialog = ({
       specialShippingAddress: undefined,
     });
     onResetClick();
-  };
-
-  const onDisplayQRBack = () => {
-    setCurrentState(ShippingDialogStates.CreateShipmentTable);
-  };
-
-  const onDisplayQRNext = () => {
-    setCurrentState(ShippingDialogStates.SelectMethodPage);
-  };
-
-  const onSelectMethodBack = () => {
-    setCurrentState(ShippingDialogStates.DisplayQRPage);
   };
 
   const onIsDueBackClick = (checked) => {
@@ -251,14 +238,6 @@ const CreateShipmentDialog = ({
     switch (currentState) {
       case ShippingDialogStates.SelectMethodPage:
         break;
-      case ShippingDialogStates.DisplayQRPage:
-        return (
-          <QRCodeForm
-            shippingAddress={shippingInfo.specialShippingAddress ?? ""}
-            setShippingAddress={onShippingAddressChange}
-            canErrorCheck={canErrorCheck}
-          />
-        );
       case ShippingDialogStates.CarrierPage:
         return (
           <CreateCarrierShipmentInfoForm
@@ -302,26 +281,9 @@ const CreateShipmentDialog = ({
 
   const renderDialogActions = () => {
     switch (currentState) {
-      case ShippingDialogStates.DisplayQRPage:
-        return (
-          <DialogActions>
-            <CommonButton
-              onClick={onDisplayQRBack}
-              label="Back"
-              color="secondary"
-            />
-            <CommonButton
-              autoFocus
-              onClick={onDisplayQRNext}
-              label={"Next"}
-              type="button"
-            />
-          </DialogActions>
-        );
       case ShippingDialogStates.SelectMethodPage:
         return (
           <DialogActions sx={{ padding: "25px" }}>
-            <CommonButton onClick={onSelectMethodBack} label="Back" />
             <CommonButton onClick={onPickupClick} label="Pickup" />
             <CommonButton onClick={onDropOffClick} label="Drop Off" />
             <CommonButton onClick={onCarrierClick} label="Carrier" />
@@ -399,16 +361,14 @@ const CreateShipmentDialog = ({
               item
               direction="row"
               spacing={1}
-              justifyContent="space-evenly"
-            >
+              justifyContent="space-evenly">
               <Grid
                 xs={4}
                 container
                 item
                 direction="row"
                 spacing={1}
-                justifyContent="left"
-              >
+                justifyContent="left">
                 <Grid xs={6} item>
                   <FormGroup>
                     <FormControlLabel
@@ -452,8 +412,7 @@ const CreateShipmentDialog = ({
                 item
                 direction="row"
                 spacing={1}
-                justifyContent="right"
-              >
+                justifyContent="right">
                 <Grid item>
                   <CommonButton
                     onClick={() => {
@@ -492,8 +451,7 @@ const CreateShipmentDialog = ({
       }`}
       open={open}
       onClose={onClose}
-      actions={renderDialogActions()}
-    >
+      actions={renderDialogActions()}>
       {renderContents()}
     </PackingDialog>
   );
