@@ -46,6 +46,8 @@ const CreateShipmentDialog = ({
   const [canErrorCheck, setCanErrorCheck] = useState(false);
   const [reset, setReset] = useState(false);
   const [displayDateHelper, setDisplayDateHelper] = useState(false);
+  const [qrCodeSource, setQrCodeSource] = useState();
+  const [tempShimpentId, setTempShimpentId] = useState();
 
   const enqueueSnackbar = usePackShipSnackbar();
 
@@ -142,10 +144,15 @@ const CreateShipmentDialog = ({
     }
   };
 
-  const onNextClick = () => {
+  const onNextClick = async () => {
     if (shippingInfo.isDueBack && !shippingInfo.isDueBackOn?.isValid()) {
       setDisplayDateHelper(true);
     } else {
+      const tempShipment = await API.createTempShipment(shippingInfo.manifest);
+      const response = await API.generateQRCode(tempShipment._id);
+
+      setTempShimpentId(tempShipment._id);
+      setQrCodeSource(response);
       setCurrentState(ShippingDialogStates.DisplayQRPage);
       setDisplayDateHelper(false);
     }
@@ -175,7 +182,8 @@ const CreateShipmentDialog = ({
     onResetClick();
   };
 
-  const onDisplayQRBack = () => {
+  const onDisplayQRBack = async () => {
+    await API.deleteTempShipment(tempShimpentId);
     setCurrentState(ShippingDialogStates.CreateShipmentTable);
   };
 
@@ -222,7 +230,7 @@ const CreateShipmentDialog = ({
         localShippingInfo.isDueBack,
         localShippingInfo.isDueBackOn
       )
-        .then(() => {
+        .then(async () => {
           setCustomerName("");
           setDisplayDateHelper(false);
           setShippingInfo({
@@ -234,6 +242,7 @@ const CreateShipmentDialog = ({
             isDueBackOn: null,
             specialShippingAddress: "",
           });
+          await API.deleteTempShipment(tempShimpentId);
           reloadData();
           onClose();
           enqueueSnackbar(
@@ -252,13 +261,7 @@ const CreateShipmentDialog = ({
       case ShippingDialogStates.SelectMethodPage:
         break;
       case ShippingDialogStates.DisplayQRPage:
-        return (
-          <QRCodeForm
-            shippingAddress={shippingInfo.specialShippingAddress ?? ""}
-            setShippingAddress={onShippingAddressChange}
-            canErrorCheck={canErrorCheck}
-          />
-        );
+        return <QRCodeForm source={qrCodeSource} />;
       case ShippingDialogStates.CarrierPage:
         return (
           <CreateCarrierShipmentInfoForm

@@ -184,10 +184,13 @@ export const API = {
 
   async patchShipment(id, updatedShipment, isPending) {
     try {
-      const response = await instance.patch(`/shipments/${id}${ isPending ? '/pending' : '' }`, {
-        ...updatedShipment,
-        shippingAddress: updatedShipment.specialShippingAddress,
-      });
+      const response = await instance.patch(
+        `/shipments/${id}${isPending ? "/pending" : ""}`,
+        {
+          ...updatedShipment,
+          shippingAddress: updatedShipment.specialShippingAddress,
+        }
+      );
       return response.data;
     } catch (error) {
       console.error("patchShipment", error);
@@ -502,6 +505,50 @@ export const API = {
       console.error("deleteRouterUpload", error);
       throw new Error(
         error?.response?.data ?? "An error occurred deleting a router upload"
+      );
+    }
+  },
+
+  async generateQRCode(tempShipId) {
+    try {
+      const response = await instance.post("/qrCode/getTempShipCode", {
+        tempShipmentId: tempShipId,
+      });
+
+      return response.data["qrCode"];
+    } catch (error) {
+      console.error("generateQRCode", error);
+      throw new Error(
+        error?.response?.data ?? "An error occurred getting qr code"
+      );
+    }
+  },
+
+  async createTempShipment(manifest) {
+    try {
+      const response = await instance.put("/tempShipments", {
+        manifest,
+      });
+
+      return response.data["tempShipment"];
+    } catch (error) {
+      console.error("createTempShipment", error);
+      throw new Error(
+        error?.response?.data ?? "An error occurred creating temp shipment"
+      );
+    }
+  },
+
+  async deleteTempShipment(tempShipmentId) {
+    try {
+      const response = await instance.delete(
+        `/tempShipments/${tempShipmentId}`
+      );
+      return response.data;
+    } catch (error) {
+      console.error("deleteTempShipment", error);
+      throw new Error(
+        error?.response?.data ?? "An error occurred deleting temp shipment"
       );
     }
   },

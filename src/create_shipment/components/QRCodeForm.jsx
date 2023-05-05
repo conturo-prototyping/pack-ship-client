@@ -1,6 +1,6 @@
 import { Grid, Typography, TextField, Box } from "@mui/material";
 
-const QRCodeForm = ({ shippingAddress, setShippingAddress, canErrorCheck }) => {
+const QRCodeForm = ({ source }) => {
   return (
     <Grid container item alignItems="center" spacing={4} direction="column">
       <Grid container item xs={5} justifyContent="flex-end">
@@ -15,12 +15,8 @@ const QRCodeForm = ({ shippingAddress, setShippingAddress, canErrorCheck }) => {
           sx={{
             width: 300,
             height: 300,
-            backgroundColor: "primary.dark",
-            "&:hover": {
-              backgroundColor: "primary.main",
-              opacity: [0.9, 0.8, 0.7],
-            },
           }}
+          style={{ backgroundImage: `url(${source})` }}
         />
       </Grid>
     </Grid>
