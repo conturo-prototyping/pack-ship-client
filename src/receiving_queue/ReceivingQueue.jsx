@@ -122,7 +122,7 @@ const ReceivingQueue = () => {
                 queueTableData.push({
                   id: e._id,
                   manifest: e.po,
-                  source: e.po[0].lines[0]?.packingSlip.destination,
+                  source: e.po[0]?.lines[0]?.packingSlip.destination,
                   label: e.label,
                   poType: e.sourcePoType,
                 });
@@ -218,7 +218,8 @@ const ReceivingQueue = () => {
         className={classes.topBarGrid}
         container
         justifyContent="start"
-        spacing={2}>
+        spacing={2}
+      >
         <Grid container item xs={12} spacing={2}>
           {currentTab === TabNames.Queue ? (
             <Grid
@@ -226,7 +227,8 @@ const ReceivingQueue = () => {
               item
               xs={12}
               spacing={2}
-              sx={{ marginBottom: "1rem!important" }}>
+              sx={{ marginBottom: "1rem!important" }}
+            >
               <Grid container item xs={10} spacing={2}>
                 <Grid container item xs={"auto"}>
                   <CommonButton
@@ -271,7 +273,8 @@ const ReceivingQueue = () => {
               item
               justifyContent="start"
               xs={6}
-              sx={{ marginBottom: "1rem!important" }}>
+              sx={{ marginBottom: "1rem!important" }}
+            >
               <Search
                 onSearch={async (e) => {
                   setSearchString(e);
