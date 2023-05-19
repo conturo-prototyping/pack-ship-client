@@ -337,7 +337,9 @@ const ShippingPendingTable = ({
                     !(
                       selectedShippingInfo.deliverySpeed &&
                       selectedShippingInfo.trackingNumber &&
-                      selectedShippingInfo.cost
+                      (selectedShippingInfo.cost ||
+                        (selectedShippingInfo.checkedCustomer &&
+                          selectedShippingInfo.customerAccount))
                     )
                   }
                   autoFocus
