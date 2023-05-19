@@ -1,15 +1,16 @@
 import React, { useEffect } from "react";
 import { Box } from "@mui/material";
-import { DataGridPro } from "@mui/x-data-grid-pro";
+import { DataGridPro, useGridApiRef } from "@mui/x-data-grid-pro";
 
 const DialogTable = ({
-  apiRef,
   rowData,
   columns,
   cellEditName,
   onEditRowsModelChange,
   viewOnly = false,
 }) => {
+  const apiRef = useGridApiRef();
+
   const handleCellClick = React.useCallback(
     (params) => {
       if (params.field === cellEditName && !viewOnly) {
