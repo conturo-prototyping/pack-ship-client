@@ -54,10 +54,11 @@ const CreateShipmentDialog = ({
 
   useEffect(() => {
     if (tempShimpentId) {
-      const socket = SocketIoFactory("thing").getInstance();
+      const socket = SocketIoFactory("").getInstance();
 
-      socket.on("connect", () => {});
-      setTimeout(() => socket.emit("joinTemp", { tempShimpentId }), 10000);
+      socket.on("connect", () => {
+        socket.emit("joinTemp", { tempShimpentId });
+      });
 
       socket.connect();
 
