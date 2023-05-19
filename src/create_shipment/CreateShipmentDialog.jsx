@@ -20,6 +20,7 @@ import ShippingAddressForm from "./components/ShippingAddressForm";
 import { DestinationTypes } from "../utils/Constants";
 import PackShipDatePicker from "../components/PackShipDatePicker";
 import QRCodeForm from "./components/QRCodeForm";
+import { SocketIoFactory } from "../socket";
 
 const CreateShipmentDialog = ({
   customer,
@@ -50,6 +51,21 @@ const CreateShipmentDialog = ({
   const [tempShimpentId, setTempShimpentId] = useState();
 
   const enqueueSnackbar = usePackShipSnackbar();
+
+  useEffect(() => {
+    if (tempShimpentId) {
+      const socket = SocketIoFactory("thing").getInstance();
+
+      socket.on("connect", () => {});
+      setTimeout(() => socket.emit("joinTemp", { tempShimpentId }), 10000);
+
+      socket.connect();
+
+      return () => {
+        socket.disconnect();
+      };
+    }
+  }, [tempShimpentId]);
 
   useEffect(() => {
     if (
@@ -402,16 +418,14 @@ const CreateShipmentDialog = ({
               item
               direction="row"
               spacing={1}
-              justifyContent="space-evenly"
-            >
+              justifyContent="space-evenly">
               <Grid
                 xs={4}
                 container
                 item
                 direction="row"
                 spacing={1}
-                justifyContent="left"
-              >
+                justifyContent="left">
                 <Grid xs={6} item>
                   <FormGroup>
                     <FormControlLabel
@@ -455,8 +469,7 @@ const CreateShipmentDialog = ({
                 item
                 direction="row"
                 spacing={1}
-                justifyContent="right"
-              >
+                justifyContent="right">
                 <Grid item>
                   <CommonButton
                     onClick={() => {
@@ -495,8 +508,7 @@ const CreateShipmentDialog = ({
       }`}
       open={open}
       onClose={onClose}
-      actions={renderDialogActions()}
-    >
+      actions={renderDialogActions()}>
       {renderContents()}
     </PackingDialog>
   );
