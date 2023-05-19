@@ -6,9 +6,15 @@ import withStyledDismiss from "./DismissablePreview";
 const url = `//cdn.jsdelivr.net/npm/pdfjs-dist@${pdfjs.version}/build/pdf.worker.min.js`;
 pdfjs.GlobalWorkerOptions.workerSrc = url;
 
-const PDFPreview = ({ url, pageNumber, height, onPreviewClick }) => {
+const PDFPreview = ({
+  url,
+  pageNumber,
+  height,
+  onPreviewClick,
+  onLoadSuccess,
+}) => {
   return (
-    <Document onClick={onPreviewClick} file={url}>
+    <Document onClick={onPreviewClick} file={url} onLoadSuccess={onLoadSuccess}>
       <Page height={height} pageNumber={pageNumber} renderTextLayer={false} />
     </Document>
   );

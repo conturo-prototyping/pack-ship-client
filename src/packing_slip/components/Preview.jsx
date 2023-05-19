@@ -4,7 +4,15 @@ import PDFPreview from "./PDFPreview";
 import ImagePreview from "./ImagePreview";
 import UnknownFilePreview from "./UnknownFilePreview";
 
-const Preview = ({ name, height, url, type, onClearClick, onPreviewClick }) => {
+const Preview = ({
+  name,
+  height,
+  url,
+  type,
+  onClearClick,
+  onPreviewClick,
+  onPDFLoadSuccess,
+}) => {
   const getPreviewForType = (type) => {
     if (type?.startsWith("image/")) {
       return (
@@ -23,6 +31,7 @@ const Preview = ({ name, height, url, type, onClearClick, onPreviewClick }) => {
           onPreviewClick={onPreviewClick}
           height={height}
           onClearClick={onClearClick}
+          onLoadSuccess={onPDFLoadSuccess}
         />
       );
     } else {
