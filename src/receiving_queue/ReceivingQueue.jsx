@@ -168,6 +168,7 @@ const ReceivingQueue = () => {
         .finally(() => {
           reloadQueueData(isMounted);
         });
+      setSelectedShipmentIds([]);
     },
     [enqueueSnackbar, reloadQueueData, isMounted]
   );
