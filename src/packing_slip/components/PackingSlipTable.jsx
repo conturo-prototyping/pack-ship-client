@@ -111,9 +111,7 @@ const PackingSlipTable = ({
   return (
     <DialogTable
       apiRef={apiRef}
-      rowData={rowData}
-      filledForm={filledForm}
-      setFilledForm={setFilledForm}
+      rowData={filledForm}
       columns={columns}
       cellEditName="packQty"
       onEditRowsModelChange={onEditRowsModelChange}

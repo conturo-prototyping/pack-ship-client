@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useState } from "react";
 import {
   Dialog,
   DialogActions,
@@ -20,22 +20,11 @@ const UploadCell = ({
 }) => {
   const [showPreview, setShowPreview] = useState(false);
   const [selectedPreview, setSelectedPreview] = useState(null);
-  const [url, setUrl] = useState(null);
-  const [previewType, setPreviewType] = useState();
-
   const [pdfPageNumber, setPDFPageNumber] = useState(1);
   const [numPages, setNumPages] = useState(null);
 
-  useEffect(() => {
-    setShowPreview(false);
-    if (params.row.downloadUrl) {
-      setUrl(params.row.downloadUrl);
-    }
-  }, [params.row.contentType, params.row.downloadUrl]);
-
-  useEffect(() => {
-    setPreviewType(selectedPreview?.type ?? params.row.contentType);
-  }, [selectedPreview?.type, params.row.contentType]);
+  const url = params.row.downloadUrl || params.row.url;
+  const previewType = params.row.contentType;
 
   function onPDFLoadSuccess({ numPages }) {
     setNumPages(numPages);
@@ -44,8 +33,6 @@ const UploadCell = ({
   const onUploadPress = (e) => {
     e.stopPropagation(); // don't select this row after clicking
 
-    const url = URL.createObjectURL(e.target.files[0]);
-    setUrl(url);
     onUploadClick(params, true, e.target.files[0]);
     setSelectedPreview(e.target.files[0]);
   };
@@ -72,14 +59,16 @@ const UploadCell = ({
           <DialogActions>
             <IconButton
               key={params.id}
-              onClick={() => setPDFPageNumber(Math.max(1, pdfPageNumber - 1))}>
+              onClick={() => setPDFPageNumber(Math.max(1, pdfPageNumber - 1))}
+            >
               <KeyboardArrowLeftIcon />
             </IconButton>
             Page {pdfPageNumber} of {numPages}
             <IconButton
               onClick={() =>
                 setPDFPageNumber(Math.min(numPages, pdfPageNumber + 1))
-              }>
+              }
+            >
               <KeyboardArrowRightIcon />
             </IconButton>
           </DialogActions>
@@ -108,13 +97,13 @@ const UploadCell = ({
                   if (onCloseClick) {
                     onCloseClick();
                   } else onUploadClick(params, false);
-                  setUrl(null);
                 }
               : undefined
           }
           onPreviewClick={() => setShowPreview(true)}
           onPDFLoadSuccess={onPDFLoadSuccess}
-          name={selectedPreview?.name}></Preview>
+          name={selectedPreview?.name}
+        ></Preview>
       ) : (
         !viewOnly && (
           <>
@@ -137,7 +126,8 @@ const UploadCell = ({
       <Dialog
         maxWidth={"lg"}
         open={showPreview}
-        onClose={() => setShowPreview(false)}>
+        onClose={() => setShowPreview(false)}
+      >
         {getDialogContent()}
       </Dialog>
     </>

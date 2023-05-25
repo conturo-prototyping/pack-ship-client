@@ -7,6 +7,9 @@ import pdfMake from "pdfmake/build/pdfmake";
 import PackingContextMenu from "../menus/PackingContextMenu";
 import { v4 as uuidv4 } from "uuid";
 
+//TODO Need to checm where the new row item id is being set, it is not correct
+// to fix the add row and save issue
+
 const PackingContextMenuTable = (OriginalTable) => {
   function NewComponent(props) {
     const { fetchData, filteredData, hasRouterUploads } = props;
@@ -59,7 +62,7 @@ const PackingContextMenuTable = (OriginalTable) => {
               return e;
             });
             newSelectedRow.items.push({
-              _id: "",
+              _id: possibleChoices[0]._id,
               pageNum: pageNum,
               item: {
                 isNew: true,
@@ -170,6 +173,7 @@ const PackingContextMenuTable = (OriginalTable) => {
           .filter((e) => e.item._id !== itemToDelete._id)
           .map((e) => {
             return {
+              ...e,
               item: { ...e.item },
               qty: e.qty || e.item.packQty,
             };
@@ -323,14 +327,6 @@ const PackingContextMenuTable = (OriginalTable) => {
       );
     };
 
-    const onUploadClick = useCallback(() => {
-      if (hasRouterUploads)
-        setSelectedRow({
-          ...selectedRow,
-          url: true,
-        });
-    }, [selectedRow, hasRouterUploads]);
-
     const onUploadCancelClick = useCallback(
       (itemId) => {
         if (hasRouterUploads)
@@ -342,10 +338,23 @@ const PackingContextMenuTable = (OriginalTable) => {
               ...selectedRow,
             };
 
+            const routerUploadData = {
+              routerUploadReady: false,
+              downloadUrl: undefined,
+              url: undefined,
+              uploadFile: undefined,
+              contentType: undefined,
+            };
+
             if (itemIndex !== undefined) {
               updatedPackingSlip.items[itemIndex] = {
                 ...updatedPackingSlip.items[itemIndex],
                 removeUpload: true,
+                ...routerUploadData,
+              };
+              updatedPackingSlip.items[itemIndex].item = {
+                ...updatedPackingSlip.items[itemIndex].item,
+                ...routerUploadData,
               };
 
               setSelectedRow(updatedPackingSlip);
@@ -355,6 +364,7 @@ const PackingContextMenuTable = (OriginalTable) => {
       [selectedRow, hasRouterUploads]
     );
 
+    //TODO
     const onUploadRouterClick = (params, isReady, file) => {
       if (hasRouterUploads) {
         params.api.updateRows([{ id: params.id, routerUploadReady: isReady }]);
@@ -362,12 +372,14 @@ const PackingContextMenuTable = (OriginalTable) => {
         setSelectedRow({
           ...selectedRow,
           items: selectedRow.items.map((e) => {
-            if (params.id === e._id) {
+            if (params.id === e.item._id || params.id === e._id) {
               return {
                 ...e,
                 routerUploadReady: isReady,
                 uploadFile: file,
                 removeUpload: false,
+                url: file ? URL.createObjectURL(file) : false,
+                contentType: file ? file.type : undefined,
               };
             }
             return e;
@@ -406,7 +418,7 @@ const PackingContextMenuTable = (OriginalTable) => {
             setConfirmDeleteDialogOpen(true);
             setItemToDelete(params.row);
           }}
-          onUploadClick={onUploadClick}
+          // onUploadClick={onUploadClick}
           onUploadCancelClick={onUploadCancelClick}
           onUploadRouterClick={onUploadRouterClick}
         />

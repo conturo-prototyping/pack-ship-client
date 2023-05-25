@@ -13,7 +13,6 @@ const EditPackingSlipDialog = ({
   onDelete,
   onNewPartRowChange,
   onPackQtyChange,
-  onUploadClick,
   onUploadCancelClick,
   onUploadRouterClick,
   cellEditing = false,
@@ -28,18 +27,19 @@ const EditPackingSlipDialog = ({
       onClose={onClose}
       onSubmit={onSubmit}
       submitDisabled={cellEditing}
-      actions={viewOnly ? <DialogActions /> : undefined}>
+      actions={viewOnly ? <DialogActions /> : undefined}
+    >
       <DestinationToggle
         onDestinationChange={onDestinationChange}
         destination={packingSlipData.destination}
-        disabled={viewOnly}></DestinationToggle>
+        disabled={viewOnly}
+      ></DestinationToggle>
       <EditPackingSlipTable
         rowData={packingSlipData}
         onAdd={onAdd}
         onDelete={onDelete}
         onNewPartRowChange={onNewPartRowChange}
         onPackQtyChange={onPackQtyChange}
-        onUploadClick={onUploadClick}
         onUploadCancelClick={onUploadCancelClick}
         onUploadRouterClick={onUploadRouterClick}
         viewOnly={viewOnly}

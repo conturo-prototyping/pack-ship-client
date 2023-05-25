@@ -12,7 +12,6 @@ const EditPackingSlipTable = ({
   onAdd,
   onNewPartRowChange,
   onPackQtyChange,
-  onUploadClick,
   onUploadCancelClick,
   onUploadRouterClick,
   viewOnly,
@@ -121,6 +120,9 @@ const EditPackingSlipTable = ({
         id: e._id || e.item._id,
         packQty: e.qty,
         quantity: e.item.batchQty || e.item.quantity,
+        url: e.url,
+        downloadUrl: e.item?.downloadUrl,
+        contentType: e.contentType || e.item.contentType,
       };
     });
   }, [rowData]);

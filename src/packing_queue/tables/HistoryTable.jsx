@@ -274,7 +274,6 @@ const HistoryTable = ({
 
   const onUploadRouterClick = (params, isReady, file) => {
     params.api.updateRows([{ id: params.id, routerUploadReady: isReady }]);
-
     setSelectedRow({
       ...selectedRow,
       items: selectedRow.items.map((e) => {
@@ -284,6 +283,8 @@ const HistoryTable = ({
             routerUploadReady: isReady,
             uploadFile: file,
             removeUpload: false,
+            url: file ? URL.createObjectURL(file) : false,
+            contentType: file ? file.type : undefined,
           };
         }
         return e;
@@ -300,13 +301,6 @@ const HistoryTable = ({
     },
     [selectedRow]
   );
-
-  const onUploadClick = useCallback(() => {
-    setSelectedRow({
-      ...selectedRow,
-      url: true,
-    });
-  }, [selectedRow]);
 
   function onItemDelete() {
     if (itemToDelete) {
@@ -530,7 +524,7 @@ const HistoryTable = ({
         onAdd={onHistoryPackingSlipAdd}
         onNewPartRowChange={onNewPartRowChange}
         onPackQtyChange={onPackQtyChange}
-        onUploadClick={onUploadClick}
+        // onUploadClick={onUploadClick}
         onUploadCancelClick={onUploadCancelClick}
         onUploadRouterClick={onUploadRouterClick}
         onDelete={(params) => {
