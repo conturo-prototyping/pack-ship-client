@@ -418,7 +418,6 @@ const PackingContextMenuTable = (OriginalTable) => {
             setConfirmDeleteDialogOpen(true);
             setItemToDelete(params.row);
           }}
-          // onUploadClick={onUploadClick}
           onUploadCancelClick={onUploadCancelClick}
           onUploadRouterClick={onUploadRouterClick}
         />

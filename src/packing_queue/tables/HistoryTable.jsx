@@ -524,7 +524,6 @@ const HistoryTable = ({
         onAdd={onHistoryPackingSlipAdd}
         onNewPartRowChange={onNewPartRowChange}
         onPackQtyChange={onPackQtyChange}
-        // onUploadClick={onUploadClick}
         onUploadCancelClick={onUploadCancelClick}
         onUploadRouterClick={onUploadRouterClick}
         onDelete={(params) => {
