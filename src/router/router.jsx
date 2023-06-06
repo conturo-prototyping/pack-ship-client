@@ -16,10 +16,12 @@ import { LoginSuccess } from "../components/LoginSuccess";
 import { PackShipProgress } from "../common/CircularProgress";
 import NavigationBar from "./NavigationBar";
 import ReceivingQueue from "../receiving_queue/ReceivingQueue";
+import ShipmentUploads from "../shipmentUploads/ShipmentUploads";
 
 export const ROUTE_PACKING_SLIP = "/packing-slips";
 export const ROUTE_SHIPMENTS = "/shipments";
 export const ROUTE_RECEIVING = "/receiving";
+export const ROUTE_SHIPMENTS_UPLOAD = "/shipmentsUpload";
 
 const Router = () => {
   const location = useLocation();
@@ -64,6 +66,7 @@ const Router = () => {
   useEffect(() => {
     switch (location.pathname) {
       case ROUTE_SHIPMENTS:
+      case ROUTE_SHIPMENTS_UPLOAD:
         setTabValue(1);
         setTheme(themes.SHIPMENT);
         break;
@@ -118,7 +121,11 @@ const Router = () => {
     <PackShipProgress />
   ) : isUserAuthenticated ? (
     <>
-      <NavigationBar value={tabValue} onChange={onTabChange} />
+      {location.pathname !== ROUTE_SHIPMENTS_UPLOAD ? (
+        <NavigationBar value={tabValue} onChange={onTabChange} />
+      ) : (
+        <></>
+      )}
       <Routes>
         <Route exact path="/loginSuccess" element={<LoginSuccess />} />
         <Route
@@ -145,6 +152,15 @@ const Router = () => {
           element={
             <PrivateRoute>
               <ReceivingQueue />
+            </PrivateRoute>
+          }
+        />
+        <Route
+          exact
+          path={ROUTE_SHIPMENTS_UPLOAD}
+          element={
+            <PrivateRoute>
+              <ShipmentUploads />
             </PrivateRoute>
           }
         />

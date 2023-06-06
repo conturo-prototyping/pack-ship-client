@@ -54,7 +54,7 @@ const CreateShipmentDialog = ({
 
   useEffect(() => {
     if (tempShimpentId) {
-      const socket = SocketIoFactory("").getInstance();
+      const socket = SocketIoFactory.getInstance();
 
       socket.on("connect", () => {
         socket.emit("joinTemp", { tempShimpentId });

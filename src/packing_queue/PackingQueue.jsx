@@ -24,6 +24,8 @@ import {
 } from "../utils/Constants";
 import { DestinationTypes } from "../utils/Constants";
 import { v4 as uuidv4 } from "uuid";
+import { FileUploader } from "../services/fileUploader";
+import { FilePathGenerator } from "../common/FilePathGenerator";
 
 const useStyle = makeStyles((theme) => ({
   box: {
@@ -167,7 +169,9 @@ const PackingQueue = () => {
   const onPackingSlipSubmit = useCallback(
     async (filledForm, orderNum, destination) => {
       const items = filledForm.map((e) => {
-        e.routerUploadFilePath = `${e._id}/shipping/router-${uuidv4()}`;
+        e.routerUploadFilePath = FilePathGenerator.createPackingSlipRouterPath(
+          e._id
+        );
 
         return {
           item: e._id,
@@ -179,12 +183,7 @@ const PackingQueue = () => {
 
       await Promise.all(
         filledForm.map(async (e) => {
-          const data = await API.getSignedUploadUrl(e.routerUploadFilePath);
-
-          const buffer = await e.uploadFile.arrayBuffer();
-          let byteArray = new Int8Array(buffer);
-
-          await API.uploadBySignedUrl(data.url, byteArray, e.uploadFile.type);
+          await FileUploader.uploadFile(e.routerUploadFilePath, e.uploadFile);
         })
       );
 
