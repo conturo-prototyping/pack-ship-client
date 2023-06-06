@@ -1,16 +1,8 @@
 import React, { useEffect, useState } from "react";
-import {
-  Dialog,
-  DialogActions,
-  DialogContent,
-  IconButton,
-} from "@mui/material";
+import { Dialog, DialogContent, IconButton } from "@mui/material";
 import UploadFileIcon from "@mui/icons-material/UploadFile";
 import Preview from "./Preview";
-import KeyboardArrowRightIcon from "@mui/icons-material/KeyboardArrowRight";
-import KeyboardArrowLeftIcon from "@mui/icons-material/KeyboardArrowLeft";
 import { Box } from "@mui/system";
-import PDFPreview from "./PDFPreview";
 
 const UploadCell = ({
   params,
@@ -23,9 +15,6 @@ const UploadCell = ({
   const [url, setUrl] = useState(null);
   const [previewType, setPreviewType] = useState();
 
-  const [pdfPageNumber, setPDFPageNumber] = useState(1);
-  const [numPages, setNumPages] = useState(null);
-
   useEffect(() => {
     setShowPreview(false);
     if (params.row.downloadUrl) {
@@ -36,10 +25,6 @@ const UploadCell = ({
   useEffect(() => {
     setPreviewType(selectedPreview?.type ?? params.row.contentType);
   }, [selectedPreview?.type, params.row.contentType]);
-
-  function onPDFLoadSuccess({ numPages }) {
-    setNumPages(numPages);
-  }
 
   const onUploadPress = (e) => {
     e.stopPropagation(); // don't select this row after clicking
@@ -59,31 +44,16 @@ const UploadCell = ({
       );
     } else if (previewType === "application/pdf") {
       return (
-        <>
-          <DialogContent>
-            <PDFPreview
-              height={800}
-              url={url}
-              type={previewType}
-              pageNumber={pdfPageNumber}
-            />
-          </DialogContent>
-
-          <DialogActions>
-            <IconButton
-              key={params.id}
-              onClick={() => setPDFPageNumber(Math.max(1, pdfPageNumber - 1))}>
-              <KeyboardArrowLeftIcon />
-            </IconButton>
-            Page {pdfPageNumber} of {numPages}
-            <IconButton
-              onClick={() =>
-                setPDFPageNumber(Math.min(numPages, pdfPageNumber + 1))
-              }>
-              <KeyboardArrowRightIcon />
-            </IconButton>
-          </DialogActions>
-        </>
+        <DialogContent>
+          <iframe
+            title={`pdf-preview-${url}`}
+            width="1000rem"
+            height="800rem"
+            src={url}
+          >
+            <a href={url}>Print Me</a>
+          </iframe>
+        </DialogContent>
       );
     } else {
       return (
@@ -113,8 +83,8 @@ const UploadCell = ({
               : undefined
           }
           onPreviewClick={() => setShowPreview(true)}
-          onPDFLoadSuccess={onPDFLoadSuccess}
-          name={selectedPreview?.name}></Preview>
+          name={selectedPreview?.name}
+        ></Preview>
       ) : (
         !viewOnly && (
           <>
@@ -137,7 +107,8 @@ const UploadCell = ({
       <Dialog
         maxWidth={"lg"}
         open={showPreview}
-        onClose={() => setShowPreview(false)}>
+        onClose={() => setShowPreview(false)}
+      >
         {getDialogContent()}
       </Dialog>
     </>
