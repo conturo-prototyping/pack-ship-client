@@ -231,6 +231,30 @@ const ShippingPendingTable = ({
     );
   }, [page, pendingData?.length, numRowsPerPage, setNumRowsPerPage]);
 
+  const isSubmitReady = () => {
+    if (selectedShippingInfo?.destination === "CARRIER") {
+      return (
+        !handoffName &&
+        !(
+          selectedShippingInfo.deliverySpeed &&
+          selectedShippingInfo.trackingNumber &&
+          selectedShippingInfo.cost
+        )
+      );
+    }
+
+    return (
+      !handoffName &&
+      !(
+        selectedShippingInfo.deliverySpeed &&
+        selectedShippingInfo.trackingNumber &&
+        ((selectedShippingInfo.cost && !selectedShippingInfo.checkedCustomer) ||
+          (selectedShippingInfo.checkedCustomer &&
+            selectedShippingInfo.customerAccount))
+      )
+    );
+  };
+
   return (
     <>
       <StyledDataGrid
@@ -332,16 +356,7 @@ const ShippingPendingTable = ({
 
               <Grid item>
                 <CommonButton
-                  disabled={
-                    !handoffName &&
-                    !(
-                      selectedShippingInfo.deliverySpeed &&
-                      selectedShippingInfo.trackingNumber &&
-                      (selectedShippingInfo.cost ||
-                        (selectedShippingInfo.checkedCustomer &&
-                          selectedShippingInfo.customerAccount))
-                    )
-                  }
+                  disabled={isSubmitReady()}
                   autoFocus
                   onClick={async () => {
                     const updatedData =

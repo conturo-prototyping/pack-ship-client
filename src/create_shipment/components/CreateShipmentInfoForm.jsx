@@ -156,7 +156,11 @@ const CreateCarrierShipmentInfoForm = ({
           <Grid item xs sx={{ paddingBottom: "20px" }}>
             <TextField
               required
-              value={localShippingInfo.customerAccount ?? ""}
+              value={
+                localShippingInfo.checkedCustomer
+                  ? localShippingInfo.customerAccount ?? ""
+                  : ""
+              }
               onChange={(event) => {
                 setLocalShippingInfo({
                   ...localShippingInfo,
@@ -208,7 +212,11 @@ const CreateCarrierShipmentInfoForm = ({
             <Grid item xs>
               <TextField
                 required
-                value={localShippingInfo.cost ?? ""}
+                value={
+                  !localShippingInfo.checkedCustomer
+                    ? localShippingInfo.cost ?? ""
+                    : ""
+                }
                 InputProps={{
                   startAdornment: (
                     <InputAdornment position="start">{"$"}</InputAdornment>
