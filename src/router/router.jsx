@@ -158,11 +158,7 @@ const Router = () => {
         <Route
           exact
           path={ROUTE_SHIPMENTS_UPLOAD}
-          element={
-            <PrivateRoute>
-              <ShipmentUploads />
-            </PrivateRoute>
-          }
+          element={<ShipmentUploads />}
         />
       </Routes>
     </>
@@ -179,6 +175,12 @@ const Router = () => {
       </Route>
 
       <Route exact path="/loginSuccess" element={<LoginSuccess />} />
+
+      <Route
+        exact
+        path={ROUTE_SHIPMENTS_UPLOAD}
+        element={<ShipmentUploads />}
+      />
     </Routes>
   );
 };
