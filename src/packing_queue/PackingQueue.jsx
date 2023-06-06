@@ -23,7 +23,6 @@ import {
   TOP_LEFT_ACTION_BUTTON_HEIGHT,
 } from "../utils/Constants";
 import { DestinationTypes } from "../utils/Constants";
-import { v4 as uuidv4 } from "uuid";
 import { FileUploader } from "../services/fileUploader";
 import { FilePathGenerator } from "../common/FilePathGenerator";
 

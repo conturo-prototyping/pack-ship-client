@@ -19,7 +19,6 @@ import {
   PAGINATION_SIZING_OPTIONS,
 } from "../../utils/Constants";
 import { onPageSizeChange } from "../../utils/TablePageSizeHandler";
-import { v4 as uuidv4 } from "uuid";
 import withPendingTable from "./PackingContextMenuTable";
 import { FileUploader } from "../../services/fileUploader";
 import { FilePathGenerator } from "../../common/FilePathGenerator";
