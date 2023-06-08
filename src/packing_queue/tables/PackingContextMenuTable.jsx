@@ -7,9 +7,6 @@ import pdfMake from "pdfmake/build/pdfmake";
 import PackingContextMenu from "../menus/PackingContextMenu";
 import { v4 as uuidv4 } from "uuid";
 
-//TODO Need to checm where the new row item id is being set, it is not correct
-// to fix the add row and save issue
-
 const PackingContextMenuTable = (OriginalTable) => {
   function NewComponent(props) {
     const { fetchData, filteredData, hasRouterUploads } = props;
@@ -337,7 +334,6 @@ const PackingContextMenuTable = (OriginalTable) => {
             let updatedPackingSlip = {
               ...selectedRow,
             };
-
             const routerUploadData = {
               routerUploadReady: false,
               downloadUrl: undefined,
@@ -364,7 +360,6 @@ const PackingContextMenuTable = (OriginalTable) => {
       [selectedRow, hasRouterUploads]
     );
 
-    //TODO
     const onUploadRouterClick = (params, isReady, file) => {
       if (hasRouterUploads) {
         params.api.updateRows([{ id: params.id, routerUploadReady: isReady }]);
