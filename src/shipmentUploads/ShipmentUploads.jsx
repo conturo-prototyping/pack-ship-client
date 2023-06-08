@@ -27,17 +27,33 @@ const ShipmentUploads = () => {
     const tempShipmentId = searchParams.get("tempShipmentId");
     if (tempShipmentId) {
       const socket = SocketIoFactory.getInstance(searchParams.get("token"));
-      socket.on("joinedRoom", (data) => {
+
+      const processImages = (data) => {
         setImages(
           data.imageUrls.map((e) => {
-            return {
-              file: undefined,
-              img: e.url,
-              path: e.path,
-            };
+            const priorImage = images.find((f) => {
+              return f.path === e.path;
+            });
+
+            if (priorImage)
+              return {
+                file: priorImage.file,
+                img: priorImage.img,
+                path: e.path,
+              };
+            else
+              return {
+                file: undefined,
+                img: e.url,
+                path: e.path,
+              };
           })
         );
-      });
+      };
+
+      socket.on("joinedRoom", processImages);
+
+      socket.on("newDeletions", processImages);
 
       socket.on("connect", () => {
         socket.emit("joinTemp", { tempShipmentId });
@@ -57,6 +73,8 @@ const ShipmentUploads = () => {
         socket.disconnect();
       };
     }
+
+    // eslint-disable-next-line
   }, [searchParams]);
 
   const registerUpdate = (imagePaths) => {
