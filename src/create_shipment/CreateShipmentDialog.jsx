@@ -276,8 +276,8 @@ const CreateShipmentDialog = ({
   const onSubmit = async (localShippingInfo) => {
     setCanErrorCheck(true);
     if (isShippingInfoValid(localShippingInfo, destination)) {
-      API.createShipment(
-        localShippingInfo.manifest,
+      API.createShipmentFromTemp(
+        tempShipmentId,
         localShippingInfo.customer,
         localShippingInfo.deliveryMethod,
         localShippingInfo.trackingNumber,
@@ -304,7 +304,7 @@ const CreateShipmentDialog = ({
             isDueBackOn: null,
             specialShippingAddress: "",
           });
-          await API.deleteTempShipment(tempShipmentId);
+
           reloadData();
           onClose();
           enqueueSnackbar(
