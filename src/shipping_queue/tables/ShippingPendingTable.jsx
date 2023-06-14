@@ -171,6 +171,9 @@ const ShippingPendingTable = ({
         renderHeader: (params) => {
           return <Typography sx={{ fontWeight: 900 }}>Date Created</Typography>;
         },
+        sortComparator: (v1, v2) => {
+          return Date.parse(v1) - Date.parse(v2);
+        },
       },
     ],
     [selectedPendingOrder, onQueueRowClick, tableData, searchText]
