@@ -59,7 +59,7 @@ const PackingContextMenuTable = (OriginalTable) => {
               return e;
             });
             newSelectedRow.items.push({
-              _id: "",
+              _id: possibleChoices[0]._id,
               pageNum: pageNum,
               item: {
                 isNew: true,
@@ -170,6 +170,7 @@ const PackingContextMenuTable = (OriginalTable) => {
           .filter((e) => e.item._id !== itemToDelete._id)
           .map((e) => {
             return {
+              ...e,
               item: { ...e.item },
               qty: e.qty || e.item.packQty,
             };
@@ -323,14 +324,6 @@ const PackingContextMenuTable = (OriginalTable) => {
       );
     };
 
-    const onUploadClick = useCallback(() => {
-      if (hasRouterUploads)
-        setSelectedRow({
-          ...selectedRow,
-          url: true,
-        });
-    }, [selectedRow, hasRouterUploads]);
-
     const onUploadCancelClick = useCallback(
       (itemId) => {
         if (hasRouterUploads)
@@ -341,11 +334,23 @@ const PackingContextMenuTable = (OriginalTable) => {
             let updatedPackingSlip = {
               ...selectedRow,
             };
+            const routerUploadData = {
+              routerUploadReady: false,
+              downloadUrl: undefined,
+              url: undefined,
+              uploadFile: undefined,
+              contentType: undefined,
+            };
 
             if (itemIndex !== undefined) {
               updatedPackingSlip.items[itemIndex] = {
                 ...updatedPackingSlip.items[itemIndex],
                 removeUpload: true,
+                ...routerUploadData,
+              };
+              updatedPackingSlip.items[itemIndex].item = {
+                ...updatedPackingSlip.items[itemIndex].item,
+                ...routerUploadData,
               };
 
               setSelectedRow(updatedPackingSlip);
@@ -362,12 +367,14 @@ const PackingContextMenuTable = (OriginalTable) => {
         setSelectedRow({
           ...selectedRow,
           items: selectedRow.items.map((e) => {
-            if (params.id === e._id) {
+            if (params.id === e.item._id || params.id === e._id) {
               return {
                 ...e,
                 routerUploadReady: isReady,
                 uploadFile: file,
                 removeUpload: false,
+                url: file ? URL.createObjectURL(file) : false,
+                contentType: file ? file.type : undefined,
               };
             }
             return e;
@@ -406,7 +413,6 @@ const PackingContextMenuTable = (OriginalTable) => {
             setConfirmDeleteDialogOpen(true);
             setItemToDelete(params.row);
           }}
-          onUploadClick={onUploadClick}
           onUploadCancelClick={onUploadCancelClick}
           onUploadRouterClick={onUploadRouterClick}
         />

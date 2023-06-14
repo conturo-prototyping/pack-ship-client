@@ -50,6 +50,8 @@ const PackingSlipDialog = ({
             ...e,
             routerUploadReady: isReady,
             uploadFile: file,
+            url: file ? URL.createObjectURL(file) : false,
+            contentType: file ? file.type : undefined,
           };
         }
         return e;
@@ -65,7 +67,8 @@ const PackingSlipDialog = ({
       onBackdropClick={onClose}
       onSubmit={() => onSubmit(filledForm, orderNum, destination)}
       submitDisabled={!isSubmittable()}
-      actions={actions}>
+      actions={actions}
+    >
       <DestinationToggle
         disabled={!!destination}
         destination={destination || DestinationTypes.CUSTOMER}

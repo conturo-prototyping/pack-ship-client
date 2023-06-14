@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useState } from "react";
 import { Dialog, DialogContent, IconButton } from "@mui/material";
 import UploadFileIcon from "@mui/icons-material/UploadFile";
 import Preview from "./Preview";
@@ -12,25 +12,13 @@ const UploadCell = ({
 }) => {
   const [showPreview, setShowPreview] = useState(false);
   const [selectedPreview, setSelectedPreview] = useState(null);
-  const [url, setUrl] = useState(null);
-  const [previewType, setPreviewType] = useState();
 
-  useEffect(() => {
-    setShowPreview(false);
-    if (params.row.downloadUrl) {
-      setUrl(params.row.downloadUrl);
-    }
-  }, [params.row.contentType, params.row.downloadUrl]);
-
-  useEffect(() => {
-    setPreviewType(selectedPreview?.type ?? params.row.contentType);
-  }, [selectedPreview?.type, params.row.contentType]);
+  const url = params.row.downloadUrl || params.row.url;
+  const previewType = params.row.contentType;
 
   const onUploadPress = (e) => {
     e.stopPropagation(); // don't select this row after clicking
 
-    const url = URL.createObjectURL(e.target.files[0]);
-    setUrl(url);
     onUploadClick(params, true, e.target.files[0]);
     setSelectedPreview(e.target.files[0]);
   };
@@ -78,7 +66,6 @@ const UploadCell = ({
                   if (onCloseClick) {
                     onCloseClick();
                   } else onUploadClick(params, false);
-                  setUrl(null);
                 }
               : undefined
           }
