@@ -20,8 +20,12 @@ const ShipmentDetails = ({
     trackingNumber: true,
     cost: true,
     customerHandoffName: true,
+    customerAccount: true,
   },
 }) => {
+  const isCustomerAccountEmpty =
+    shipment?.customerAccount === "false" ? "" : shipment?.customerAccount;
+
   return (
     <div>
       <Grid container direction="row" alignItems="flex-start" spacing={10}>
@@ -102,7 +106,11 @@ const ShipmentDetails = ({
                             ? ""
                             : shipment?.customerAccount
                         }
-                        viewOnly={viewOnly}
+                        viewOnly={
+                          !isCustomerAccountEmpty
+                            ? cantEditShippingDetails.customerAccount
+                            : viewOnly
+                        }
                         onChange={onCustomerAccountChange}
                       />
                     </Grid>

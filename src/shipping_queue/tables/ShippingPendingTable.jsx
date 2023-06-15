@@ -419,6 +419,7 @@ const cantEditShippingDetails = {
   trackingNumber: true,
   cost: true,
   customerHandoffName: true,
+  customerAccount: true,
 };
 
 export default withContextMenu(
