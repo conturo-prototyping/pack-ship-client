@@ -5,10 +5,12 @@ import { snackbarVariants, usePackShipSnackbar } from "../../common/Snackbar";
 import ConfirmDialog from "../../components/ConfirmDialog";
 import pdfMake from "pdfmake/build/pdfmake";
 import PackingContextMenu from "../menus/PackingContextMenu";
+import { v4 as uuidv4 } from "uuid";
 
 const PackingContextMenuTable = (OriginalTable) => {
   function NewComponent(props) {
-    const { fetchData, filteredData, preloadedFetchData } = props;
+    const { fetchData, filteredData, hasRouterUploads, preloadedFetchData } =
+      props;
 
     const [contextMenu, setContextMenu] = useState(null);
     const [selectedRow, setSelectedRow] = useState({});
@@ -210,15 +212,69 @@ const PackingContextMenuTable = (OriginalTable) => {
       setIsEditPackingSlipOpen({ open: false, viewOnly: false });
     };
 
-    const onPackingSlipSubmit = () => {
+    const onPackingSlipSubmit = async () => {
       if (isEditPackingSlipOpen.viewOnly) {
         setIsEditPackingSlipOpen({ open: false, viewOnly: false });
       } else {
-        API.patchPackingSlip(selectedRow.id, {
-          items: selectedRow.items.map((e) => {
+        const rowToUpload = selectedRow;
+
+        if (hasRouterUploads) {
+          await Promise.all(
+            selectedRow.items.map(async (e) => {
+              if (e.removeUpload && e.routerUploadFilePath) {
+                return await API.deleteRouterURL(selectedRow._id, e._id);
+              }
+            })
+          );
+
+          const items = selectedRow.items.map((e) => {
+            if (
+              (!e.routerUploadFilePath || e.item.routerUploadReady) &&
+              e.uploadFile
+            ) {
+              e.routerUploadFilePath = `${selectedRow.customer._id}/${
+                selectedRow.orderNumber
+              }/${e._id}-${uuidv4()}`;
+
+              return {
+                ...e,
+                routerUploadFilePath: e.routerUploadFilePath,
+                newUpload: true,
+              };
+            }
+            return e;
+          });
+
+          await Promise.all(
+            items.map(async (e) => {
+              if (e.newUpload) {
+                const data = await API.getSignedUploadUrl(
+                  e.routerUploadFilePath
+                );
+
+                const buffer = await e.uploadFile.arrayBuffer();
+                let byteArray = new Int8Array(buffer);
+
+                await API.uploadBySignedUrl(
+                  data.url,
+                  byteArray,
+                  e.uploadFile.type
+                );
+              }
+            })
+          );
+
+          rowToUpload.items = items;
+        }
+
+        API.patchPackingSlip(rowToUpload.id, {
+          items: rowToUpload.items.map((e) => {
             return {
-              item: { ...e.item },
+              ...e,
               qty: e.qty || e.item.packQty,
+              routerUploadFilePath: e.removeUpload
+                ? undefined
+                : e.routerUploadFilePath,
             };
           }),
           destination: selectedRow?.destination,
@@ -270,6 +326,59 @@ const PackingContextMenuTable = (OriginalTable) => {
       );
     };
 
+    const onUploadClick = useCallback(() => {
+      if (hasRouterUploads)
+        setSelectedRow({
+          ...selectedRow,
+          url: true,
+        });
+    }, [selectedRow, hasRouterUploads]);
+
+    const onUploadCancelClick = useCallback(
+      (itemId) => {
+        if (hasRouterUploads)
+          setTimeout(() => {
+            const itemIndex = selectedRow?.items?.findIndex(
+              (e) => e._id === itemId || e.item._id === itemId
+            );
+            let updatedPackingSlip = {
+              ...selectedRow,
+            };
+
+            if (itemIndex !== undefined) {
+              updatedPackingSlip.items[itemIndex] = {
+                ...updatedPackingSlip.items[itemIndex],
+                removeUpload: true,
+              };
+
+              setSelectedRow(updatedPackingSlip);
+            }
+          }, 0);
+      },
+      [selectedRow, hasRouterUploads]
+    );
+
+    const onUploadRouterClick = (params, isReady, file) => {
+      if (hasRouterUploads) {
+        params.api.updateRows([{ id: params.id, routerUploadReady: isReady }]);
+
+        setSelectedRow({
+          ...selectedRow,
+          items: selectedRow.items.map((e) => {
+            if (params.id === e._id) {
+              return {
+                ...e,
+                routerUploadReady: isReady,
+                uploadFile: file,
+                removeUpload: false,
+              };
+            }
+            return e;
+          }),
+        });
+      }
+    };
+
     return (
       <div>
         <OriginalTable
@@ -300,6 +409,9 @@ const PackingContextMenuTable = (OriginalTable) => {
             setConfirmDeleteDialogOpen(true);
             setItemToDelete(params.row);
           }}
+          onUploadClick={onUploadClick}
+          onUploadCancelClick={onUploadCancelClick}
+          onUploadRouterClick={onUploadRouterClick}
         />
         <ConfirmDialog
           title="Are You Sure You Want To Delete This?"

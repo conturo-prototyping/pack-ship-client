@@ -109,8 +109,8 @@ const PackingQueue = () => {
     async (sort, pageNumber, oNum, pNum) => {
       if (isMounted && tabValue === 2) setHistoryLoading(true);
       await API.searchPackingSlipsHistory(
-        sort.sortBy,
-        sort.sortOrder,
+        sort?.sortBy,
+        sort?.sortOrder,
         oNum,
         pNum,
         histResultsPerPage,
@@ -476,6 +476,7 @@ const PackingQueue = () => {
                 pageNumber={histPageNum}
                 onPageChange={onHistPageChange}
                 setHistResultsPerPage={setHistResultsPerPage}
+                hasRouterUploads
               />
             }
             pendingTab={
@@ -486,6 +487,7 @@ const PackingQueue = () => {
                 filteredData={filteredPending}
                 isLoading={pendingLoading}
                 fetchData={fetchPendingData}
+                hasRouterUploads
               />
             }
           />
