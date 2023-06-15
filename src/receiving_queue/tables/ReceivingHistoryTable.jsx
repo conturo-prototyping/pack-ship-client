@@ -88,7 +88,7 @@ const ReceivingHistoryTable = ({
 
   const reloadData = useCallback(() => {
     if (isMounted) {
-      fetchSearch().finally(() => {});
+      fetchSearch();
     }
     // eslint-disable-next-line
   }, [isMounted]);
