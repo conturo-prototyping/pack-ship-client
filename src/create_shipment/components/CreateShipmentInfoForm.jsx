@@ -156,11 +156,15 @@ const CreateCarrierShipmentInfoForm = ({
           <Grid item xs sx={{ paddingBottom: "20px" }}>
             <TextField
               required
-              value={localShippingInfo.customerAccount ?? ""}
+              value={
+                localShippingInfo.checkedCustomer
+                  ? localShippingInfo.customerAccount ?? ""
+                  : ""
+              }
               onChange={(event) => {
                 setLocalShippingInfo({
                   ...localShippingInfo,
-                  customerAccount: event.target.value,
+                  customerAccount: event.target.value.trim(),
                 });
               }}
               onBlur={() => {
@@ -189,7 +193,7 @@ const CreateCarrierShipmentInfoForm = ({
                 onChange={(event) => {
                   setLocalShippingInfo({
                     ...localShippingInfo,
-                    trackingNumber: event.target.value,
+                    trackingNumber: event.target.value.trim(),
                   });
                 }}
                 onBlur={() => {
@@ -208,7 +212,11 @@ const CreateCarrierShipmentInfoForm = ({
             <Grid item xs>
               <TextField
                 required
-                value={localShippingInfo.cost ?? ""}
+                value={
+                  !localShippingInfo.checkedCustomer
+                    ? localShippingInfo.cost ?? ""
+                    : ""
+                }
                 InputProps={{
                   startAdornment: (
                     <InputAdornment position="start">{"$"}</InputAdornment>
@@ -217,7 +225,7 @@ const CreateCarrierShipmentInfoForm = ({
                 onChange={(event) => {
                   setLocalShippingInfo({
                     ...localShippingInfo,
-                    cost: event.target.value,
+                    cost: event.target.value.trim(),
                   });
                 }}
                 onBlur={() => {
