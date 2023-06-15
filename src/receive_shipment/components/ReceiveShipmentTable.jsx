@@ -3,6 +3,7 @@ import { Typography } from "@mui/material";
 import { hasValueError } from "../../utils/validators/number_validator";
 import DialogTable from "../../common/DialogTable";
 import { WORK_ORDER_PO } from "../../common/ItemTypes";
+import { useGridApiRef } from "@mui/x-data-grid-pro";
 
 const ReceiveShipmentTable = ({
   rowData,
@@ -11,6 +12,8 @@ const ReceiveShipmentTable = ({
   type,
   viewOnly = false,
 }) => {
+  const apiRef = useGridApiRef();
+
   const columns =
     type === WORK_ORDER_PO
       ? [
@@ -110,6 +113,7 @@ const ReceiveShipmentTable = ({
 
   return (
     <DialogTable
+      apiRef={apiRef}
       rowData={rowData}
       columns={columns}
       cellEditName="qtyReceived"

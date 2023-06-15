@@ -171,6 +171,9 @@ const ShippingPendingTable = ({
         renderHeader: (params) => {
           return <Typography sx={{ fontWeight: 900 }}>Date Created</Typography>;
         },
+        sortComparator: (v1, v2) => {
+          return Date.parse(v1) - Date.parse(v2);
+        },
       },
     ],
     [selectedPendingOrder, onQueueRowClick, tableData, searchText]
@@ -230,6 +233,30 @@ const ShippingPendingTable = ({
       </table>
     );
   }, [page, pendingData?.length, numRowsPerPage, setNumRowsPerPage]);
+
+  const isSubmitReady = () => {
+    if (selectedShippingInfo?.destination === "CARRIER") {
+      return (
+        !handoffName &&
+        !(
+          selectedShippingInfo.deliverySpeed &&
+          selectedShippingInfo.trackingNumber &&
+          selectedShippingInfo.cost
+        )
+      );
+    }
+
+    return (
+      !handoffName &&
+      !(
+        selectedShippingInfo.deliverySpeed &&
+        selectedShippingInfo.trackingNumber &&
+        ((selectedShippingInfo.cost && !selectedShippingInfo.checkedCustomer) ||
+          (selectedShippingInfo.checkedCustomer &&
+            selectedShippingInfo.customerAccount))
+      )
+    );
+  };
 
   return (
     <>
@@ -332,14 +359,7 @@ const ShippingPendingTable = ({
 
               <Grid item>
                 <CommonButton
-                  disabled={
-                    !handoffName &&
-                    !(
-                      selectedShippingInfo.deliverySpeed &&
-                      selectedShippingInfo.trackingNumber &&
-                      selectedShippingInfo.cost
-                    )
-                  }
+                  disabled={isSubmitReady()}
                   autoFocus
                   onClick={async () => {
                     const updatedData =
