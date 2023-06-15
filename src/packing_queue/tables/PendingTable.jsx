@@ -64,6 +64,9 @@ const columns = [
       return <Typography sx={{ fontWeight: 900 }}>Date Created</Typography>;
     },
     flex: 1,
+    sortComparator: (v1, v2) => {
+      return Date.parse(v1) - Date.parse(v2);
+    },
   },
 ];
 

@@ -88,16 +88,7 @@ const ShippingPendingTable = ({
     const shippingInfo = pendingShipments.filter(
       (e) => e.id === selectedPendingOrder[0]
     )[0];
-    if (shippingInfo)
-      setSelectedShippingInfo({
-        customer: shippingInfo.customer,
-        deliveryMethod: shippingInfo.deliveryMethod,
-        deliverySpeed: shippingInfo.deliverySpeed,
-        carrier: shippingInfo.carrier,
-        checkedCustomer: shippingInfo.checkedCustomer,
-        customerAccount: shippingInfo.customerAccount,
-        destination: shippingInfo.destination,
-      });
+    if (shippingInfo) setSelectedShippingInfo(shippingInfo);
     // eslint-disable-next-line
   }, [selectedPendingOrder]);
 
@@ -180,6 +171,9 @@ const ShippingPendingTable = ({
         renderHeader: (params) => {
           return <Typography sx={{ fontWeight: 900 }}>Date Created</Typography>;
         },
+        sortComparator: (v1, v2) => {
+          return Date.parse(v1) - Date.parse(v2);
+        },
       },
     ],
     [selectedPendingOrder, onQueueRowClick, tableData, searchText]
@@ -239,6 +233,30 @@ const ShippingPendingTable = ({
       </table>
     );
   }, [page, pendingData?.length, numRowsPerPage, setNumRowsPerPage]);
+
+  const isSubmitReady = () => {
+    if (selectedShippingInfo?.destination === "CARRIER") {
+      return (
+        !handoffName &&
+        !(
+          selectedShippingInfo.deliverySpeed &&
+          selectedShippingInfo.trackingNumber &&
+          selectedShippingInfo.cost
+        )
+      );
+    }
+
+    return (
+      !handoffName &&
+      !(
+        selectedShippingInfo.deliverySpeed &&
+        selectedShippingInfo.trackingNumber &&
+        ((selectedShippingInfo.cost && !selectedShippingInfo.checkedCustomer) ||
+          (selectedShippingInfo.checkedCustomer &&
+            selectedShippingInfo.customerAccount))
+      )
+    );
+  };
 
   return (
     <>
@@ -341,14 +359,7 @@ const ShippingPendingTable = ({
 
               <Grid item>
                 <CommonButton
-                  disabled={
-                    !handoffName &&
-                    !(
-                      selectedShippingInfo.deliverySpeed &&
-                      selectedShippingInfo.trackingNumber &&
-                      selectedShippingInfo.cost
-                    )
-                  }
+                  disabled={isSubmitReady()}
                   autoFocus
                   onClick={async () => {
                     const updatedData =
@@ -357,7 +368,7 @@ const ShippingPendingTable = ({
                             customerHandoffName: handoffName,
                           }
                         : selectedShippingInfo;
-                    API.patchShipment(selectedPendingOrder, updatedData)
+                    API.patchShipment(selectedPendingOrder, updatedData, true)
                       .then(async () => {
                         await reloadData();
 

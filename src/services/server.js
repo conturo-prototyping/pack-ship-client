@@ -182,9 +182,9 @@ export const API = {
     }
   },
 
-  async patchShipment(id, updatedShipment) {
+  async patchShipment(id, updatedShipment, isPending) {
     try {
-      const response = await instance.patch(`/shipments/${id}`, {
+      const response = await instance.patch(`/shipments/${id}${ isPending ? '/pending' : '' }`, {
         ...updatedShipment,
         shippingAddress: updatedShipment.specialShippingAddress,
       });
@@ -451,6 +451,57 @@ export const API = {
       throw new Error(
         error?.response?.data ??
           "An error occurred getting packing slip pending queue"
+      );
+    }
+  },
+
+  async getSignedUploadUrl(location) {
+    try {
+      const response = await instance.post(`/storage/upload`, {
+        location,
+      });
+
+      return response.data;
+    } catch (error) {
+      console.error("getSignedUploadUrl", error);
+      throw new Error(
+        error?.response?.data ?? "An error occurred signed upload URL"
+      );
+    }
+  },
+
+  async uploadBySignedUrl(url, file, type) {
+    try {
+      const response = await axios.put(url, file, {
+        headers: {
+          "content-type": type,
+        },
+      });
+
+      return response.data;
+    } catch (error) {
+      console.error("getSignedUploadUrl", error);
+      throw new Error(
+        error?.response?.data ?? "An error occurred signed upload URL"
+      );
+    }
+  },
+
+  async deleteRouterURL(id, itemId) {
+    try {
+      const response = await instance.delete(
+        `/packingSlips/routerUpload/${id}`,
+        {
+          data: {
+            itemId,
+          },
+        }
+      );
+      return response.data;
+    } catch (error) {
+      console.error("deleteRouterUpload", error);
+      throw new Error(
+        error?.response?.data ?? "An error occurred deleting a router upload"
       );
     }
   },
