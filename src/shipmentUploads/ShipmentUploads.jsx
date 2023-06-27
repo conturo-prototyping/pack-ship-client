@@ -4,11 +4,13 @@ import ImageDisplay from "./ImageDisplay";
 import ImageUpload from "./ImageUpload";
 import { SocketIoFactory } from "../socket";
 import { API } from "../services/server";
+import { snackbarVariants, usePackShipSnackbar } from "../common/Snackbar";
 
 const ShipmentUploads = () => {
   const [searchParams] = useSearchParams();
   const [images, setImages] = useState([]);
   const [isLoading, setIsLoading] = useState(false);
+  const enqueueSnackbar = usePackShipSnackbar();
 
   useEffect(() => {
     const token = searchParams.get("token");
@@ -55,13 +57,16 @@ const ShipmentUploads = () => {
 
       socket.on("newDeletions", processImages);
 
+      socket.on("newUploads", processImages);
+
       socket.on("connect", () => {
         socket.emit("joinTemp", { tempShipmentId });
       });
 
       socket.on("disconnect", () => {
-        alert(
-          "Error connecting to backend. Problems may arise with images uploaded here not showing up elsewhere"
+        enqueueSnackbar(
+          "Error connecting to backend. Problems may arise with images uploaded here not showing up elsewhere",
+          snackbarVariants.error
         );
       });
 
@@ -69,6 +74,9 @@ const ShipmentUploads = () => {
 
       return () => {
         socket.off("connect");
+        socket.off("joinedRoom");
+        socket.off("newDeletions");
+        socket.off("newUploads");
 
         socket.disconnect();
       };

@@ -10,6 +10,8 @@ const CommonButton = ({
   color = "primary",
   type = undefined,
   sx = undefined,
+  component = "button",
+  children,
 }) => {
   return (
     <Button
@@ -19,8 +21,10 @@ const CommonButton = ({
       onClick={onClick}
       autoFocus={autoFocus}
       type={type}
-      sx={sx}>
+      sx={sx}
+      component={component}>
       {label}
+      {children}
     </Button>
   );
 };
