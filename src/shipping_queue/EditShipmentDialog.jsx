@@ -4,6 +4,7 @@ import {
   DialogActions,
   Dialog,
   DialogContent,
+  Grid,
 } from "@mui/material";
 import PackShipEditableTable from "../components/EdittableTable";
 import PopupDialog from "../components/PackingDialog";
@@ -13,6 +14,7 @@ import EditTableDropdown from "../components/EditTableDropdown";
 import { ADD_ROW_ID } from "../utils/Constants";
 import CommonButton from "../common/Button";
 import ImageDisplay from "../shipmentUploads/ImageDisplay";
+import Preview from "../packing_slip/components/Preview";
 
 const EditShipmentTableDialog = ({
   canErrorCheck,
@@ -110,7 +112,8 @@ const EditShipmentTableDialog = ({
           ) : (
             <CommonButton label="View Files" onClick={onViewClick} />
           )
-        }>
+        }
+      >
         <PackShipEditableTable
           tableData={shipment?.manifest?.map((e) => {
             return { ...e, id: e._id };
@@ -120,24 +123,39 @@ const EditShipmentTableDialog = ({
           onAdd={onAdd}
           viewOnly={viewOnly}
         />
-        <ShipmentDetails
-          canErrorCheck={canErrorCheck}
-          shipment={shipment}
-          onCarrierInputChange={onCarrierInputChange}
-          onDeliverySpeedChange={onDeliverySpeedChange}
-          onCustomerAccountChange={onCustomerAccountChange}
-          onCustomerNameChange={onCustomerNameChange}
-          onShippingAddressChange={onShippingAddressChange}
-          onTrackingChange={onTrackingChange}
-          onCostChange={onCostChange}
-          viewOnly={viewOnly}
-          cantEditShippingDetails={cantEditShippingDetails}
-        />
+        <Grid container direction={"row"}>
+          <Grid item xs={10}>
+            <ShipmentDetails
+              canErrorCheck={canErrorCheck}
+              shipment={shipment}
+              onCarrierInputChange={onCarrierInputChange}
+              onDeliverySpeedChange={onDeliverySpeedChange}
+              onCustomerAccountChange={onCustomerAccountChange}
+              onCustomerNameChange={onCustomerNameChange}
+              onShippingAddressChange={onShippingAddressChange}
+              onTrackingChange={onTrackingChange}
+              onCostChange={onCostChange}
+              viewOnly={viewOnly}
+              cantEditShippingDetails={cantEditShippingDetails}
+            />
+          </Grid>
+
+          <Grid item xs={2}>
+            {shipment?.confirmShipmentFileUrl && (
+              <Preview
+                height={200}
+                url={shipment?.confirmShipmentFileUrl[0]}
+                type={shipment?.confirmShipmentFileUrl[1]}
+              />
+            )}
+          </Grid>
+        </Grid>
         <Dialog
           open={imageDisplayOpen}
           fullWidth={true}
           maxWidth="lg"
-          onClose={() => setImageDisplayOpen(false)}>
+          onClose={() => setImageDisplayOpen(false)}
+        >
           <DialogContent>
             <ImageDisplay
               images={images}
