@@ -1,14 +1,8 @@
 import React, { useEffect, useState } from "react";
-import {
-  Dialog,
-  DialogContent,
-  Grid,
-  IconButton,
-  Typography,
-} from "@mui/material";
+import { Grid, IconButton, Typography } from "@mui/material";
 import UploadFileIcon from "@mui/icons-material/UploadFile";
 import Preview from "./Preview";
-import { Box } from "@mui/system";
+import PreviewPopup from "../../components/PreviewPopup";
 
 export const UPLOAD_CELL_TYPES = {
   icon: "icon",
@@ -48,34 +42,6 @@ const UploadCell = ({
     setSelectedPreview(e.target.files[0]);
   };
 
-  const getDialogContent = () => {
-    if (previewType?.startsWith("image/")) {
-      return (
-        <DialogContent>
-          <Preview height={800} url={url} type={previewType} />
-        </DialogContent>
-      );
-    } else if (previewType === "application/pdf") {
-      return (
-        <DialogContent>
-          <iframe
-            title={`pdf-preview-${url}`}
-            width="1000rem"
-            height="800rem"
-            src={url}>
-            <a href={url}>Print Me</a>
-          </iframe>
-        </DialogContent>
-      );
-    } else {
-      return (
-        <Box>
-          <p>Preview Unavailable</p>
-        </Box>
-      );
-    }
-  };
-
   const getUploadContent = () => {
     const uploadInput = (color = "primary") => (
       <React.Fragment>
@@ -108,7 +74,8 @@ const UploadCell = ({
           />
           <label
             style={{ width: "100%", cursor: "pointer" }}
-            htmlFor={params.id}>
+            htmlFor={params.id}
+          >
             <div
               style={{
                 textAlign: "center",
@@ -117,7 +84,8 @@ const UploadCell = ({
                 width: "100%",
                 margin: "auto",
                 backgroundColor: "gainsboro",
-              }}>
+              }}
+            >
               {/* <IconButton component="span" color={"default"} sx={{":hover": }}> */}
               <Grid container>
                 <Grid item xs={12}>
@@ -160,12 +128,13 @@ const UploadCell = ({
         !viewOnly && getUploadContent()
       )}
 
-      <Dialog
-        maxWidth={"lg"}
-        open={showPreview}
-        onClose={() => setShowPreview(false)}>
-        {getDialogContent()}
-      </Dialog>
+      <PreviewPopup
+        height={800}
+        onClose={() => setShowPreview(false)}
+        showPreview={showPreview}
+        url={url}
+        previewType={previewType}
+      ></PreviewPopup>
     </>
   );
 };

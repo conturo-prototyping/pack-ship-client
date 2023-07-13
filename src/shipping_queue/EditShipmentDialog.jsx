@@ -15,6 +15,7 @@ import { ADD_ROW_ID } from "../utils/Constants";
 import CommonButton from "../common/Button";
 import ImageDisplay from "../shipmentUploads/ImageDisplay";
 import Preview from "../packing_slip/components/Preview";
+import PreviewPopup from "../components/PreviewPopup";
 
 const EditShipmentTableDialog = ({
   canErrorCheck,
@@ -42,6 +43,7 @@ const EditShipmentTableDialog = ({
 }) => {
   const [imageDisplayOpen, setImageDisplayOpen] = useState(false);
   const [images, setImages] = useState([]);
+  const [showPreview, setShowPreview] = useState(false);
 
   useEffect(() => {
     if (shipment)
@@ -146,10 +148,18 @@ const EditShipmentTableDialog = ({
                 height={200}
                 url={shipment?.confirmShipmentFileUrl[0]}
                 type={shipment?.confirmShipmentFileUrl[1]}
+                onPreviewClick={() => setShowPreview(true)}
               />
             )}
           </Grid>
         </Grid>
+        <PreviewPopup
+          height={800}
+          url={shipment?.confirmShipmentFileUrl[0]}
+          type={shipment?.confirmShipmentFileUrl[1]}
+          onClose={() => setShowPreview(false)}
+          showPreview={showPreview}
+        />
         <Dialog
           open={imageDisplayOpen}
           fullWidth={true}
