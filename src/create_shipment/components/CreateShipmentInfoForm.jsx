@@ -128,7 +128,8 @@ const CreateCarrierShipmentInfoForm = ({
               <Typography
                 minWidth="max-content"
                 align="right"
-                sx={{ fontWeight: 700 }}>
+                sx={{ fontWeight: 700 }}
+              >
                 Customer Account:
               </Typography>
             </Grid>
@@ -145,7 +146,8 @@ const CreateCarrierShipmentInfoForm = ({
                     minWidth="max-content"
                     justifyContent="flex-end"
                     sx={{ fontSize: 14 }}
-                    align="right">
+                    align="right"
+                  >
                     Charge Customer?
                   </Typography>
                 }
@@ -238,18 +240,22 @@ const CreateCarrierShipmentInfoForm = ({
               />
             </Grid>
           </Grid>
-          <UploadCell
-            key={"uploadCell"}
-            params={{ id: "uploadCell", row: {} }}
-            onUploadClick={(_, __, file) => {
-              setUploadedImage({ file });
-            }}
-            onCloseClick={() => {
-              setUploadedImage(undefined);
-            }}
-            type={UPLOAD_CELL_TYPES.dropzone}
-            text={"Please upload a copy of the signed packing slip to continue"}
-          />
+          <div style={{ padding: "2rem" }}>
+            <UploadCell
+              key={"uploadCell"}
+              params={{ id: "uploadCell", row: {} }}
+              onUploadClick={(_, __, file) => {
+                setUploadedImage({ file });
+              }}
+              onCloseClick={() => {
+                setUploadedImage(undefined);
+              }}
+              type={UPLOAD_CELL_TYPES.dropzone}
+              text={
+                "Please upload a copy of the signed packing slip to continue"
+              }
+            />
+          </div>
         </>
       )}
     </Box>
