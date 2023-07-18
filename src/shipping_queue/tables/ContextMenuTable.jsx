@@ -189,6 +189,20 @@ const ContextMenuTable = (OriginalTable, cantEditShippingDetails) => {
       }
     }, [clickedHistShipment, packingSlipToDelete]);
 
+    const onDeleteRouterImage = useCallback((imagePath) => {
+      setClickedHistShipment((prevState) => {
+        return {
+          ...prevState,
+          shipmentImages: prevState.shipmentImages.filter((e) => {
+            return e !== imagePath;
+          }),
+          shipmentImageUrls: prevState.shipmentImageUrls.filter((e) => {
+            return e.path !== imagePath;
+          }),
+        };
+      });
+    }, []);
+
     const createShipmentPdfDoc = useCallback(async () => {
       await API.downloadShipmentPDF(clickedHistShipment)
         .then((data) => {
@@ -277,6 +291,7 @@ const ContextMenuTable = (OriginalTable, cantEditShippingDetails) => {
             });
           }}
           onNewRowChange={onNewRowChange}
+          onDeleteRouterImage={onDeleteRouterImage}
         />
 
         <ConfirmDialog
@@ -302,8 +317,7 @@ const ContextMenuTable = (OriginalTable, cantEditShippingDetails) => {
               .catch((e) => {
                 enqueueSnackbar(e.message, snackbarVariants.error);
               });
-          }}
-        >
+          }}>
           <Typography sx={{ fontWeight: 900 }}>
             {clickedHistShipment?.label}
           </Typography>

@@ -1,14 +1,21 @@
-import React from "react";
-import makeStyles from "@mui/styles/makeStyles";
-import { Typography, DialogActions } from "@mui/material";
+import React, { useEffect, useState } from "react";
+import {
+  Typography,
+  DialogActions,
+  Dialog,
+  DialogContent,
+  Grid,
+} from "@mui/material";
 import PackShipEditableTable from "../components/EdittableTable";
 import PopupDialog from "../components/PackingDialog";
 import PackingSlipDrowdown from "./PackingSlipDropdown";
 import ShipmentDetails from "./ShipmentDetails";
 import EditTableDropdown from "../components/EditTableDropdown";
 import { ADD_ROW_ID } from "../utils/Constants";
-
-const useStyle = makeStyles((theme) => ({}));
+import CommonButton from "../common/Button";
+import ImageDisplay from "../shipmentUploads/ImageDisplay";
+import Preview from "../packing_slip/components/Preview";
+import PreviewPopup from "../components/PreviewPopup";
 
 const EditShipmentTableDialog = ({
   canErrorCheck,
@@ -26,6 +33,7 @@ const EditShipmentTableDialog = ({
   onTrackingChange,
   onCostChange,
   onNewRowChange,
+  onDeleteRouterImage,
   viewOnly = true,
   cantEditShippingDetails = {
     customerAccount: true,
@@ -33,7 +41,25 @@ const EditShipmentTableDialog = ({
     cost: true,
   },
 }) => {
-  const classes = useStyle();
+  const [imageDisplayOpen, setImageDisplayOpen] = useState(false);
+  const [images, setImages] = useState([]);
+  const [showPreview, setShowPreview] = useState(false);
+
+  useEffect(() => {
+    if (shipment)
+      setImages(
+        shipment.shipmentImageUrls.map((e) => {
+          return {
+            ...e,
+            img: e.url,
+          };
+        })
+      );
+  }, [shipment]);
+
+  const onViewClick = () => {
+    setImageDisplayOpen(true);
+  };
 
   function renderDropdown(params) {
     if (params.row.isNew) {
@@ -63,7 +89,7 @@ const EditShipmentTableDialog = ({
       renderCell: (params) => {
         return renderDropdown(params);
       },
-      flex: 2,
+      flex: 8,
       renderHeader: (params) => {
         return <Typography sx={{ fontWeight: 900 }}>Packing Slip</Typography>;
       },
@@ -71,7 +97,7 @@ const EditShipmentTableDialog = ({
   ];
 
   return (
-    <div className={classes.root}>
+    <div>
       <PopupDialog
         open={isOpen}
         titleText={`${viewOnly ? "" : "Edit Shipment / "}${shipment?.label} (${
@@ -79,8 +105,15 @@ const EditShipmentTableDialog = ({
         })`}
         onClose={onClose}
         onSubmit={onSubmit}
+        prependActions={!viewOnly}
         actions={
-          viewOnly ? <DialogActions sx={{ height: "43.5px" }} /> : undefined
+          viewOnly ? (
+            <DialogActions sx={{ height: "43.5px" }}>
+              <CommonButton label="View Files" onClick={onViewClick} />
+            </DialogActions>
+          ) : (
+            <CommonButton label="View Files" onClick={onViewClick} />
+          )
         }
       >
         <PackShipEditableTable
@@ -92,19 +125,55 @@ const EditShipmentTableDialog = ({
           onAdd={onAdd}
           viewOnly={viewOnly}
         />
-        <ShipmentDetails
-          canErrorCheck={canErrorCheck}
-          shipment={shipment}
-          onCarrierInputChange={onCarrierInputChange}
-          onDeliverySpeedChange={onDeliverySpeedChange}
-          onCustomerAccountChange={onCustomerAccountChange}
-          onCustomerNameChange={onCustomerNameChange}
-          onShippingAddressChange={onShippingAddressChange}
-          onTrackingChange={onTrackingChange}
-          onCostChange={onCostChange}
-          viewOnly={viewOnly}
-          cantEditShippingDetails={cantEditShippingDetails}
+        <Grid container direction={"row"}>
+          <Grid item xs={10}>
+            <ShipmentDetails
+              canErrorCheck={canErrorCheck}
+              shipment={shipment}
+              onCarrierInputChange={onCarrierInputChange}
+              onDeliverySpeedChange={onDeliverySpeedChange}
+              onCustomerAccountChange={onCustomerAccountChange}
+              onCustomerNameChange={onCustomerNameChange}
+              onShippingAddressChange={onShippingAddressChange}
+              onTrackingChange={onTrackingChange}
+              onCostChange={onCostChange}
+              viewOnly={viewOnly}
+              cantEditShippingDetails={cantEditShippingDetails}
+            />
+          </Grid>
+
+          <Grid item xs={2}>
+            {shipment?.confirmShipmentFileUrl && (
+              <Preview
+                height={200}
+                url={shipment?.confirmShipmentFileUrl[0]}
+                type={shipment?.confirmShipmentFileUrl[1]}
+                onPreviewClick={() => setShowPreview(true)}
+              />
+            )}
+          </Grid>
+        </Grid>
+        <PreviewPopup
+          height={800}
+          url={shipment?.confirmShipmentFileUrl[0]}
+          type={shipment?.confirmShipmentFileUrl[1]}
+          onClose={() => setShowPreview(false)}
+          showPreview={showPreview}
         />
+        <Dialog
+          open={imageDisplayOpen}
+          fullWidth={true}
+          maxWidth="lg"
+          onClose={() => setImageDisplayOpen(false)}
+        >
+          <DialogContent>
+            <ImageDisplay
+              images={images}
+              onDelete={viewOnly ? undefined : onDeleteRouterImage}
+              isLoading={false}
+            />
+          </DialogContent>
+        </Dialog>
       </PopupDialog>
     </div>
   );
