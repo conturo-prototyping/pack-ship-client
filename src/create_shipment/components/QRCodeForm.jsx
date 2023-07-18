@@ -1,4 +1,5 @@
-import { Grid, Typography, Box } from "@mui/material";
+import { Grid, Typography, Box, Tooltip } from "@mui/material";
+import QuestionMarkIcon from "@mui/icons-material/QuestionMark";
 
 const QRCodeForm = ({ source }) => {
   return (
@@ -8,6 +9,17 @@ const QRCodeForm = ({ source }) => {
           sx={{ fontWeight: 900, paddingRight: "5px", paddingLeft: "10px" }}>
           Scan the QR Code below to upload pictures relevant to this shipment
         </Typography>
+        <Tooltip
+          arrow
+          title={
+            <p style={{ width: "10rem" }}>
+              {
+                "Please upload pictures of every item packed before and after packaging."
+              }
+            </p>
+          }>
+          <QuestionMarkIcon />
+        </Tooltip>
       </Grid>
       <Grid item xs>
         <Box

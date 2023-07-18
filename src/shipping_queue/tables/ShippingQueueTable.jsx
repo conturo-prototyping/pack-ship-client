@@ -425,8 +425,7 @@ const ShippingQueueTable = ({
                 sx={{
                   backgroundColor: "primary.light",
                   borderTop: "1px solid rgba(224, 224, 224, 1)",
-                }}
-              >
+                }}>
                 <Grid container item xs={6} justifyContent="flex-start">
                   <Typography sx={{ padding: "8px" }}>
                     {selectedOrderIds.length} rows selected
@@ -445,8 +444,7 @@ const ShippingQueueTable = ({
                 sx={{
                   backgroundColor: "primary.light",
                   borderTop: "1px solid rgba(224, 224, 224, 1)",
-                }}
-              >
+                }}>
                 {generateTablePagination()}
               </Grid>
             ),

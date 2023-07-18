@@ -4,11 +4,13 @@ import ImageDisplay from "./ImageDisplay";
 import ImageUpload from "./ImageUpload";
 import { SocketIoFactory } from "../socket";
 import { API } from "../services/server";
+import { snackbarVariants, usePackShipSnackbar } from "../common/Snackbar";
 
 const ShipmentUploads = () => {
   const [searchParams] = useSearchParams();
   const [images, setImages] = useState([]);
   const [isLoading, setIsLoading] = useState(false);
+  const enqueueSnackbar = usePackShipSnackbar();
 
   useEffect(() => {
     const token = searchParams.get("token");
@@ -27,25 +29,44 @@ const ShipmentUploads = () => {
     const tempShipmentId = searchParams.get("tempShipmentId");
     if (tempShipmentId) {
       const socket = SocketIoFactory.getInstance(searchParams.get("token"));
-      socket.on("joinedRoom", (data) => {
+
+      const processImages = (data) => {
         setImages(
           data.imageUrls.map((e) => {
-            return {
-              file: undefined,
-              img: e.url,
-              path: e.path,
-            };
+            const priorImage = images.find((f) => {
+              return f.path === e.path;
+            });
+
+            if (priorImage)
+              return {
+                file: priorImage.file,
+                img: priorImage.img,
+                path: e.path,
+              };
+            else
+              return {
+                file: undefined,
+                img: e.url,
+                path: e.path,
+              };
           })
         );
-      });
+      };
+
+      socket.on("joinedRoom", processImages);
+
+      socket.on("newDeletions", processImages);
+
+      socket.on("newUploads", processImages);
 
       socket.on("connect", () => {
         socket.emit("joinTemp", { tempShipmentId });
       });
 
       socket.on("disconnect", () => {
-        alert(
-          "Error connecting to backend. Problems may arise with images uploaded here not showing up elsewhere"
+        enqueueSnackbar(
+          "Error connecting to backend. Problems may arise with images uploaded here not showing up elsewhere",
+          snackbarVariants.error
         );
       });
 
@@ -53,10 +74,15 @@ const ShipmentUploads = () => {
 
       return () => {
         socket.off("connect");
+        socket.off("joinedRoom");
+        socket.off("newDeletions");
+        socket.off("newUploads");
 
         socket.disconnect();
       };
     }
+
+    // eslint-disable-next-line
   }, [searchParams]);
 
   const registerUpdate = (imagePaths) => {

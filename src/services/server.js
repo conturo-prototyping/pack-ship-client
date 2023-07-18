@@ -317,6 +317,45 @@ export const API = {
     }
   },
 
+  async createShipmentFromTemp(
+    tempShipmentId,
+    customer,
+    deliveryMethod,
+    trackingNumber = undefined,
+    cost = undefined,
+    carrier = undefined,
+    deliverySpeed = undefined,
+    customerAccount = undefined,
+    customerHandoffName = undefined,
+    shippingAddress = undefined,
+    isDueBack = undefined,
+    isDueBackOn = undefined
+  ) {
+    try {
+      const response = await instance.put("/shipments/fromTemp", {
+        tempShipmentId,
+        customer,
+        deliveryMethod,
+        trackingNumber,
+        cost,
+        carrier,
+        deliverySpeed,
+        customerAccount,
+        customerHandoffName,
+        shippingAddress,
+        isDueBack,
+        isDueBackOn: isDueBackOn?.$d.toLocaleDateString(),
+      });
+
+      return response.data;
+    } catch (error) {
+      console.error("createShipment", error);
+      throw new Error(
+        error?.response?.data ?? "An error occurred creating shipment"
+      );
+    }
+  },
+
   async patchPackingSlip(id, updatedItems) {
     try {
       const response = await instance.patch(

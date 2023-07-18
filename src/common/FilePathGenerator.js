@@ -8,4 +8,8 @@ export const FilePathGenerator = {
   createTempShipmentpRouterPath(id) {
     return `${id}/tempShipment/router-${uuidv4()}`;
   },
+
+  createShipmentRouterUploadPath(id) {
+    return `${id}/shipmentRouter/router-${uuidv4()}`;
+  },
 };

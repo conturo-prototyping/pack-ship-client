@@ -21,6 +21,9 @@ import { DestinationTypes } from "../utils/Constants";
 import PackShipDatePicker from "../components/PackShipDatePicker";
 import QRCodeForm from "./components/QRCodeForm";
 import { SocketIoFactory } from "../socket";
+import ImageDisplay from "../shipmentUploads/ImageDisplay";
+import { FilePathGenerator } from "../common/FilePathGenerator";
+import { FileUploader } from "../services/fileUploader";
 
 const CreateShipmentDialog = ({
   customer,
@@ -48,25 +51,53 @@ const CreateShipmentDialog = ({
   const [reset, setReset] = useState(false);
   const [displayDateHelper, setDisplayDateHelper] = useState(false);
   const [qrCodeSource, setQrCodeSource] = useState();
-  const [tempShimpentId, setTempShimpentId] = useState();
+  const [tempShipmentId, setTempShipmentId] = useState();
+  const [images, setImages] = useState([]);
+  const [isLoadingImages, setIsLoadingImages] = useState(false);
 
   const enqueueSnackbar = usePackShipSnackbar();
 
   useEffect(() => {
-    if (tempShimpentId) {
+    if (tempShipmentId) {
       const socket = SocketIoFactory.getInstance();
 
+      if (socket.connected) {
+        socket.disconnect(true);
+      }
+
+      const processImages = (data) => {
+        setImages(
+          data.imageUrls.map((e) => {
+            return {
+              file: undefined,
+              img: e.url,
+              path: e.path,
+            };
+          })
+        );
+      };
+
+      socket.on("joinedRoom", processImages);
+
       socket.on("connect", () => {
-        socket.emit("joinTemp", { tempShimpentId });
+        socket.emit("joinTemp", { tempShipmentId });
       });
+
+      socket.on("newDeletions", processImages);
+
+      socket.on("newUploads", processImages);
 
       socket.connect();
 
       return () => {
-        socket.disconnect();
+        socket.off("joinedRoom");
+        socket.off("connect");
+        socket.off("newDeletions");
+        socket.off("newUploads");
+        socket.disconnect(true);
       };
     }
-  }, [tempShimpentId]);
+  }, [tempShipmentId]);
 
   useEffect(() => {
     if (
@@ -168,7 +199,7 @@ const CreateShipmentDialog = ({
       const tempShipment = await API.createTempShipment(shippingInfo.manifest);
       const response = await API.generateQRCode(tempShipment._id);
 
-      setTempShimpentId(tempShipment._id);
+      setTempShipmentId(tempShipment._id);
       setQrCodeSource(response);
       setCurrentState(ShippingDialogStates.DisplayQRPage);
       setDisplayDateHelper(false);
@@ -200,15 +231,23 @@ const CreateShipmentDialog = ({
   };
 
   const onDisplayQRBack = async () => {
-    await API.deleteTempShipment(tempShimpentId);
+    await API.deleteTempShipment(tempShipmentId);
     setCurrentState(ShippingDialogStates.CreateShipmentTable);
   };
 
   const onDisplayQRNext = () => {
-    setCurrentState(ShippingDialogStates.SelectMethodPage);
+    setCurrentState(ShippingDialogStates.QRReviewPage);
   };
 
   const onSelectMethodBack = () => {
+    setCurrentState(ShippingDialogStates.QRReviewPage);
+  };
+
+  const onQRReviewNext = () => {
+    setCurrentState(ShippingDialogStates.SelectMethodPage);
+  };
+
+  const onQRReviewBack = () => {
     setCurrentState(ShippingDialogStates.DisplayQRPage);
   };
 
@@ -228,11 +267,26 @@ const CreateShipmentDialog = ({
     }
   };
 
+  const onImageDelete = (imagePath) => {
+    const socket = SocketIoFactory.getInstance();
+
+    socket.emit("deleteUpload", {
+      tempShipmentId,
+      imagePath,
+    });
+
+    setImages((prevState) =>
+      prevState.filter((e) => {
+        return e.path !== imagePath;
+      })
+    );
+  };
+
   const onSubmit = async (localShippingInfo) => {
     setCanErrorCheck(true);
     if (isShippingInfoValid(localShippingInfo, destination)) {
-      API.createShipment(
-        localShippingInfo.manifest,
+      API.createShipmentFromTemp(
+        tempShipmentId,
         localShippingInfo.customer,
         localShippingInfo.deliveryMethod,
         localShippingInfo.trackingNumber,
@@ -259,7 +313,7 @@ const CreateShipmentDialog = ({
             isDueBackOn: null,
             specialShippingAddress: "",
           });
-          await API.deleteTempShipment(tempShimpentId);
+
           reloadData();
           onClose();
           enqueueSnackbar(
@@ -273,12 +327,58 @@ const CreateShipmentDialog = ({
     }
   };
 
+  const onUploadPress = async (e) => {
+    e.stopPropagation(); // don't select this row after clicking
+    setIsLoadingImages(true);
+
+    const images = Array.from(e.target.files).map((e) => {
+      return {
+        file: e,
+        img: URL.createObjectURL(e),
+        path: FilePathGenerator.createTempShipmentpRouterPath(tempShipmentId),
+      };
+    });
+
+    await Promise.all(
+      images.map(async (image) => {
+        await FileUploader.uploadFile(image.path, image.file);
+      })
+    );
+
+    setImages((prevState) => [...prevState, ...images]);
+
+    registerUpdate(
+      images.map((e) => {
+        return e.path;
+      })
+    );
+
+    setIsLoadingImages(false);
+  };
+
+  const registerUpdate = (imagePaths) => {
+    const socket = SocketIoFactory.getInstance();
+
+    socket.emit("uploadDone", {
+      tempShipmentId,
+      imagePaths,
+    });
+  };
+
   const renderContents = () => {
     switch (currentState) {
       case ShippingDialogStates.SelectMethodPage:
         break;
       case ShippingDialogStates.DisplayQRPage:
         return <QRCodeForm source={qrCodeSource} />;
+      case ShippingDialogStates.QRReviewPage:
+        return (
+          <ImageDisplay
+            images={images}
+            onDelete={onImageDelete}
+            isLoading={isLoadingImages}
+          />
+        );
       case ShippingDialogStates.CarrierPage:
         return (
           <CreateCarrierShipmentInfoForm
@@ -333,6 +433,38 @@ const CreateShipmentDialog = ({
             <CommonButton
               autoFocus
               onClick={onDisplayQRNext}
+              label={"Next"}
+              type="button"
+            />
+          </DialogActions>
+        );
+      case ShippingDialogStates.QRReviewPage:
+        return (
+          <DialogActions>
+            <CommonButton
+              sx={{ marginRight: "0.5rem" }}
+              label={"Input File"}
+              component="label"
+              type={"button"}>
+              <input
+                id="shipment-uploads-review"
+                accept="*"
+                type="file"
+                multiple
+                hidden
+                onChange={onUploadPress}
+              />
+            </CommonButton>
+
+            <CommonButton
+              onClick={onQRReviewBack}
+              label="Back"
+              color="secondary"
+            />
+            <CommonButton
+              autoFocus
+              disabled={images.length === 0}
+              onClick={onQRReviewNext}
               label={"Next"}
               type="button"
             />

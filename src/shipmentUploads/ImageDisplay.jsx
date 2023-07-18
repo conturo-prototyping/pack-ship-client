@@ -58,26 +58,30 @@ const ImageDisplay = ({ images, onDelete, isLoading }) => {
                     loading="lazy"
                     style={{ borderRadius: BORDER_RADIUS }}
                   />
-                  <ImageListItemBar
-                    sx={{
-                      borderTopLeftRadius: BORDER_RADIUS,
-                      borderTopRightRadius: BORDER_RADIUS,
-                    }}
-                    title={item.title}
-                    position="top"
-                    actionIcon={
-                      <IconButton
-                        key={item.img}
-                        className={classes.icon}
-                        onClick={() => {
-                          onDelete(item.path);
-                        }}>
-                        <DeleteIcon />
-                      </IconButton>
-                    }
-                    actionPosition="right"
-                    className={classes.titleBar}
-                  />
+                  {onDelete ? (
+                    <ImageListItemBar
+                      sx={{
+                        borderTopLeftRadius: BORDER_RADIUS,
+                        borderTopRightRadius: BORDER_RADIUS,
+                      }}
+                      title={item.title}
+                      position="top"
+                      actionIcon={
+                        <IconButton
+                          key={item.img}
+                          className={classes.icon}
+                          onClick={() => {
+                            onDelete(item.path);
+                          }}>
+                          <DeleteIcon />
+                        </IconButton>
+                      }
+                      actionPosition="right"
+                      className={classes.titleBar}
+                    />
+                  ) : (
+                    <></>
+                  )}
                 </ImageListItem>
               ))}
             </ImageList>
