@@ -10,6 +10,9 @@ import CarrierServiceDropdown from "../../components/CarrierServiceDropdown";
 import { CARRIERS } from "../../utils/Constants";
 import CheckboxForm from "../../components/CheckboxForm";
 import { DestinationTypes } from "../../utils/Constants";
+import UploadCell, {
+  UPLOAD_CELL_TYPES,
+} from "../../packing_slip/components/UploadCell";
 
 const CreateCarrierShipmentInfoForm = ({
   shippingInfo,
@@ -19,6 +22,7 @@ const CreateCarrierShipmentInfoForm = ({
   setReset,
   destination,
   disablePendingFields,
+  setUploadedImage,
 }) => {
   const [localShippingInfo, setLocalShippingInfo] = useState({
     carrier: CARRIERS[0],
@@ -236,6 +240,22 @@ const CreateCarrierShipmentInfoForm = ({
               />
             </Grid>
           </Grid>
+          <div style={{ padding: "2rem" }}>
+            <UploadCell
+              key={"uploadCell"}
+              params={{ id: "uploadCell", row: {} }}
+              onUploadClick={(_, __, file) => {
+                setUploadedImage({ file });
+              }}
+              onCloseClick={() => {
+                setUploadedImage(undefined);
+              }}
+              type={UPLOAD_CELL_TYPES.dropzone}
+              text={
+                "Please upload a copy of the signed packing slip to continue"
+              }
+            />
+          </div>
         </>
       )}
     </Box>
