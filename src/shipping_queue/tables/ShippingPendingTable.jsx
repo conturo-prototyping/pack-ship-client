@@ -25,6 +25,8 @@ import PackingDialog from "../../components/PackingDialog";
 import CommonButton from "../../common/Button";
 import { API } from "../../services/server";
 import CreateCarrierShipmentInfoForm from "../../create_shipment/components/CreateShipmentInfoForm";
+import { FileUploader } from "../../services/fileUploader";
+import { FilePathGenerator } from "../../common/FilePathGenerator";
 
 const useStyle = makeStyles((theme) => ({
   table: {
@@ -57,6 +59,7 @@ const ShippingPendingTable = ({
   const [handoffName, setHandoffName] = useState("");
   const enqueueSnackbar = usePackShipSnackbar();
   const [selectedShippingInfo, setSelectedShippingInfo] = useState({});
+  const [imageInfo, setImageInfo] = useState();
 
   const [numRowsPerPage, setNumRowsPerPage] = useLocalStorage(
     "shippingPendingNumRows",
@@ -237,24 +240,27 @@ const ShippingPendingTable = ({
   const isSubmitReady = () => {
     if (selectedShippingInfo?.destination === "CARRIER") {
       return (
-        !handoffName &&
-        !(
-          selectedShippingInfo.deliverySpeed &&
-          selectedShippingInfo.trackingNumber &&
-          selectedShippingInfo.cost
-        )
+        (!handoffName &&
+          !(
+            selectedShippingInfo.deliverySpeed &&
+            selectedShippingInfo.trackingNumber &&
+            selectedShippingInfo.cost
+          )) ||
+        imageInfo === undefined
       );
     }
 
     return (
-      !handoffName &&
-      !(
-        selectedShippingInfo.deliverySpeed &&
-        selectedShippingInfo.trackingNumber &&
-        ((selectedShippingInfo.cost && !selectedShippingInfo.checkedCustomer) ||
-          (selectedShippingInfo.checkedCustomer &&
-            selectedShippingInfo.customerAccount))
-      )
+      (!handoffName &&
+        !(
+          selectedShippingInfo.deliverySpeed &&
+          selectedShippingInfo.trackingNumber &&
+          ((selectedShippingInfo.cost &&
+            !selectedShippingInfo.checkedCustomer) ||
+            (selectedShippingInfo.checkedCustomer &&
+              selectedShippingInfo.customerAccount))
+        )) ||
+      imageInfo === undefined
     );
   };
 
@@ -368,22 +374,41 @@ const ShippingPendingTable = ({
                             customerHandoffName: handoffName,
                           }
                         : selectedShippingInfo;
-                    API.patchShipment(selectedPendingOrder, updatedData, true)
-                      .then(async () => {
-                        await reloadData();
 
-                        enqueueSnackbar(
-                          "Shipment confirmed successfully!",
-                          snackbarVariants.success
-                        );
+                    const uploadPath =
+                      FilePathGenerator.createShipmentRouterUploadPath(
+                        selectedShippingInfo._id
+                      );
+
+                    FileUploader.uploadFile(uploadPath, imageInfo.file)
+                      .then(() => {
+                        updatedData.confirmShipmentFilePath = uploadPath;
+
+                        API.patchShipment(
+                          selectedPendingOrder,
+                          updatedData,
+                          true
+                        )
+                          .then(async () => {
+                            await reloadData();
+
+                            enqueueSnackbar(
+                              "Shipment confirmed successfully!",
+                              snackbarVariants.success
+                            );
+                          })
+                          .catch((e) => {
+                            enqueueSnackbar(e.message, snackbarVariants.error);
+                          })
+                          .finally(() => {
+                            setHandoffName("");
+                            onConfirmShipmentClose();
+                            setSelectedOrderIds([]);
+                            setImageInfo(undefined);
+                          });
                       })
                       .catch((e) => {
                         enqueueSnackbar(e.message, snackbarVariants.error);
-                      })
-                      .finally(() => {
-                        setHandoffName("");
-                        onConfirmShipmentClose();
-                        setSelectedOrderIds([]);
                       });
                   }}
                   label={"Submit"}
@@ -398,6 +423,7 @@ const ShippingPendingTable = ({
           <PickupDropOffForm
             customerName={handoffName}
             setCustomerName={setHandoffName}
+            setUploadedImage={setImageInfo}
           />
         ) : (
           <CreateCarrierShipmentInfoForm
@@ -407,6 +433,7 @@ const ShippingPendingTable = ({
             reset={false}
             setReset={() => {}}
             destination={selectedShippingInfo?.destination}
+            setUploadedImage={setImageInfo}
           />
         )}
       </PackingDialog>

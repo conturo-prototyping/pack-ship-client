@@ -19,8 +19,9 @@ import {
   PAGINATION_SIZING_OPTIONS,
 } from "../../utils/Constants";
 import { onPageSizeChange } from "../../utils/TablePageSizeHandler";
-import { v4 as uuidv4 } from "uuid";
 import withPendingTable from "./PackingContextMenuTable";
+import { FileUploader } from "../../services/fileUploader";
+import { FilePathGenerator } from "../../common/FilePathGenerator";
 
 pdfMake.vfs = pdfFonts.pdfMake.vfs;
 
@@ -372,9 +373,8 @@ const HistoryTable = ({
           (!e.routerUploadFilePath || e.item.routerUploadReady) &&
           e.uploadFile
         ) {
-          e.routerUploadFilePath = `${selectedRow.customer._id}/${
-            selectedRow.orderNumber
-          }/${e._id}-${uuidv4()}`;
+          e.routerUploadFilePath =
+            FilePathGenerator.createPackingSlipRouterPath(e._id);
 
           return {
             ...e,
@@ -388,12 +388,7 @@ const HistoryTable = ({
       await Promise.all(
         items.map(async (e) => {
           if (e.newUpload) {
-            const data = await API.getSignedUploadUrl(e.routerUploadFilePath);
-
-            const buffer = await e.uploadFile.arrayBuffer();
-            let byteArray = new Int8Array(buffer);
-
-            await API.uploadBySignedUrl(data.url, byteArray, e.uploadFile.type);
+            await FileUploader.uploadFile(e.routerUploadFilePath, e.uploadFile);
           }
         })
       );
