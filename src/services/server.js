@@ -6,6 +6,10 @@ const instance = axios.create({
 });
 
 export const API = {
+  getInstance() {
+    return instance;
+  },
+
   async downloadPDF(packingSlipId, orderNumber, dateCreated) {
     try {
       const response = await instance.post("/packingSlips/pdf", {
@@ -146,6 +150,18 @@ export const API = {
     }
   },
 
+  async getPendingShipments() {
+    try {
+      const response = await instance.get("/shipments/pending");
+      return response.data;
+    } catch (error) {
+      console.error("getPendingShipment", error);
+      throw new Error(
+        error?.response?.data ?? "An error occurred getting pending shipments"
+      );
+    }
+  },
+
   async deleteShipment(id) {
     try {
       const response = await instance.delete(`/shipments/${id}`);
@@ -170,12 +186,15 @@ export const API = {
     }
   },
 
-  async patchShipment(id, updatedShipment) {
+  async patchShipment(id, updatedShipment, isPending) {
     try {
-      const response = await instance.patch(`/shipments/${id}`, {
-        ...updatedShipment,
-        shippingAddress: updatedShipment.specialShippingAddress,
-      });
+      const response = await instance.patch(
+        `/shipments/${id}${isPending ? "/pending" : ""}`,
+        {
+          ...updatedShipment,
+          shippingAddress: updatedShipment.specialShippingAddress,
+        }
+      );
       return response.data;
     } catch (error) {
       console.error("patchShipment", error);
@@ -276,6 +295,45 @@ export const API = {
     try {
       const response = await instance.put("/shipments", {
         manifest,
+        customer,
+        deliveryMethod,
+        trackingNumber,
+        cost,
+        carrier,
+        deliverySpeed,
+        customerAccount,
+        customerHandoffName,
+        shippingAddress,
+        isDueBack,
+        isDueBackOn: isDueBackOn?.$d.toLocaleDateString(),
+      });
+
+      return response.data;
+    } catch (error) {
+      console.error("createShipment", error);
+      throw new Error(
+        error?.response?.data ?? "An error occurred creating shipment"
+      );
+    }
+  },
+
+  async createShipmentFromTemp(
+    tempShipmentId,
+    customer,
+    deliveryMethod,
+    trackingNumber = undefined,
+    cost = undefined,
+    carrier = undefined,
+    deliverySpeed = undefined,
+    customerAccount = undefined,
+    customerHandoffName = undefined,
+    shippingAddress = undefined,
+    isDueBack = undefined,
+    isDueBackOn = undefined
+  ) {
+    try {
+      const response = await instance.put("/shipments/fromTemp", {
+        tempShipmentId,
         customer,
         deliveryMethod,
         trackingNumber,
@@ -430,6 +488,19 @@ export const API = {
     }
   },
 
+  async getPendingPackingQueue() {
+    try {
+      const response = await instance.get("/packingSlips/pending");
+      return response.data;
+    } catch (error) {
+      console.error("getPendingPackingQueue", error);
+      throw new Error(
+        error?.response?.data ??
+          "An error occurred getting packing slip pending queue"
+      );
+    }
+  },
+
   async getSignedUploadUrl(location) {
     try {
       const response = await instance.post(`/storage/upload`, {
@@ -477,6 +548,50 @@ export const API = {
       console.error("deleteRouterUpload", error);
       throw new Error(
         error?.response?.data ?? "An error occurred deleting a router upload"
+      );
+    }
+  },
+
+  async generateQRCode(tempShipId) {
+    try {
+      const response = await instance.post("/qrCode/getTempShipCode", {
+        tempShipmentId: tempShipId,
+      });
+
+      return response.data["qrCode"];
+    } catch (error) {
+      console.error("generateQRCode", error);
+      throw new Error(
+        error?.response?.data ?? "An error occurred getting qr code"
+      );
+    }
+  },
+
+  async createTempShipment(manifest) {
+    try {
+      const response = await instance.put("/tempShipments", {
+        manifest,
+      });
+
+      return response.data["tempShipment"];
+    } catch (error) {
+      console.error("createTempShipment", error);
+      throw new Error(
+        error?.response?.data ?? "An error occurred creating temp shipment"
+      );
+    }
+  },
+
+  async deleteTempShipment(tempShipmentId) {
+    try {
+      const response = await instance.delete(
+        `/tempShipments/${tempShipmentId}`
+      );
+      return response.data;
+    } catch (error) {
+      console.error("deleteTempShipment", error);
+      throw new Error(
+        error?.response?.data ?? "An error occurred deleting temp shipment"
       );
     }
   },

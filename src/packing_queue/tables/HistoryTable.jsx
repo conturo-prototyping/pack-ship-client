@@ -19,7 +19,9 @@ import {
   PAGINATION_SIZING_OPTIONS,
 } from "../../utils/Constants";
 import { onPageSizeChange } from "../../utils/TablePageSizeHandler";
-import { v4 as uuidv4 } from "uuid";
+import withPendingTable from "./PackingContextMenuTable";
+import { FileUploader } from "../../services/fileUploader";
+import { FilePathGenerator } from "../../common/FilePathGenerator";
 
 pdfMake.vfs = pdfFonts.pdfMake.vfs;
 
@@ -76,23 +78,21 @@ const columns = [
 const HistoryTable = ({
   sortModel,
   setSortModel,
-  fetchSearch,
+  fetchData,
   histTotalCount,
   historyLoading,
-  filteredHist,
+  filteredData,
   histResultsPerPage,
   orderNumber,
   partNumber,
   pageNumber,
   onPageChange,
   setHistResultsPerPage,
+  handleContextMenu,
 }) => {
   const classes = useStyle();
-
   const [isMounted, setIsMounted] = useState(false);
-
   const [contextMenu, setContextMenu] = useState(null);
-
   const [selectedRow, setSelectedRow] = useState({});
 
   // Deletions
@@ -114,7 +114,7 @@ const HistoryTable = ({
 
   const reloadData = useCallback(() => {
     if (isMounted) {
-      fetchSearch(getSortFromModel(sortModel), 0, "", "").finally(() => {});
+      fetchData(getSortFromModel(sortModel), 0, "", "").finally(() => {});
     }
     // eslint-disable-next-line
   }, [isMounted]);
@@ -373,9 +373,8 @@ const HistoryTable = ({
           (!e.routerUploadFilePath || e.item.routerUploadReady) &&
           e.uploadFile
         ) {
-          e.routerUploadFilePath = `${selectedRow.customer._id}/${
-            selectedRow.orderNumber
-          }/${e._id}-${uuidv4()}`;
+          e.routerUploadFilePath =
+            FilePathGenerator.createPackingSlipRouterPath(e._id);
 
           return {
             ...e,
@@ -389,12 +388,7 @@ const HistoryTable = ({
       await Promise.all(
         items.map(async (e) => {
           if (e.newUpload) {
-            const data = await API.getSignedUploadUrl(e.routerUploadFilePath);
-
-            const buffer = await e.uploadFile.arrayBuffer();
-            let byteArray = new Int8Array(buffer);
-
-            await API.uploadBySignedUrl(data.url, byteArray, e.uploadFile.type);
+            await FileUploader.uploadFile(e.routerUploadFilePath, e.uploadFile);
           }
         })
       );
@@ -463,17 +457,6 @@ const HistoryTable = ({
     [onDownloadPDFClick]
   );
 
-  const handleContextMenu = (event) => {
-    event.preventDefault();
-    const selectedRow = event.currentTarget.getAttribute("data-id");
-    setSelectedRow(filteredHist.find((e) => e._id === selectedRow));
-    setContextMenu(
-      contextMenu === null
-        ? { mouseX: event.clientX, mouseY: event.clientY }
-        : null
-    );
-  };
-
   return (
     <div className={classes.root}>
       <DataGrid
@@ -490,7 +473,7 @@ const HistoryTable = ({
         }}
         className={classes.table}
         disableSelectionOnClick={true}
-        rows={historyLoading ? [] : filteredHist}
+        rows={historyLoading ? [] : filteredData}
         rowHeight={65}
         page={pageNumber}
         columns={columns}
@@ -500,7 +483,7 @@ const HistoryTable = ({
           onPageSizeChange(
             newPageSize,
             pageNumber,
-            filteredHist.length,
+            filteredData.length,
             onPageChange,
             setHistResultsPerPage
           );
@@ -511,7 +494,7 @@ const HistoryTable = ({
         sortModel={sortModel}
         onSortModelChange={async (model) => {
           setSortModel(model);
-          await fetchSearch(
+          await fetchData(
             getSortFromModel(model),
             pageNumber,
             orderNumber,
@@ -566,4 +549,4 @@ const HistoryTable = ({
   );
 };
 
-export default HistoryTable;
+export default withPendingTable(HistoryTable);

@@ -68,6 +68,7 @@ const ShippingQueueTable = ({
   currentDialogState,
   setCurrentDialogState,
   searchText,
+  reloadPendingShipments,
 }) => {
   const classes = useStyle();
   const [queueData, setQueueData] = useState(tableData);
@@ -101,7 +102,10 @@ const ShippingQueueTable = ({
 
   const reloadData = useCallback(async () => {
     async function fetchData() {
-      const data = await Promise.all([API.getShippingQueue()]);
+      const data = await Promise.all([
+        API.getShippingQueue(),
+        reloadPendingShipments(),
+      ]);
       return { queue: data[0] };
     }
 

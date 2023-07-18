@@ -21,6 +21,7 @@ const PackingDialog = ({
   actions,
   children,
   submitDisabled = false,
+  prependActions = false,
 }) => {
   return (
     <Dialog
@@ -49,10 +50,11 @@ const PackingDialog = ({
           </IconButton>
         </DialogTitle>
         <DialogContent>{children}</DialogContent>
-        {actions !== undefined ? (
+        {actions !== undefined && !prependActions ? (
           actions
         ) : (
           <DialogActions>
+            {actions}
             <CommonButton onClick={onClose} label="Cancel" />
             <CommonButton
               disabled={submitDisabled}

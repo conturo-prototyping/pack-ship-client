@@ -1,30 +1,26 @@
 import React, { useEffect, useState } from "react";
-import {
-  Dialog,
-  DialogActions,
-  DialogContent,
-  IconButton,
-} from "@mui/material";
+import { Grid, IconButton, Typography } from "@mui/material";
 import UploadFileIcon from "@mui/icons-material/UploadFile";
 import Preview from "./Preview";
-import KeyboardArrowRightIcon from "@mui/icons-material/KeyboardArrowRight";
-import KeyboardArrowLeftIcon from "@mui/icons-material/KeyboardArrowLeft";
-import { Box } from "@mui/system";
-import PDFPreview from "./PDFPreview";
+import PreviewPopup from "../../components/PreviewPopup";
+
+export const UPLOAD_CELL_TYPES = {
+  icon: "icon",
+  dropzone: "dropzone",
+};
 
 const UploadCell = ({
   params,
   onUploadClick,
   viewOnly = false,
   onCloseClick = undefined,
+  type = UPLOAD_CELL_TYPES.icon,
+  text,
 }) => {
   const [showPreview, setShowPreview] = useState(false);
   const [selectedPreview, setSelectedPreview] = useState(null);
   const [url, setUrl] = useState(null);
   const [previewType, setPreviewType] = useState();
-
-  const [pdfPageNumber, setPDFPageNumber] = useState(1);
-  const [numPages, setNumPages] = useState(null);
 
   useEffect(() => {
     setShowPreview(false);
@@ -37,10 +33,6 @@ const UploadCell = ({
     setPreviewType(selectedPreview?.type ?? params.row.contentType);
   }, [selectedPreview?.type, params.row.contentType]);
 
-  function onPDFLoadSuccess({ numPages }) {
-    setNumPages(numPages);
-  }
-
   const onUploadPress = (e) => {
     e.stopPropagation(); // don't select this row after clicking
 
@@ -50,46 +42,63 @@ const UploadCell = ({
     setSelectedPreview(e.target.files[0]);
   };
 
-  const getDialogContent = () => {
-    if (previewType?.startsWith("image/")) {
-      return (
-        <DialogContent>
-          <Preview height={800} url={url} type={previewType} />
-        </DialogContent>
-      );
-    } else if (previewType === "application/pdf") {
+  const getUploadContent = () => {
+    const uploadInput = (color = "primary") => (
+      <React.Fragment>
+        <input
+          accept="*"
+          type="file"
+          id={params.id}
+          style={{ display: "none" }}
+          onChange={onUploadPress}
+        />
+        <label htmlFor={params.id}>
+          <IconButton component="span" color={color}>
+            <UploadFileIcon />
+          </IconButton>
+        </label>
+      </React.Fragment>
+    );
+
+    if (type === UPLOAD_CELL_TYPES.icon) {
+      return uploadInput();
+    } else if (type === UPLOAD_CELL_TYPES.dropzone) {
       return (
         <>
-          <DialogContent>
-            <PDFPreview
-              height={800}
-              url={url}
-              type={previewType}
-              pageNumber={pdfPageNumber}
-            />
-          </DialogContent>
-
-          <DialogActions>
-            <IconButton
-              key={params.id}
-              onClick={() => setPDFPageNumber(Math.max(1, pdfPageNumber - 1))}>
-              <KeyboardArrowLeftIcon />
-            </IconButton>
-            Page {pdfPageNumber} of {numPages}
-            <IconButton
-              onClick={() =>
-                setPDFPageNumber(Math.min(numPages, pdfPageNumber + 1))
-              }>
-              <KeyboardArrowRightIcon />
-            </IconButton>
-          </DialogActions>
+          <input
+            accept="*"
+            type="file"
+            id={params.id}
+            style={{ display: "none" }}
+            onChange={onUploadPress}
+          />
+          <label
+            style={{ width: "100%", cursor: "pointer" }}
+            htmlFor={params.id}
+          >
+            <div
+              style={{
+                textAlign: "center",
+                padding: "20px 0px 20px 0px",
+                border: "2px white dashed",
+                width: "100%",
+                margin: "auto",
+                backgroundColor: "gainsboro",
+              }}
+            >
+              {/* <IconButton component="span" color={"default"} sx={{":hover": }}> */}
+              <Grid container>
+                <Grid item xs={12}>
+                  <UploadFileIcon />
+                </Grid>
+                <Grid item xs={12}>
+                  <Typography>{text}</Typography>
+                </Grid>
+              </Grid>
+              {/* </IconButton> */}
+            </div>
+          </label>
         </>
-      );
-    } else {
-      return (
-        <Box>
-          <p>Preview Unavailable</p>
-        </Box>
       );
     }
   };
@@ -113,33 +122,19 @@ const UploadCell = ({
               : undefined
           }
           onPreviewClick={() => setShowPreview(true)}
-          onPDFLoadSuccess={onPDFLoadSuccess}
-          name={selectedPreview?.name}></Preview>
+          name={selectedPreview?.name}
+        />
       ) : (
-        !viewOnly && (
-          <>
-            <input
-              accept="*"
-              type="file"
-              id={params.id}
-              style={{ display: "none" }}
-              onChange={onUploadPress}
-            />
-            <label htmlFor={params.id}>
-              <IconButton component="span" color="primary">
-                <UploadFileIcon />
-              </IconButton>
-            </label>
-          </>
-        )
+        !viewOnly && getUploadContent()
       )}
 
-      <Dialog
-        maxWidth={"lg"}
-        open={showPreview}
-        onClose={() => setShowPreview(false)}>
-        {getDialogContent()}
-      </Dialog>
+      <PreviewPopup
+        height={800}
+        onClose={() => setShowPreview(false)}
+        showPreview={showPreview}
+        url={url}
+        previewType={previewType}
+      ></PreviewPopup>
     </>
   );
 };

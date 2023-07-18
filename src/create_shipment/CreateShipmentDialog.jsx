@@ -3,7 +3,6 @@ import PackingDialog from "../components/PackingDialog";
 import CreateShipmentTable from "./components/CreateShipmentTable";
 import ShippingDialogStates from "./constants/ShippingDialogConstants";
 import CreateCarrierShipmentInfoForm from "./components/CreateShipmentInfoForm";
-import PickupDropOffForm from "./components/PickupDropOffForm";
 import CommonButton from "../common/Button";
 import {
   Checkbox,
@@ -20,6 +19,11 @@ import { usePackShipSnackbar, snackbarVariants } from "../common/Snackbar";
 import ShippingAddressForm from "./components/ShippingAddressForm";
 import { DestinationTypes } from "../utils/Constants";
 import PackShipDatePicker from "../components/PackShipDatePicker";
+import QRCodeForm from "./components/QRCodeForm";
+import { SocketIoFactory } from "../socket";
+import ImageDisplay from "../shipmentUploads/ImageDisplay";
+import { FilePathGenerator } from "../common/FilePathGenerator";
+import { FileUploader } from "../services/fileUploader";
 
 const CreateShipmentDialog = ({
   customer,
@@ -41,12 +45,59 @@ const CreateShipmentDialog = ({
     isDueBack: false,
     isDueBackOn: null,
     carrier: "",
+    specialShippingAddress: "",
   });
   const [canErrorCheck, setCanErrorCheck] = useState(false);
   const [reset, setReset] = useState(false);
   const [displayDateHelper, setDisplayDateHelper] = useState(false);
+  const [qrCodeSource, setQrCodeSource] = useState();
+  const [tempShipmentId, setTempShipmentId] = useState();
+  const [images, setImages] = useState([]);
+  const [isLoadingImages, setIsLoadingImages] = useState(false);
 
   const enqueueSnackbar = usePackShipSnackbar();
+
+  useEffect(() => {
+    if (tempShipmentId) {
+      const socket = SocketIoFactory.getInstance();
+
+      if (socket.connected) {
+        socket.disconnect(true);
+      }
+
+      const processImages = (data) => {
+        setImages(
+          data.imageUrls.map((e) => {
+            return {
+              file: undefined,
+              img: e.url,
+              path: e.path,
+            };
+          })
+        );
+      };
+
+      socket.on("joinedRoom", processImages);
+
+      socket.on("connect", () => {
+        socket.emit("joinTemp", { tempShipmentId });
+      });
+
+      socket.on("newDeletions", processImages);
+
+      socket.on("newUploads", processImages);
+
+      socket.connect();
+
+      return () => {
+        socket.off("joinedRoom");
+        socket.off("connect");
+        socket.off("newDeletions");
+        socket.off("newUploads");
+        socket.disconnect(true);
+      };
+    }
+  }, [tempShipmentId]);
 
   useEffect(() => {
     if (
@@ -69,39 +120,45 @@ const CreateShipmentDialog = ({
       checkedCustomer: false,
       isDueBack: false,
       isDueBackOn: null,
+      specialShippingAddress: "",
     });
     setCanErrorCheck(false);
   }, [open, customer?._id, packingSlipIds]);
 
-  const onPickupClick = () => {
-    if (destination !== DestinationTypes.CUSTOMER)
-      setCurrentState(ShippingDialogStates.ShippingAddressPage);
-    else setCurrentState(ShippingDialogStates.PickupDropOffPage);
-    setShippingInfo({
+  const onPickupClick = async () => {
+    const newShippingInfo = {
       ...shippingInfo,
       deliveryMethod: "PICKUP",
       checkedCustomer: undefined,
       customerAccount: undefined,
-    });
-  };
-
-  const onDropOffClick = () => {
+    };
+    setShippingInfo(newShippingInfo);
     if (destination !== DestinationTypes.CUSTOMER)
       setCurrentState(ShippingDialogStates.ShippingAddressPage);
-    else setCurrentState(ShippingDialogStates.PickupDropOffPage);
-    setShippingInfo({
+    else {
+      onSubmit(newShippingInfo);
+    }
+  };
+
+  const onDropOffClick = async () => {
+    const newShippingInfo = {
       ...shippingInfo,
       deliveryMethod: "DROPOFF",
       checkedCustomer: undefined,
       customerAccount: undefined,
-    });
+    };
+    setShippingInfo(newShippingInfo);
+    if (destination !== DestinationTypes.CUSTOMER)
+      setCurrentState(ShippingDialogStates.ShippingAddressPage);
+    else {
+      onSubmit(newShippingInfo);
+    }
   };
 
   const onCarrierClick = () => {
     if (destination !== DestinationTypes.CUSTOMER) {
       setCurrentState(ShippingDialogStates.ShippingAddressPage);
-    }
-    else {
+    } else {
       setCurrentState(ShippingDialogStates.CarrierPage);
     }
 
@@ -110,7 +167,7 @@ const CreateShipmentDialog = ({
       deliveryMethod: "CARRIER",
       checkedCustomer: customer.defaultCarrierAccount !== undefined,
       customerAccount: customer.defaultCarrierAccount ?? "",
-      carrier: customer.defaultCarrier ?? ""
+      carrier: customer.defaultCarrier ?? "",
     });
   };
 
@@ -122,18 +179,29 @@ const CreateShipmentDialog = ({
   };
 
   const onShippingAddressNextClick = () => {
-    setCurrentState(
-      shippingInfo.deliveryMethod === "CARRIER"
-        ? ShippingDialogStates.CarrierPage
-        : ShippingDialogStates.PickupDropOffPage
-    );
+    if (shippingInfo.deliveryMethod === "CARRIER") {
+      if (
+        shippingInfo?.specialShippingAddress === undefined ||
+        shippingInfo?.specialShippingAddress === ""
+      ) {
+        setCanErrorCheck(true);
+      } else {
+        setCanErrorCheck(false);
+        setCurrentState(ShippingDialogStates.CarrierPage);
+      }
+    }
   };
 
-  const onNextClick = () => {
+  const onNextClick = async () => {
     if (shippingInfo.isDueBack && !shippingInfo.isDueBackOn?.isValid()) {
       setDisplayDateHelper(true);
     } else {
-      setCurrentState(ShippingDialogStates.SelectMethodPage);
+      const tempShipment = await API.createTempShipment(shippingInfo.manifest);
+      const response = await API.generateQRCode(tempShipment._id);
+
+      setTempShipmentId(tempShipment._id);
+      setQrCodeSource(response);
+      setCurrentState(ShippingDialogStates.DisplayQRPage);
       setDisplayDateHelper(false);
     }
   };
@@ -162,6 +230,27 @@ const CreateShipmentDialog = ({
     onResetClick();
   };
 
+  const onDisplayQRBack = async () => {
+    await API.deleteTempShipment(tempShipmentId);
+    setCurrentState(ShippingDialogStates.CreateShipmentTable);
+  };
+
+  const onDisplayQRNext = () => {
+    setCurrentState(ShippingDialogStates.QRReviewPage);
+  };
+
+  const onSelectMethodBack = () => {
+    setCurrentState(ShippingDialogStates.QRReviewPage);
+  };
+
+  const onQRReviewNext = () => {
+    setCurrentState(ShippingDialogStates.SelectMethodPage);
+  };
+
+  const onQRReviewBack = () => {
+    setCurrentState(ShippingDialogStates.DisplayQRPage);
+  };
+
   const onIsDueBackClick = (checked) => {
     if (checked) {
       setShippingInfo({
@@ -178,24 +267,41 @@ const CreateShipmentDialog = ({
     }
   };
 
-  const onSubmit = async () => {
+  const onImageDelete = (imagePath) => {
+    const socket = SocketIoFactory.getInstance();
+
+    socket.emit("deleteUpload", {
+      tempShipmentId,
+      imagePath,
+    });
+
+    setImages((prevState) =>
+      prevState.filter((e) => {
+        return e.path !== imagePath;
+      })
+    );
+  };
+
+  const onSubmit = async (localShippingInfo) => {
     setCanErrorCheck(true);
-    if (isShippingInfoValid(shippingInfo)) {
-      API.createShipment(
-        shippingInfo.manifest,
-        shippingInfo.customer,
-        shippingInfo.deliveryMethod,
-        shippingInfo.trackingNumber,
-        shippingInfo.cost,
-        shippingInfo.carrier,
-        shippingInfo.deliverySpeed,
-        shippingInfo.checkedCustomer ? shippingInfo.customerAccount : false,
+    if (isShippingInfoValid(localShippingInfo, destination)) {
+      API.createShipmentFromTemp(
+        tempShipmentId,
+        localShippingInfo.customer,
+        localShippingInfo.deliveryMethod,
+        localShippingInfo.trackingNumber,
+        localShippingInfo.cost,
+        localShippingInfo.carrier,
+        localShippingInfo.deliverySpeed,
+        localShippingInfo.checkedCustomer
+          ? localShippingInfo.customerAccount
+          : false,
         customerName,
-        shippingInfo.specialShippingAddress,
-        shippingInfo.isDueBack,
-        shippingInfo.isDueBackOn
+        localShippingInfo.specialShippingAddress,
+        localShippingInfo.isDueBack,
+        localShippingInfo.isDueBackOn
       )
-        .then(() => {
+        .then(async () => {
           setCustomerName("");
           setDisplayDateHelper(false);
           setShippingInfo({
@@ -205,7 +311,9 @@ const CreateShipmentDialog = ({
             checkedCustomer: false,
             isDueBack: false,
             isDueBackOn: null,
+            specialShippingAddress: "",
           });
+
           reloadData();
           onClose();
           enqueueSnackbar(
@@ -219,10 +327,58 @@ const CreateShipmentDialog = ({
     }
   };
 
+  const onUploadPress = async (e) => {
+    e.stopPropagation(); // don't select this row after clicking
+    setIsLoadingImages(true);
+
+    const images = Array.from(e.target.files).map((e) => {
+      return {
+        file: e,
+        img: URL.createObjectURL(e),
+        path: FilePathGenerator.createTempShipmentpRouterPath(tempShipmentId),
+      };
+    });
+
+    await Promise.all(
+      images.map(async (image) => {
+        await FileUploader.uploadFile(image.path, image.file);
+      })
+    );
+
+    setImages((prevState) => [...prevState, ...images]);
+
+    registerUpdate(
+      images.map((e) => {
+        return e.path;
+      })
+    );
+
+    setIsLoadingImages(false);
+  };
+
+  const registerUpdate = (imagePaths) => {
+    const socket = SocketIoFactory.getInstance();
+
+    socket.emit("uploadDone", {
+      tempShipmentId,
+      imagePaths,
+    });
+  };
+
   const renderContents = () => {
     switch (currentState) {
       case ShippingDialogStates.SelectMethodPage:
         break;
+      case ShippingDialogStates.DisplayQRPage:
+        return <QRCodeForm source={qrCodeSource} />;
+      case ShippingDialogStates.QRReviewPage:
+        return (
+          <ImageDisplay
+            images={images}
+            onDelete={onImageDelete}
+            isLoading={isLoadingImages}
+          />
+        );
       case ShippingDialogStates.CarrierPage:
         return (
           <CreateCarrierShipmentInfoForm
@@ -232,13 +388,7 @@ const CreateShipmentDialog = ({
             reset={reset}
             setReset={setReset}
             destination={destination}
-          />
-        );
-      case ShippingDialogStates.PickupDropOffPage:
-        return (
-          <PickupDropOffForm
-            customerName={customerName}
-            setCustomerName={setCustomerName}
+            disablePendingFields
           />
         );
       case ShippingDialogStates.ShippingAddressPage:
@@ -246,6 +396,7 @@ const CreateShipmentDialog = ({
           <ShippingAddressForm
             shippingAddress={shippingInfo.specialShippingAddress ?? ""}
             setShippingAddress={onShippingAddressChange}
+            canErrorCheck={canErrorCheck}
           />
         );
       case ShippingDialogStates.CreateShipmentTable:
@@ -271,9 +422,58 @@ const CreateShipmentDialog = ({
 
   const renderDialogActions = () => {
     switch (currentState) {
+      case ShippingDialogStates.DisplayQRPage:
+        return (
+          <DialogActions>
+            <CommonButton
+              onClick={onDisplayQRBack}
+              label="Back"
+              color="secondary"
+            />
+            <CommonButton
+              autoFocus
+              onClick={onDisplayQRNext}
+              label={"Next"}
+              type="button"
+            />
+          </DialogActions>
+        );
+      case ShippingDialogStates.QRReviewPage:
+        return (
+          <DialogActions>
+            <CommonButton
+              sx={{ marginRight: "0.5rem" }}
+              label={"Input File"}
+              component="label"
+              type={"button"}>
+              <input
+                id="shipment-uploads-review"
+                accept="*"
+                type="file"
+                multiple
+                hidden
+                onChange={onUploadPress}
+              />
+            </CommonButton>
+
+            <CommonButton
+              onClick={onQRReviewBack}
+              label="Back"
+              color="secondary"
+            />
+            <CommonButton
+              autoFocus
+              disabled={images.length === 0}
+              onClick={onQRReviewNext}
+              label={"Next"}
+              type="button"
+            />
+          </DialogActions>
+        );
       case ShippingDialogStates.SelectMethodPage:
         return (
           <DialogActions sx={{ padding: "25px" }}>
+            <CommonButton onClick={onSelectMethodBack} label="Back" />
             <CommonButton onClick={onPickupClick} label="Pickup" />
             <CommonButton onClick={onDropOffClick} label="Drop Off" />
             <CommonButton onClick={onCarrierClick} label="Carrier" />
@@ -299,31 +499,15 @@ const CreateShipmentDialog = ({
                 <Grid item>
                   <CommonButton
                     autoFocus
-                    onClick={onSubmit}
+                    onClick={async () => {
+                      await onSubmit(shippingInfo);
+                    }}
                     label={"OK"}
                     type="button"
                   />
                 </Grid>
               </Grid>
             </Grid>
-          </DialogActions>
-        );
-      case ShippingDialogStates.PickupDropOffPage:
-        return (
-          <DialogActions>
-            <CommonButton
-              onClick={() => {
-                onBackClick(destination !== DestinationTypes.VENDOR);
-              }}
-              label="Back"
-              color="secondary"
-            />
-            <CommonButton
-              autoFocus
-              onClick={onSubmit}
-              label={"Ok"}
-              type="button"
-            />
           </DialogActions>
         );
       case ShippingDialogStates.ShippingAddressPage:
@@ -334,11 +518,23 @@ const CreateShipmentDialog = ({
               label="Back"
               color="secondary"
             />
-            <CommonButton
-              autoFocus
-              onClick={onShippingAddressNextClick}
-              label={"Next"}
-            />
+            {shippingInfo.deliveryMethod === "CARRIER" ? (
+              <CommonButton
+                autoFocus
+                onClick={onShippingAddressNextClick}
+                label={"Next"}
+                type="button"
+              />
+            ) : (
+              <CommonButton
+                autoFocus
+                onClick={async () => {
+                  await onSubmit(shippingInfo);
+                }}
+                label={"Ok"}
+                type="button"
+              />
+            )}
           </DialogActions>
         );
       case ShippingDialogStates.CreateShipmentTable:
@@ -355,16 +551,14 @@ const CreateShipmentDialog = ({
               item
               direction="row"
               spacing={1}
-              justifyContent="space-evenly"
-            >
+              justifyContent="space-evenly">
               <Grid
                 xs={4}
                 container
                 item
                 direction="row"
                 spacing={1}
-                justifyContent="left"
-              >
+                justifyContent="left">
                 <Grid xs={6} item>
                   <FormGroup>
                     <FormControlLabel
@@ -408,8 +602,7 @@ const CreateShipmentDialog = ({
                 item
                 direction="row"
                 spacing={1}
-                justifyContent="right"
-              >
+                justifyContent="right">
                 <Grid item>
                   <CommonButton
                     onClick={() => {

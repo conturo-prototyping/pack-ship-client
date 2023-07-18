@@ -10,6 +10,9 @@ import CarrierServiceDropdown from "../../components/CarrierServiceDropdown";
 import { CARRIERS } from "../../utils/Constants";
 import CheckboxForm from "../../components/CheckboxForm";
 import { DestinationTypes } from "../../utils/Constants";
+import UploadCell, {
+  UPLOAD_CELL_TYPES,
+} from "../../packing_slip/components/UploadCell";
 
 const CreateCarrierShipmentInfoForm = ({
   shippingInfo,
@@ -18,15 +21,17 @@ const CreateCarrierShipmentInfoForm = ({
   reset,
   setReset,
   destination,
+  disablePendingFields,
+  setUploadedImage,
 }) => {
   const [localShippingInfo, setLocalShippingInfo] = useState({
-    ...shippingInfo,
     carrier: CARRIERS[0],
+    ...shippingInfo,
   });
 
   const defaultInfo = useMemo(() => {
     return {
-      manifest: shippingInfo.manifest,
+      manifest: shippingInfo.manifest || shippingInfo.items,
       customer: shippingInfo.customer,
       deliveryMethod: shippingInfo.deliveryMethod,
       // carrier: CARRIERS[0],
@@ -36,6 +41,7 @@ const CreateCarrierShipmentInfoForm = ({
     };
   }, [
     shippingInfo.manifest,
+    shippingInfo.items,
     shippingInfo.customer,
     shippingInfo.deliveryMethod,
     shippingInfo.checkedCustomer,
@@ -113,7 +119,7 @@ const CreateCarrierShipmentInfoForm = ({
           />
         </Grid>
       </Grid>
-      {destination !== DestinationTypes.CUSTOMER ? (
+      {destination !== DestinationTypes.CUSTOMER || disablePendingFields ? (
         <div />
       ) : (
         <Grid container item alignItems="center" spacing={2}>
@@ -122,7 +128,8 @@ const CreateCarrierShipmentInfoForm = ({
               <Typography
                 minWidth="max-content"
                 align="right"
-                sx={{ fontWeight: 700 }}>
+                sx={{ fontWeight: 700 }}
+              >
                 Customer Account:
               </Typography>
             </Grid>
@@ -139,24 +146,29 @@ const CreateCarrierShipmentInfoForm = ({
                     minWidth="max-content"
                     justifyContent="flex-end"
                     sx={{ fontSize: 14 }}
-                    align="right">
+                    align="right"
+                  >
                     Charge Customer?
                   </Typography>
                 }
                 checkBoxSx={{ padding: 0 }}
                 formControlSx={{ margin: 0 }}
-                checked={localShippingInfo.checkedCustomer}
+                checked={localShippingInfo.checkedCustomer ?? false}
               />
             </Grid>
           </Grid>
           <Grid item xs sx={{ paddingBottom: "20px" }}>
             <TextField
               required
-              value={localShippingInfo.customerAccount ?? ""}
+              value={
+                localShippingInfo.checkedCustomer
+                  ? localShippingInfo.customerAccount ?? ""
+                  : ""
+              }
               onChange={(event) => {
                 setLocalShippingInfo({
                   ...localShippingInfo,
-                  customerAccount: event.target.value,
+                  customerAccount: event.target.value.trim(),
                 });
               }}
               onBlur={() => {
@@ -168,58 +180,84 @@ const CreateCarrierShipmentInfoForm = ({
           </Grid>
         </Grid>
       )}
-      <Grid container item alignItems="center" spacing={2}>
-        <Grid container item xs={5} justifyContent="flex-end">
-          <Typography align="right" sx={{ fontWeight: 700 }}>
-            Tracking:
-          </Typography>
-        </Grid>
-        <Grid item xs>
-          <TextField
-            required
-            value={localShippingInfo.trackingNumber ?? ""}
-            onChange={(event) => {
-              setLocalShippingInfo({
-                ...localShippingInfo,
-                trackingNumber: event.target.value,
-              });
-            }}
-            onBlur={() => {
-              setShippingInfo(localShippingInfo);
-            }}
-            sx={{ width: "75%" }}
-          />
-        </Grid>
-      </Grid>
-      <Grid container item alignItems="center" spacing={2}>
-        <Grid container item xs={5} justifyContent="flex-end">
-          <Typography align="right" sx={{ fontWeight: 700 }}>
-            Cost:
-          </Typography>
-        </Grid>
-        <Grid item xs>
-          <TextField
-            required
-            value={localShippingInfo.cost ?? ""}
-            InputProps={{
-              startAdornment: (
-                <InputAdornment position="start">{"$"}</InputAdornment>
-              ),
-            }}
-            onChange={(event) => {
-              setLocalShippingInfo({
-                ...localShippingInfo,
-                cost: event.target.value,
-              });
-            }}
-            onBlur={() => {
-              setShippingInfo(localShippingInfo);
-            }}
-            disabled={localShippingInfo.checkedCustomer}
-            sx={{ width: "75%" }}
-          />
-        </Grid>
-      </Grid>
+      {disablePendingFields ? (
+        <div />
+      ) : (
+        <>
+          <Grid container item alignItems="center" spacing={2}>
+            <Grid container item xs={5} justifyContent="flex-end">
+              <Typography align="right" sx={{ fontWeight: 700 }}>
+                Tracking:
+              </Typography>
+            </Grid>
+            <Grid item xs>
+              <TextField
+                required
+                value={localShippingInfo.trackingNumber ?? ""}
+                onChange={(event) => {
+                  setLocalShippingInfo({
+                    ...localShippingInfo,
+                    trackingNumber: event.target.value.trim(),
+                  });
+                }}
+                onBlur={() => {
+                  setShippingInfo(localShippingInfo);
+                }}
+                sx={{ width: "75%" }}
+              />
+            </Grid>
+          </Grid>
+          <Grid container item alignItems="center" spacing={2}>
+            <Grid container item xs={5} justifyContent="flex-end">
+              <Typography align="right" sx={{ fontWeight: 700 }}>
+                Cost:
+              </Typography>
+            </Grid>
+            <Grid item xs>
+              <TextField
+                required
+                value={
+                  !localShippingInfo.checkedCustomer
+                    ? localShippingInfo.cost ?? ""
+                    : ""
+                }
+                InputProps={{
+                  startAdornment: (
+                    <InputAdornment position="start">{"$"}</InputAdornment>
+                  ),
+                }}
+                onChange={(event) => {
+                  setLocalShippingInfo({
+                    ...localShippingInfo,
+                    cost: event.target.value.trim(),
+                  });
+                }}
+                onBlur={() => {
+                  setShippingInfo(localShippingInfo);
+                }}
+                disabled={localShippingInfo.checkedCustomer}
+                sx={{ width: "75%" }}
+              />
+            </Grid>
+          </Grid>
+          <div style={{ padding: "2rem" }}>
+            <UploadCell
+              key={"uploadCell"}
+              params={{ id: "uploadCell", row: {} }}
+              onUploadClick={(_, __, file) => {
+                setUploadedImage({ file });
+              }}
+              onCloseClick={() => {
+                setUploadedImage(undefined);
+              }}
+              type={UPLOAD_CELL_TYPES.dropzone}
+              text={
+                "Please upload a copy of the signed packing slip to continue"
+              }
+            />
+          </div>
+        </>
+      )}
     </Box>
   );
 };
