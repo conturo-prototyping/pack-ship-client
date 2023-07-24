@@ -3,7 +3,7 @@ import { Typography, List, ListItemText, ListItemButton } from "@mui/material";
 import ExpandLess from "@mui/icons-material/ExpandLess";
 import ExpandMore from "@mui/icons-material/ExpandMore";
 import { DataGrid } from "@mui/x-data-grid";
-import { CONSUMABLE_PO, WORK_ORDER_PO } from "../common/ItemTypes";
+import { WORK_ORDER_PO } from "../common/ItemTypes";
 
 const ReceivingQueueDropdown = ({ params }) => {
   const [isOpen, setIsOpen] = useState(false);
@@ -31,7 +31,7 @@ const ReceivingQueueDropdown = ({ params }) => {
         .reduce((curr, acc) => {
           return curr.concat(acc);
         }, []);
-    else if (params.row.poType === CONSUMABLE_PO)
+    else if (params.row.poType === 'purchaseOrders')
       return params.row.manifest
         ?.map((e) => {
           return e.lines.map((m) => {
@@ -98,7 +98,7 @@ const ReceivingQueueDropdown = ({ params }) => {
           },
         },
       ];
-    else if (params.row.poType === CONSUMABLE_PO)
+    else if (params.row.poType === 'purchaseOrders')
       return [
         {
           field: "item",
