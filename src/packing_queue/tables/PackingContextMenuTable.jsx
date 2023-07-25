@@ -9,7 +9,8 @@ import { v4 as uuidv4 } from "uuid";
 
 const PackingContextMenuTable = (OriginalTable) => {
   function NewComponent(props) {
-    const { fetchData, filteredData, hasRouterUploads } = props;
+    const { fetchData, filteredData, hasRouterUploads, preloadedFetchData } =
+      props;
 
     const [contextMenu, setContextMenu] = useState(null);
     const [selectedRow, setSelectedRow] = useState({});
@@ -280,7 +281,9 @@ const PackingContextMenuTable = (OriginalTable) => {
         })
           .then(() => {
             setIsEditPackingSlipOpen({ open: false, viewOnly: false });
-            fetchData();
+            if (preloadedFetchData) {
+              preloadedFetchData();
+            } else fetchData();
             enqueueSnackbar("Packing slip edited!", snackbarVariants.success);
           })
           .catch((e) => {
