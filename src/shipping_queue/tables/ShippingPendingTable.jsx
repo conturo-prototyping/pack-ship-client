@@ -5,6 +5,7 @@ import {
   TablePagination,
   Grid,
   DialogActions,
+  CircularProgress,
 } from "@mui/material";
 import { createColumnFilters } from "../../utils/TableFilters";
 import {
@@ -60,6 +61,7 @@ const ShippingPendingTable = ({
   const enqueueSnackbar = usePackShipSnackbar();
   const [selectedShippingInfo, setSelectedShippingInfo] = useState({});
   const [imageInfo, setImageInfo] = useState();
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   const [numRowsPerPage, setNumRowsPerPage] = useLocalStorage(
     "shippingPendingNumRows",
@@ -240,18 +242,19 @@ const ShippingPendingTable = ({
   const isSubmitReady = () => {
     if (selectedShippingInfo?.destination === "CARRIER") {
       return (
-        (!handoffName &&
+        ((!handoffName &&
           !(
             selectedShippingInfo.deliverySpeed &&
             selectedShippingInfo.trackingNumber &&
             selectedShippingInfo.cost
           )) ||
-        imageInfo === undefined
+          imageInfo === undefined) &&
+        !isSubmitting
       );
     }
 
     return (
-      (!handoffName &&
+      ((!handoffName &&
         !(
           selectedShippingInfo.deliverySpeed &&
           selectedShippingInfo.trackingNumber &&
@@ -260,7 +263,8 @@ const ShippingPendingTable = ({
             (selectedShippingInfo.checkedCustomer &&
               selectedShippingInfo.customerAccount))
         )) ||
-      imageInfo === undefined
+        imageInfo === undefined) &&
+      !isSubmitting
     );
   };
 
@@ -309,8 +313,7 @@ const ShippingPendingTable = ({
                 sx={{
                   backgroundColor: "primary.light",
                   borderTop: "1px solid rgba(224, 224, 224, 1)",
-                }}
-              >
+                }}>
                 <Grid container item xs={6} justifyContent="flex-start">
                   <Typography sx={{ padding: "8px" }}>
                     {selectedPendingOrder.length} rows selected
@@ -329,8 +332,7 @@ const ShippingPendingTable = ({
                 sx={{
                   backgroundColor: "primary.light",
                   borderTop: "1px solid rgba(224, 224, 224, 1)",
-                }}
-              >
+                }}>
                 {generateTablePagination()}
               </Grid>
             ),
@@ -365,9 +367,10 @@ const ShippingPendingTable = ({
 
               <Grid item>
                 <CommonButton
-                  disabled={isSubmitReady()}
+                  disabled={isSubmitReady() || isSubmitting}
                   autoFocus
                   onClick={async () => {
+                    setIsSubmitting(true);
                     const updatedData =
                       selectedShippingInfo?.deliveryMethod !== "CARRIER"
                         ? {
@@ -401,6 +404,7 @@ const ShippingPendingTable = ({
                             enqueueSnackbar(e.message, snackbarVariants.error);
                           })
                           .finally(() => {
+                            setIsSubmitting(false);
                             setHandoffName("");
                             onConfirmShipmentClose();
                             setSelectedOrderIds([]);
@@ -411,14 +415,14 @@ const ShippingPendingTable = ({
                         enqueueSnackbar(e.message, snackbarVariants.error);
                       });
                   }}
-                  label={"Submit"}
-                  type="button"
-                />
+                  label={isSubmitting ? undefined : "Submit"}
+                  type="button">
+                  {isSubmitting ? <CircularProgress /> : <></>}
+                </CommonButton>
               </Grid>
             </Grid>
           </DialogActions>
-        }
-      >
+        }>
         {selectedShippingInfo?.deliveryMethod !== "CARRIER" ? (
           <PickupDropOffForm
             customerName={handoffName}
