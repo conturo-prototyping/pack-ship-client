@@ -6,6 +6,7 @@ import {
   Typography,
   IconButton,
   Box,
+  CircularProgress,
 } from "@mui/material";
 import CommonButton from "../common/Button";
 import CloseIcon from "@mui/icons-material/Close";
@@ -20,6 +21,7 @@ const PackingDialog = ({
   maxWidth = "xl",
   actions,
   children,
+  isSubmitting,
   submitDisabled = false,
   prependActions = false,
 }) => {
@@ -60,8 +62,9 @@ const PackingDialog = ({
               disabled={submitDisabled}
               autoFocus
               onClick={onSubmit}
-              label={progressText}
-            />
+              label={isSubmitting ? undefined : progressText}>
+              {isSubmitting ? <CircularProgress /> : <></>}
+            </CommonButton>
           </DialogActions>
         )}
       </Box>
