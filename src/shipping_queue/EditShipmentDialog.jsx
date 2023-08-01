@@ -14,8 +14,7 @@ import EditTableDropdown from "../components/EditTableDropdown";
 import { ADD_ROW_ID } from "../utils/Constants";
 import CommonButton from "../common/Button";
 import ImageDisplay from "../shipmentUploads/ImageDisplay";
-import Preview from "../packing_slip/components/Preview";
-import PreviewPopup from "../components/PreviewPopup";
+import UploadCell from "../packing_slip/components/UploadCell";
 
 const EditShipmentTableDialog = ({
   canErrorCheck,
@@ -34,6 +33,7 @@ const EditShipmentTableDialog = ({
   onCostChange,
   onNewRowChange,
   onDeleteRouterImage,
+  onShippingImageChange,
   viewOnly = true,
   cantEditShippingDetails = {
     customerAccount: true,
@@ -43,7 +43,18 @@ const EditShipmentTableDialog = ({
 }) => {
   const [imageDisplayOpen, setImageDisplayOpen] = useState(false);
   const [images, setImages] = useState([]);
-  const [showPreview, setShowPreview] = useState(false);
+  const [confirmShipmentFileUrl, setConfirmShipmentFileUrl] = useState();
+
+  useEffect(() => {
+    if (shipment?.confirmShipmentFileUrl) {
+      if (shipment?.confirmShipmentFileUrl[0] instanceof File)
+        setConfirmShipmentFileUrl([
+          URL.createObjectURL(shipment?.confirmShipmentFileUrl[0]),
+          shipment?.confirmShipmentFileUrl[1],
+        ]);
+      else setConfirmShipmentFileUrl(shipment?.confirmShipmentFileUrl);
+    }
+  }, [shipment?.confirmShipmentFileUrl]);
 
   useEffect(() => {
     if (shipment)
@@ -115,7 +126,7 @@ const EditShipmentTableDialog = ({
             <CommonButton label="View Files" onClick={onViewClick} />
           )
         }
-      >
+        submitDisabled={typeof confirmShipmentFileUrl !== "object"}>
         <PackShipEditableTable
           tableData={shipment?.manifest?.map((e) => {
             return { ...e, id: e._id };
@@ -143,29 +154,34 @@ const EditShipmentTableDialog = ({
           </Grid>
 
           <Grid item xs={2}>
-            {shipment?.confirmShipmentFileUrl && (
-              <Preview
-                height={200}
-                url={shipment?.confirmShipmentFileUrl[0]}
-                type={shipment?.confirmShipmentFileUrl[1]}
-                onPreviewClick={() => setShowPreview(true)}
-              />
-            )}
+            <UploadCell
+              height={200}
+              viewOnly={viewOnly}
+              params={{
+                id: "ShipmentUploadId",
+                row: {
+                  downloadUrl: confirmShipmentFileUrl
+                    ? confirmShipmentFileUrl[0]
+                    : undefined,
+                  contentType: confirmShipmentFileUrl
+                    ? confirmShipmentFileUrl[1]
+                    : undefined,
+                },
+              }}
+              onCloseClick={() => {
+                setConfirmShipmentFileUrl(undefined);
+              }}
+              onUploadClick={(_, __, file) => {
+                onShippingImageChange(file);
+              }}
+            />
           </Grid>
         </Grid>
-        <PreviewPopup
-          height={800}
-          url={shipment?.confirmShipmentFileUrl[0]}
-          type={shipment?.confirmShipmentFileUrl[1]}
-          onClose={() => setShowPreview(false)}
-          showPreview={showPreview}
-        />
         <Dialog
           open={imageDisplayOpen}
           fullWidth={true}
           maxWidth="lg"
-          onClose={() => setImageDisplayOpen(false)}
-        >
+          onClose={() => setImageDisplayOpen(false)}>
           <DialogContent>
             <ImageDisplay
               images={images}

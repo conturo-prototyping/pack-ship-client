@@ -7,6 +7,8 @@ import { API } from "../../services/server";
 import { snackbarVariants, usePackShipSnackbar } from "../../common/Snackbar";
 import pdfMake from "pdfmake/build/pdfmake";
 import ShippingContextMenu from "../ShippingContextMenu";
+import { FileUploader } from "../../services/fileUploader";
+import { FilePathGenerator } from "../../common/FilePathGenerator";
 
 const ContextMenuTable = (OriginalTable, cantEditShippingDetails) => {
   function NewComponent(props) {
@@ -57,7 +59,7 @@ const ContextMenuTable = (OriginalTable, cantEditShippingDetails) => {
       setCanErrorCheck(false);
     }, []);
 
-    const onEditShipmentSubmit = useCallback(() => {
+    const onEditShipmentSubmit = useCallback(async () => {
       setCanErrorCheck(true);
 
       if (isShippingInfoValid(clickedHistShipment)) {
@@ -69,6 +71,22 @@ const ContextMenuTable = (OriginalTable, cantEditShippingDetails) => {
         sentData.newPackingSlips = clickedHistShipment.manifest
           .filter((e) => e?.isNew === true)
           .map((e) => e._id);
+
+        if (
+          clickedHistShipment.confirmShipmentFileUrl.length >= 3 &&
+          clickedHistShipment.confirmShipmentFileUrl[2]
+        ) {
+          const uploadPath = FilePathGenerator.createShipmentRouterUploadPath(
+            clickedHistShipment._id
+          );
+
+          await FileUploader.uploadFile(
+            uploadPath,
+            clickedHistShipment.confirmShipmentFileUrl[0] // file object
+          );
+
+          sentData.confirmShipmentFilePath = uploadPath;
+        }
 
         API.patchShipment(sentData?._id, sentData)
           .then(async () => {
@@ -288,6 +306,13 @@ const ContextMenuTable = (OriginalTable, cantEditShippingDetails) => {
             setClickedHistShipment({
               ...clickedHistShipment,
               trackingNumber: value,
+            });
+          }}
+          onShippingImageChange={(file) => {
+            setClickedHistShipment({
+              ...clickedHistShipment,
+              // [file, fileType, newFile]
+              confirmShipmentFileUrl: [file, file.type, true],
             });
           }}
           onNewRowChange={onNewRowChange}

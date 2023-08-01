@@ -28,8 +28,7 @@ const PreviewPopup = ({
             title={`pdf-preview-${url}`}
             width="1000rem"
             height={`${height}rem`}
-            src={url}
-          >
+            src={url}>
             <a href={url}>Print Me</a>
           </iframe>
         </DialogContent>

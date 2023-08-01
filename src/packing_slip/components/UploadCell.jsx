@@ -74,8 +74,7 @@ const UploadCell = ({
           />
           <label
             style={{ width: "100%", cursor: "pointer" }}
-            htmlFor={params.id}
-          >
+            htmlFor={params.id}>
             <div
               style={{
                 textAlign: "center",
@@ -84,9 +83,7 @@ const UploadCell = ({
                 width: "100%",
                 margin: "auto",
                 backgroundColor: "gainsboro",
-              }}
-            >
-              {/* <IconButton component="span" color={"default"} sx={{":hover": }}> */}
+              }}>
               <Grid container>
                 <Grid item xs={12}>
                   <UploadFileIcon />
@@ -95,7 +92,6 @@ const UploadCell = ({
                   <Typography>{text}</Typography>
                 </Grid>
               </Grid>
-              {/* </IconButton> */}
             </div>
           </label>
         </>
@@ -133,8 +129,8 @@ const UploadCell = ({
         onClose={() => setShowPreview(false)}
         showPreview={showPreview}
         url={url}
-        previewType={previewType}
-      ></PreviewPopup>
+        type={previewType}
+      />
     </>
   );
 };
