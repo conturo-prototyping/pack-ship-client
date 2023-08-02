@@ -18,6 +18,7 @@ const PackingSlipDialog = ({
   viewOnly = false,
 }) => {
   const [filledForm, setFilledForm] = useState([]);
+  const [isSubmitting, setIsSubmitting] = useState(false);
   const apiRef = useGridApiRef();
 
   useEffect(() => {
@@ -36,7 +37,8 @@ const PackingSlipDialog = ({
     }
     return (
       filledForm.every((e) => e.packQty && e.packQty >= 0) &&
-      allHaveRouterUpload
+      allHaveRouterUpload &&
+      !isSubmitting
     );
   }
 
@@ -63,9 +65,14 @@ const PackingSlipDialog = ({
       titleText={title}
       onClose={onClose}
       onBackdropClick={onClose}
-      onSubmit={() => onSubmit(filledForm, orderNum, destination)}
+      onSubmit={async () => {
+        setIsSubmitting(true);
+        await onSubmit(filledForm, orderNum, destination);
+        setIsSubmitting(false);
+      }}
       submitDisabled={!isSubmittable()}
-      actions={actions}>
+      actions={actions}
+      isSubmitting={isSubmitting}>
       <DestinationToggle
         disabled={!!destination}
         destination={destination || DestinationTypes.CUSTOMER}
