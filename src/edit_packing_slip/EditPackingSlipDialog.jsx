@@ -16,7 +16,7 @@ const EditPackingSlipDialog = ({
   onUploadClick,
   onUploadCancelClick,
   onUploadRouterClick,
-  cellEditing = false,
+  isDisabled = false,
   viewOnly = true,
 }) => {
   return (
@@ -27,7 +27,7 @@ const EditPackingSlipDialog = ({
       }`}
       onClose={onClose}
       onSubmit={onSubmit}
-      submitDisabled={cellEditing}
+      submitDisabled={isDisabled}
       actions={viewOnly ? <DialogActions /> : undefined}>
       <DestinationToggle
         onDestinationChange={onDestinationChange}
