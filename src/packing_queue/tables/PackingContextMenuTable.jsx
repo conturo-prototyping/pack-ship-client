@@ -28,6 +28,16 @@ const PackingContextMenuTable = (OriginalTable) => {
 
     const enqueueSnackbar = usePackShipSnackbar();
 
+    function isDisabled() {
+      const allHaveRouterUploads = selectedRow.items?.every(
+        (e) => e.removeUpload
+      );
+
+      const allItemsHaveQtys = selectedRow.items?.every((e) => e?.qty < 0);
+
+      return allHaveRouterUploads || allItemsHaveQtys;
+    }
+
     const onHistoryPackingSlipAdd = useCallback(
       (pageNum) => {
         API.getPackingQueue().then((data) => {
@@ -409,6 +419,7 @@ const PackingContextMenuTable = (OriginalTable) => {
           onUploadClick={onUploadClick}
           onUploadCancelClick={onUploadCancelClick}
           onUploadRouterClick={onUploadRouterClick}
+          isDisabled={isDisabled()}
         />
         <ConfirmDialog
           title="Are You Sure You Want To Delete This?"
